@@ -2,15 +2,15 @@
 import { auth } from "../admin/admin";
 
 /**
- * Receive the {getTokenSilently} from auth0
+ * Receive the {getAccessTokenSilently} from auth0
  */
-exports.createCustomToken = (request: any, response: any) => {
+exports.getCustomToken = (request: any, response: any) => {
   const { sub: uid } = request.user;
 
-  const firebaseToken = auth
+  auth
     .createCustomToken(uid)
     .then((customToken) => {
-      response.json({ firebaseToken });
+      response.json({ firebaseToken: customToken });
     })
     .catch(function (error) {
       response.status(500).send({
@@ -21,29 +21,6 @@ exports.createCustomToken = (request: any, response: any) => {
     });
 };
 
-exports.createAuth0User = (request: any, response: any) => {
-  const { sub: uid } = request.user;
-
-  const firebaseToken = auth
-    .createCustomToken(uid)
-    .then((customToken) => {
-      console.log("logging firebase token");
-      console.log(firebaseToken);
-      console.log("logging custom token");
-      console.log(customToken);
-
-
-      auth.createUser
-      response.json({ firebaseToken });
-    })
-    .catch(function (error) {
-      response.status(500).send({
-        message: "Something went wrong acquiring a Firebase token.",
-        error: error,
-      });
-      console.log("Error creating custom token:", error);
-    });
-};
 
 exports.createTestUser = (request: any, response: any) => {
   auth
@@ -66,3 +43,4 @@ exports.createTestUser = (request: any, response: any) => {
       response.send("Error creating new user");
     });
 };
+
