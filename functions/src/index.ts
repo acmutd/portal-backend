@@ -4,6 +4,7 @@
 
 import * as functions from "firebase-functions";
 const authFunctions = require("./auth/auth");
+const divisionFunctions = require("./divisions/divisions");
 import app from './express';
 
 //this will match every call made to this api.
@@ -23,6 +24,8 @@ app.all((request: any, response: any, next: any) => {
 
 app.get("/getCustomToken", authFunctions.getCustomToken);
 app.post("/createTestUser", authFunctions.createTestUser);
+
+app.post("/createTestDivision", divisionFunctions.createTestDivision);
 
 
 exports.api = functions.https.onRequest(app);

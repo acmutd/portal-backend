@@ -4,7 +4,6 @@
  */
 
 import * as functions from "firebase-functions";
-const authFunctions = require("./auth/auth");
 
 const jwt = require("express-jwt");
 const jwksRsa = require("jwks-rsa");
