@@ -1,5 +1,7 @@
 import { firestore } from "../admin/admin";
+//const admin = require('firebase-admin')
 
+/** 
 let stuff;
 
 firestore
@@ -12,13 +14,15 @@ firestore
   .catch((error) => {
     //do nothing
   });
+  */
 
-exports.createTestDivision = (request: any, response: any) => {
+exports.createDivision = (request: any, response: any) => {
   const data = JSON.parse(request.body);
-  // Add a new document in collection "cities" with ID 'LA'
+  // Add a new document in collection "divisions"
   firestore
-    .collection("cities")
-    .add(data)
+    .collection("divisions")
+    .doc(data.docName)
+    .set(data)
     .then(() => {
       //success execution
       response.json(data); //sends a json
@@ -28,3 +32,91 @@ exports.createTestDivision = (request: any, response: any) => {
       response.send("You broke it");
     });
 };
+
+exports.updateDivision = (request: any, response: any) => {
+  const data = JSON.parse(request.body);
+  
+  //updates certain document 
+  firestore
+    .collection("divisions")
+    .doc(data.docName)
+    .update(data)
+    .then(() => {
+      //success execution
+      response.json(data); //sends a json
+    })
+    .catch((error: any) => {
+      //failure execution
+      response.send("You broke it");
+    });
+};
+
+
+exports.addStaffMember = (request: any, response: any) => {
+  const data = JSON.parse(request.body);
+
+  //user.sub to retrieve the uiud of specific user 
+  const uid = data[0]
+  const body = data[1]
+  
+  //updates certain document 
+  firestore
+    .collection("divisions")
+    .doc("hack-utd")
+    .update({
+       //staff: admin.firestore.FieldValue.arrayUnion(data)
+       ['staff.' + uid] : body
+    })
+    .then(() => {
+      //success execution
+      response.json(data); //sends a json
+    })
+    .catch((error: any) => {
+      //failure execution
+      response.send("You broke it");
+    });
+};
+
+exports.updateStaffMember = (request: any, response: any) => {
+  const data = JSON.parse(request.body);
+
+  const uid = data[0]
+  const body = data[1]
+  
+  //updates certain document 
+  firestore
+    .collection("divisions")
+    .doc("hack-utd")
+    .update({
+       //staff: admin.firestore.FieldValue.arrayUnion(data)
+       ['staff.' + uid] : body
+    })
+    .then(() => {
+      //success execution
+      response.json(data); //sends a json
+    })
+    .catch((error: any) => {
+      //failure execution
+      response.send("You broke it");
+    });
+};
+
+
+// exports.readDivision = (request: any, response: any) => {
+//   // const data = JSON.parse(request.body);
+
+//   firestore
+//     .collection("divisions")
+//     .doc()
+//     .get()
+//     .then(snap =>
+//       response.json(snap.data()))
+//     .catch((error: any) => {
+//       //failure execution
+//       response.send("You broke it");
+//     });
+// };
+  
+
+
+

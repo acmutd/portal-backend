@@ -25,7 +25,9 @@ app.all((request: any, response: any, next: any) => {
 app.get("/getCustomToken", authFunctions.getCustomToken);
 app.post("/createTestUser", authFunctions.createTestUser);
 
-app.post("/createTestDivision", divisionFunctions.createTestDivision);
-
+app.post("/createDivision", divisionFunctions.createDivision);
+app.post("/updateDivision", divisionFunctions.updateDivision);
+app.post("/addStaffMember", divisionFunctions.addStaffMember);
+app.post("/updateStaffMember", divisionFunctions.updateStaffMember);
 
 exports.api = functions.https.onRequest(app);
