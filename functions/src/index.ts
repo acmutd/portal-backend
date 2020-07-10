@@ -5,6 +5,7 @@
 import * as functions from "firebase-functions";
 const authFunctions = require("./auth/auth");
 const divisionFunctions = require("./divisions/divisions");
+const roleFunctions = require("./roles/roles");
 import app from './express';
 
 //this will match every call made to this api.
@@ -29,5 +30,9 @@ app.post("/createDivision", divisionFunctions.createDivision);
 app.post("/updateDivision", divisionFunctions.updateDivision);
 app.post("/addStaffMember", divisionFunctions.addStaffMember);
 app.post("/updateStaffMember", divisionFunctions.updateStaffMember);
+
+app.post("/createRole", roleFunctions.createRole);
+app.post("/updateRole", roleFunctions.updateRole); 
+app.post("/deleteRole", roleFunctions.deleteRole);
 
 exports.api = functions.https.onRequest(app);

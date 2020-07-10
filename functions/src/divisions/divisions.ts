@@ -51,6 +51,13 @@ exports.updateDivision = (request: any, response: any) => {
     });
 };
 
+/**
+ * Data type:
+ * const data = [ 'uid' , {
+      docName: "hack-utd",
+      title: "Director",
+    }];
+ */
 
 exports.addStaffMember = (request: any, response: any) => {
   const data = JSON.parse(request.body);
@@ -100,6 +107,8 @@ exports.updateStaffMember = (request: any, response: any) => {
       response.send("You broke it");
     });
 };
+
+
 
 
 // exports.readDivision = (request: any, response: any) => {
