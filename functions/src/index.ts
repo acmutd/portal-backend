@@ -34,6 +34,6 @@ app.post("/updateStaffMember", divisionFunctions.updateStaffMember);
 app.post("/createRole", roleFunctions.createRole);
 app.post("/updateRole", roleFunctions.updateRole); 
 app.post("/deleteRole", roleFunctions.deleteRole);
-app.post("/readRole", roleFunctions.readRole);
+
 
 exports.api = functions.https.onRequest(app);

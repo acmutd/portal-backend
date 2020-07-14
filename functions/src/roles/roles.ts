@@ -57,24 +57,4 @@ async function deleteRole(request: any, response: any) {
       }
 };
 
-async function readRole(request: any, response: any) {
-  const data = JSON.parse(request.body);
-    
-  // deletes a certain document
-      const docName = data[0]
-      try{
-        const rolesRef = firestore.collection("roles").doc(docName); 
-        const doc = await rolesRef.get(); 
-        if(!doc.exists){
-          response.json("document does not exist")
-        } 
-        else{
-          response.json(doc.data()); 
-        }
-      } catch(error){
-        response.json("you broke it")
-      }
-};
-  
-
-  export { createRole, updateRole, deleteRole, readRole }; 
+  export { createRole, updateRole, deleteRole }; 
