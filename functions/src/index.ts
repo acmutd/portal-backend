@@ -24,8 +24,9 @@ app.all("/", (request, response, next) => {
 
 app.get("/getCustomToken", authFunctions.getCustomToken);
 app.post("/createTestUser", authFunctions.createTestUser);
-app.get("/test-sentry", (req: Express.Request, res: Express.Response) => {
+app.get("/test-sentry", (req, res: any) => {
   throw new Error("testing sentry -harsha");
+  res.json("busy throwing a 500 internal server error");
 });
 
 export const HarshaApi = functions.https.onRequest(app);
