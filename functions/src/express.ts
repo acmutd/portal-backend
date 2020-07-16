@@ -4,17 +4,16 @@
  */
 
 import * as functions from "firebase-functions";
+import express from "express";
+import jwt from "express-jwt";
+import jwksRsa from "jwks-rsa";
+import cors from "cors";
 
-const jwt = require("express-jwt");
-const jwksRsa = require("jwks-rsa");
-const express = require("express");
-const cors = require("cors");
-const parser = require("body-parser");
 const app = express();
 
 app.use(cors({ origin: true }));
-app.use(parser.json());
-app.use(parser.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 const checkJwt = jwt({
   secret: jwksRsa.expressJwtSecret({

@@ -1,5 +1,4 @@
-
-import * as admin from "firebase-admin";
+import admin from "firebase-admin";
 
 /**
  * Initialize firebase admin sdk
@@ -11,4 +10,3 @@ const app = admin.initializeApp();
  */
 export const auth = app.auth();
 export const firestore = app.firestore();
-
