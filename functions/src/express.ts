@@ -7,17 +7,22 @@ import * as functions from "firebase-functions";
 import express from "express";
 import jwt from "express-jwt";
 import jwksRsa from "jwks-rsa";
-//import * as Sentry from "@sentry/node";
+import * as Sentry from "@sentry/node";
 import cors from "cors";
 
 const app = express();
 
 //setup sentry
-//if (functions.config().sentry && functions.config().sentry.dns) Sentry.init({ dsn: functions.config().sentry.dns });
+if (functions.config().sentry && functions.config().sentry.dns) Sentry.init({ dsn: functions.config().sentry.dns });
+
+// The request handler must be the first middleware on the app
+app.use(Sentry.Handlers.requestHandler());
 
 app.use(cors({ origin: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+// The error handler must be before any other error middleware and after all controllers
+app.use(Sentry.Handlers.errorHandler());
 
 const checkJwt = jwt({
   secret: jwksRsa.expressJwtSecret({
