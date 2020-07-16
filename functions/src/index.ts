@@ -5,6 +5,10 @@
 import * as functions from "firebase-functions";
 import * as authFunctions from "./auth/auth";
 import app from "./express";
+import * as Sentry from '@sentry/node';
+
+//setup sentry
+Sentry.init({ dsn: functions.config().sentry.dns });
 
 //this will match every call made to this api.
 app.all("/", (request, response, next) => {
