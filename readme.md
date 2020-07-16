@@ -6,7 +6,7 @@ API for accessing _ACM_ membership portal.
 
  - Clone the repo
  - Check if configuration variables are set using `firebase functions:config:get`
- - If the above command does not show the auth0 environment variables then run `firebase functions:config:set auth0.domain=<insert domain> auth0.clientid=<insert client id> auth0.audience=https://harshasrikara.com/api sentry.dns=<insert sentry dns>`
+ - If the above command does not show the auth0 environment variables then run `firebase functions:config:set auth0.domain=<insert domain> auth0.clientid=<insert client id> auth0.audience=https://harshasrikara.com/api sentry.dns=<OPTIONAL>`
  - `firebase deploy --only functions`
  - Use the portal front-end to test function calls after being authenticated through auth0
 
