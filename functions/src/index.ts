@@ -8,7 +8,7 @@ const authFunctions = require("./auth/auth");
 import app from './express';
 
 //setup sentry
-Sentry.init({ dsn: functions.config().sentry.dns });
+if(functions.config().sentry && functions.config().sentry.dns) Sentry.init({ dsn: functions.config().sentry.dns });
 
 //this will match every call made to this api.
 app.all((request: any, response: any, next: any) => {
