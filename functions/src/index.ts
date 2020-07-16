@@ -8,7 +8,7 @@ import app from "./express";
 import * as Sentry from '@sentry/node';
 
 //setup sentry
-Sentry.init({ dsn: functions.config().sentry.dns });
+if(functions.config().sentry && functions.config().sentry.dns) Sentry.init({ dsn: functions.config().sentry.dns });
 
 //this will match every call made to this api.
 app.all("/", (request, response, next) => {
