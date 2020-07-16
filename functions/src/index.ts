@@ -4,6 +4,7 @@
 
 import * as functions from "firebase-functions";
 import * as authFunctions from "./auth/auth";
+import * as Sentry from "@sentry/node";
 import app from "./express";
 import * as Sentry from '@sentry/node';
 
@@ -26,8 +27,15 @@ app.all("/", (request, response, next) => {
 app.get("/getCustomToken", authFunctions.getCustomToken);
 app.post("/createTestUser", authFunctions.createTestUser);
 app.get("/test-sentry", (req, res: any) => {
-  throw new Error("testing sentry -harsha");
-  res.json("busy throwing a 500 internal server error");
+  try {
+    throw new Error("testing sentry -harsha");
+  } catch (error) {
+    Sentry.captureException(error);
+    res.status(500).json({
+      error: error,
+      message: "busy throwing a 500 internal server error",
+    });
+  }
 });
 
 export const HarshaApi = functions.https.onRequest(app);
