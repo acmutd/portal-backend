@@ -7,9 +7,6 @@ import * as authFunctions from "./auth/auth";
 import app from "./express";
 import * as Sentry from '@sentry/node';
 
-//setup sentry
-if(functions.config().sentry && functions.config().sentry.dns) Sentry.init({ dsn: functions.config().sentry.dns });
-
 //this will match every call made to this api.
 app.all("/", (request, response, next) => {
   // check if the user has access to relevant permissions. If not then deny access
@@ -28,5 +25,8 @@ app.all("/", (request, response, next) => {
 
 app.get("/getCustomToken", authFunctions.getCustomToken);
 app.post("/createTestUser", authFunctions.createTestUser);
+app.get("/test-sentry", (req: Express.Request, res: Express.Response) => {
+  throw new Error("testing sentry -harsha");
+});
 
-export const api = functions.https.onRequest(app);
+export const HarshaApi = functions.https.onRequest(app);

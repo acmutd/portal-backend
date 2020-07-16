@@ -7,9 +7,13 @@ import * as functions from "firebase-functions";
 import express from "express";
 import jwt from "express-jwt";
 import jwksRsa from "jwks-rsa";
+//import * as Sentry from "@sentry/node";
 import cors from "cors";
 
 const app = express();
+
+//setup sentry
+//if (functions.config().sentry && functions.config().sentry.dns) Sentry.init({ dsn: functions.config().sentry.dns });
 
 app.use(cors({ origin: true }));
 app.use(express.json());
