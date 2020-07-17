@@ -3,12 +3,40 @@
 API for accessing _ACM_ membership portal.
 
 ### Quick Start
+- Clone the repo
+- Install `firebase-tools`
+```
+$ npm install -g firebase-tools
+```
+- Login to firebase
+```
+$ firebase login
+```
+#### Testing Locally
+- Set up admin credentials following the firebase [docs](https://firebase.google.com/docs/functions/local-emulator#set_up_admin_credentials_optional). The key should be saved at `functions/acm-core-service-account.json` and should not be tracked.
+- Output firebase configuration to local file. This file should also not be tracked.
+```
+$ firebase functions:config:get > functions/.runtimeconfig.json
+```
+- Deploy locally
+```
+$ npm run serve
+```
+⚠️ Pay attention to the warnings! Unless you are emulating other firebase services, your code can still affect production data.
+- Acquire a testing access_token for auth0 under Applications > Dev Testing API (Test Application) > Quick start.
 
- - Clone the repo
- - Check if configuration variables are set using `firebase functions:config:get`
- - If the above command does not show the auth0 environment variables then run `firebase functions:config:set auth0.domain=<insert domain> auth0.clientid=<insert client id> auth0.audience=https://harshasrikara.com/api`
- - `firebase deploy --only functions`
- - Use the portal front-end to test function calls after being authenticated through auth0
+- Finally, you can invoke a function (`exampleFunction`) locally either with an http client like curl or postman:
+```
+curl --request GET \
+  --url http://localhost:5001/acm-core/us-central1/api/exampleFunction \
+  --header 'authorization: Bearer token'
+```
+You can also use the [firebase functions shell](https://firebase.google.com/docs/functions/local-shell) if you prefer that.
+
+#### Deploying to production
+```
+$ npm run deploy
+```
 
 ### Extended Start Guide
 
