@@ -1,39 +1,29 @@
 import { firestore } from "../admin/admin";
 import { Response, Request } from "express";
 
+/**
+ * Create a new document in the collection "divisions"
+ * @param request
+ * @param response
+ */
 const createDivision = async (request: Request, response: Response): Promise<void> => {
   const data = JSON.parse(request.body);
-  // Add a new document in collection "divisions"
-  firestore
-    .collection("divisions")
-    .doc(data.docName)
-    .set(data)
-    .then(() => {
-      //success execution
-      response.json(data); //sends a json
-    })
-    .catch((error) => {
-      //failure execution
-      response.send(error);
-    });
+  try {
+    const result = await firestore.collection("divisions").doc(data.documentName).set(data);
+    response.json(result);
+  } catch (error) {
+    response.json(error);
+  }
 };
 
 const updateDivision = async (request: Request, response: Response): Promise<void> => {
   const data = JSON.parse(request.body);
-
-  //updates certain document
-  firestore
-    .collection("divisions")
-    .doc(data.docName)
-    .update(data)
-    .then(() => {
-      //success execution
-      response.json(data); //sends a json
-    })
-    .catch((error) => {
-      //failure execution
-      response.send(error);
-    });
+  try {
+    const result = await firestore.collection("divisions").doc(data.documentName).update(data);
+    response.json(result);
+  } catch (error) {
+    response.json(error);
+  }
 };
 
 /**

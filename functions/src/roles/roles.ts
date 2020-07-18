@@ -1,48 +1,27 @@
 import { firestore } from "../admin/admin";
-import admin from "firebase-admin";
 import { Response, Request } from "express";
 
 /**
  * Previous
  * Data object = ['docName string', 'permission string']
  */
-
 interface roleData {
   documentName: string;
-  permission: string;
+  permission?: string[];
 }
 
+/**
+ * Create a new role document
+ * @param request
+ * @param response
+ */
 const createRole = async (request: Request, response: Response): Promise<void> => {
   const data: roleData = JSON.parse(request.body);
-
-  const docName = data.documentName;
-  const permission = data.permission;
+  const permissions = data.permission || []; //permissions from front-end else empty array
   try {
-    const result = await firestore
-      .collection("roles")
-      .doc(docName)
-      .set({
-        permissions: admin.firestore.FieldValue.arrayUnion(permission),
-      });
-    response.json(result);
-  } catch (error) {
-    response.json(error);
-  }
-};
-
-const updateRole = async (request: Request, response: Response): Promise<void> => {
-  const data: roleData = JSON.parse(request.body);
-
-  // updates a new document in collection "roles"
-  const docName = data.documentName;
-  const permission = data.permission;
-  try {
-    const result = await firestore
-      .collection("roles")
-      .doc(docName)
-      .update({
-        permissions: admin.firestore.FieldValue.arrayUnion(permission),
-      });
+    const result = await firestore.collection("roles").doc(data.documentName).set({
+      permissions: permissions,
+    });
     response.json(result);
   } catch (error) {
     response.json(error);
@@ -50,16 +29,32 @@ const updateRole = async (request: Request, response: Response): Promise<void> =
 };
 
 /**
- * Data object = ['docName string', 'permission string']
+ * Update a role with a complete set of new permissions
+ * @param request
+ * @param response
  */
+const updateRole = async (request: Request, response: Response): Promise<void> => {
+  const data: roleData = JSON.parse(request.body);
+  const permissions = data.permission;
+  try {
+    const result = await firestore.collection("roles").doc(data.documentName).update({
+      permissions: permissions,
+    });
+    response.json(result);
+  } catch (error) {
+    response.json(error);
+  }
+};
 
+/**
+ * Delete a role document
+ * @param request
+ * @param response
+ */
 const deleteRole = async (request: Request, response: Response): Promise<void> => {
   const data: roleData = JSON.parse(request.body);
-
-  // deletes a certain document
-  const docName = data.documentName;
   try {
-    const result = await firestore.collection("roles").doc(docName).delete();
+    const result = await firestore.collection("roles").doc(data.documentName).delete();
     response.json(result);
   } catch (error) {
     response.json(error);
