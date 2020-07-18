@@ -29,7 +29,7 @@ $ npm run serve
 ```
 curl --request GET \
   --url http://localhost:5001/acm-core/us-central1/api/exampleFunction \
-  --header 'authorization: Bearer token'
+  --header 'Authorization: Bearer token'
 ```
 You can also use the [firebase functions shell](https://firebase.google.com/docs/functions/local-shell) if you prefer that.
 
