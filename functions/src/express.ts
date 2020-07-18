@@ -13,7 +13,7 @@ import cors from "cors";
 const app = express();
 
 //setup sentry
-if (functions.config().sentry && functions.config().sentry.dns) Sentry.init({ dsn: functions.config().sentry.dns });
+if (functions.config()?.sentry?.dns) Sentry.init({ dsn: functions.config().sentry.dns });
 
 // The request handler must be the first middleware on the app
 app.use(Sentry.Handlers.requestHandler());
@@ -34,7 +34,7 @@ const checkJwt = jwt({
 
   audience: functions.config().auth0.audience,
   issuer: `https://${functions.config().auth0.domain}/`,
-  algorithm: ["RS256"],
+  algorithms: ["RS256"],
 });
 //user must be authenticated on auth0 for the requests to go through
 app.use(checkJwt);

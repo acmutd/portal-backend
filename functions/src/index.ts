@@ -37,4 +37,4 @@ app.get("/test-sentry", (req, res: any) => {
   }
 });
 
-export const HarshaApi = functions.https.onRequest(app);
+export const api = functions.https.onRequest(app);
