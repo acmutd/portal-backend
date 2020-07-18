@@ -6,7 +6,6 @@ import * as functions from "firebase-functions";
 import * as authFunctions from "./auth/auth";
 import * as Sentry from "@sentry/node";
 import app from "./express";
-import * as Sentry from '@sentry/node';
 
 //this will match every call made to this api.
 app.all("/", (request, response, next) => {
@@ -38,4 +37,4 @@ app.get("/test-sentry", (req, res: any) => {
   }
 });
 
-export const HarshaApi = functions.https.onRequest(app);
+export const api = functions.https.onRequest(app);
