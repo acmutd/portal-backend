@@ -4,7 +4,7 @@
     "lint": "npx eslint .",
     "build": "tsc",
     "build:dev": "tsc --watch",
-    "serve": "concurrently -i \"firebase emulators:start --only functions\" \"npm run build:dev\"",
+    "serve": "concurrently -i \"firebase emulators:start\" \"npm run build:dev\"",
     "shell": "concurrently -i \"firebase functions:shell\" \"npm run build:dev\"",
     "start": "npm run shell",
     "deploy": "npm run build && firebase deploy --only functions",
