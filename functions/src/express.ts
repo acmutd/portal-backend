@@ -24,6 +24,9 @@ app.use(express.urlencoded({ extended: true }));
 // The error handler must be before any other error middleware and after all controllers
 app.use(Sentry.Handlers.errorHandler());
 
+// Automatically send uncaught exception errors to Sentry
+process.on("uncaughtException", err => Sentry.captureException(err));
+
 const checkJwt = jwt({
   secret: jwksRsa.expressJwtSecret({
     cache: true,
