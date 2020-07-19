@@ -25,7 +25,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(Sentry.Handlers.errorHandler());
 
 // Automatically send uncaught exception errors to Sentry
-process.on("uncaughtException", err => Sentry.captureException(err));
+process.on("uncaughtException", (err) => Sentry.captureException(err));
 
 const checkJwt = jwt({
   secret: jwksRsa.expressJwtSecret({
