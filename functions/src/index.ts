@@ -4,6 +4,7 @@
 
 import * as functions from "firebase-functions";
 import * as authFunctions from "./auth/auth";
+import * as Sentry from "@sentry/node";
 import app from "./express";
 
 //this will match every call made to this api.
@@ -24,5 +25,16 @@ app.all("/", (request, response, next) => {
 
 app.get("/getCustomToken", authFunctions.getCustomToken);
 app.post("/createTestUser", authFunctions.createTestUser);
+app.get("/test-sentry", (req, res: any) => {
+  try {
+    throw new Error("testing sentry -harsha");
+  } catch (error) {
+    Sentry.captureException(error);
+    res.status(500).json({
+      error: error,
+      message: "busy throwing a 500 internal server error",
+    });
+  }
+});
 
 export const api = functions.https.onRequest(app);
