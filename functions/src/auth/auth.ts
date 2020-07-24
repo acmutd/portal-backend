@@ -5,18 +5,14 @@ import { Response, Request } from "express";
  * Receive the {getAccessTokenSilently} from auth0
  */
 
-export async function getCustomToken(request: Request, response: Response): Promise<void> {
+export async function getCustomToken(request: Request, response: Response, next: (err?: Error) => void): Promise<void> {
   const { sub: uid } = request.user;
 
   try {
     const customToken = await auth.createCustomToken(uid);
     response.json({ firebaseToken: customToken });
   } catch (error) {
-    response.status(500).send({
-      message: "Something went wrong acquiring a Firebase token.",
-      error: error,
-    });
-    console.log("Error creating custom token:", error);
+    next(error);
   }
 }
 

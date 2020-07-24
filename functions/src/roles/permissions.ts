@@ -7,6 +7,8 @@ interface permissionData {
   permission: string;
 }
 
+const collectionName = "roles";
+
 /**
  * Add a single new permission to a role
  * @param request
@@ -17,7 +19,7 @@ const addPermission = async (request: Request, response: Response): Promise<void
 
   try {
     const result = await firestore
-      .collection("roles")
+      .collection(collectionName)
       .doc(data.documentName)
       .update({
         //   arrayUnion will add element to an array
@@ -39,7 +41,7 @@ const removePermission = async (request: Request, response: Response): Promise<v
 
   try {
     const result = await firestore
-      .collection("roles")
+      .collection(collectionName)
       .doc(data.documentName)
       .update({
         //   arrayRemove will remove element from an array
