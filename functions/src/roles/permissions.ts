@@ -1,7 +1,7 @@
 import { firestore } from "../admin/admin";
 import admin from "firebase-admin";
 import { Response, Request } from "express";
-
+import * as Sentry from "@sentry/node";
 interface permissionData {
   documentName: string;
   permission: string;
@@ -14,7 +14,7 @@ const collectionName = "roles";
  * @param request
  * @param response
  */
-const addPermission = async (request: Request, response: Response): Promise<void> => {
+export const addPermission = async (request: Request, response: Response): Promise<void> => {
   const data: permissionData = JSON.parse(request.body);
 
   try {
@@ -27,6 +27,7 @@ const addPermission = async (request: Request, response: Response): Promise<void
       });
     response.json(result);
   } catch (error) {
+    Sentry.captureException(error);
     response.status(500).json(error);
   }
 };
@@ -36,7 +37,7 @@ const addPermission = async (request: Request, response: Response): Promise<void
  * @param request
  * @param response
  */
-const removePermission = async (request: Request, response: Response): Promise<void> => {
+export const removePermission = async (request: Request, response: Response): Promise<void> => {
   const data: permissionData = JSON.parse(request.body);
 
   try {
@@ -49,8 +50,7 @@ const removePermission = async (request: Request, response: Response): Promise<v
       });
     response.json(result);
   } catch (error) {
+    Sentry.captureException(error);
     response.status(500).json(error);
   }
 };
-
-export { addPermission, removePermission };

@@ -6,7 +6,7 @@ import * as functions from "firebase-functions";
 import * as authFunctions from "./auth/auth";
 import * as divisionFunctions from "./divisions/divisions";
 import * as roleFunctions from "./roles/roles";
-import * as Sentry from "@sentry/node";
+import * as permissionFunctions from "./roles/permissions";
 import app from "./express";
 
 //this will match every call made to this api.
@@ -27,21 +27,14 @@ app.all("/", (request, response, next) => {
 
 app.get("/getCustomToken", authFunctions.getCustomToken);
 app.post("/createTestUser", authFunctions.createTestUser);
-app.get("/test-sentry", (req, res: any) => {
-  try {
-    throw new Error("testing sentry -harsha");
-  } catch (error) {
-    Sentry.captureException(error);
-    res.status(500).json({
-      error: error,
-      message: "busy throwing a 500 internal server error",
-    });
-  }
-});
 
-app.post("/createRole", roleFunctions.createRole);
-app.post("/updateRole", roleFunctions.updateRole);
-app.post("/deleteRole", roleFunctions.deleteRole);
+app.post("/createRole/:role", roleFunctions.createRole);
+app.put("/updateRole/:role", roleFunctions.updateRole);
+app.delete("/deleteRole/:role", roleFunctions.deleteRole);
+app.get("/getRole/:role", roleFunctions.getRole);
+
+app.post("/updateRole/:role/addPermission", permissionFunctions.addPermission);
+app.post("/updateRole/:role/removePermission", permissionFunctions.removePermission);
 
 app.post("/createDivision", divisionFunctions.createDivision);
 app.post("/updateDivision", divisionFunctions.updateDivision);

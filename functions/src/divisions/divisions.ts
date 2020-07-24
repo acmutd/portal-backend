@@ -1,4 +1,5 @@
 import { firestore } from "../admin/admin";
+import * as functions from "firebase-functions";
 import { Response, Request } from "express";
 
 /**
@@ -7,7 +8,8 @@ import { Response, Request } from "express";
  * @param response
  */
 const createDivision = async (request: Request, response: Response): Promise<void> => {
-  const data = JSON.parse(request.body);
+  const data = request.body;
+  functions.logger.log("Hello from info. Here's an object:", data);
   try {
     const result = await firestore.collection("divisions").doc(data.documentName).set(data);
     response.json(result);
