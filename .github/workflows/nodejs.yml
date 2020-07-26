@@ -1,0 +1,58 @@
+name: ACM API Continuous Integration
+env:
+  REACT_APP_AUTH0_DOMAIN: ${{ secrets.REACT_APP_AUTH0_DOMAIN }}
+  REACT_APP_AUTH0_CLIENTID: ${{ secrets.REACT_APP_AUTH0_CLIENTID }}
+  REACT_APP_AUTH0_AUDIENCE: ${{ secrets.REACT_APP_AUTH0_AUDIENCE }}
+
+on:
+  push:
+    branches:
+      - master
+      - dev
+  pull_request:
+    branches:
+      - master
+      - dev
+
+jobs:
+  build:
+    name: Clean install, build and test
+
+    #timeout-minutes: 10 #fail if the process takes >10 minutes
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [10.x] #test on 10.x to match firebase deployment environment
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: cd functions/
+      - run: npm ci #clean install
+      - run: npm run build --if-present #same as npm run build
+      - run: npm test #run jest & enzyme testing for application
+  
+  #automated deployment to firebase (if the build passes)
+  deploy:
+    name: Firebase deployment script
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [10.x] #will add 12.x later
+    
+    steps:
+      - uses: actions/checkout@v2
+      - name: Deploy to firebase environment with Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - runs: cd functions/
+      - runs: echo "deploying to firebase... (but like not really)"
+      # - runs: npm run deploy
