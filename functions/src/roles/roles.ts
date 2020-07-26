@@ -7,7 +7,7 @@ import * as Sentry from "@sentry/node";
  * Data object = ['docName string', 'permission string']
  */
 interface roleData {
-  permission?: string[];
+  permissions?: string[];
 }
 
 const collectionName = "roles";
@@ -18,9 +18,15 @@ const collectionName = "roles";
  * @param response
  */
 export const createRole = async (request: Request, response: Response): Promise<void> => {
-  const data: roleData = JSON.parse(request.body);
-  const permissions = data.permission || []; //permissions from front-end else empty array
+  const data: roleData = request.body;
+  const permissions = data.permissions || []; //permissions from front-end else empty array
   try {
+    //extra read has negligible effect because this endpoint will not be called often
+    const res = await firestore.collection(collectionName).doc(request.params.role).get();
+    //check if role already exists
+    if (res.exists) {
+      throw new Error("role already exists");
+    }
     const result = await firestore.collection(collectionName).doc(request.params.role).set({
       permissions: permissions,
     });
@@ -43,8 +49,8 @@ export const createRole = async (request: Request, response: Response): Promise<
  * @param response
  */
 export const updateRole = async (request: Request, response: Response): Promise<void> => {
-  const data: roleData = JSON.parse(request.body);
-  const permissions = data.permission;
+  const data: roleData = request.body;
+  const permissions = data.permissions;
   try {
     const result = await firestore.collection(collectionName).doc(request.params.role).update({
       permissions: permissions,
@@ -93,12 +99,38 @@ export const getRole = async (request: Request, response: Response): Promise<voi
     const result = await firestore.collection(collectionName).doc(request.params.role).get();
     response.json({
       message: "Successful execution of getRole",
-      result: result,
+      result: result.data(),
     });
   } catch (error) {
     Sentry.captureException(error);
     response.json({
       message: "Unsuccessful execution of getRole",
+      error: error,
+    });
+  }
+};
+
+/**
+ * Return an array of all documents in the roles collection
+ * @param request
+ * @param response
+ */
+export const getAllRoles = async (request: Request, response: Response): Promise<void> => {
+  try {
+    const result = await (await firestore.collection(collectionName).get()).docs.map((document) => {
+      return {
+        id: document.id,
+        ...document.data(),
+      };
+    });
+    response.json({
+      message: "Successful execution of getAllRoles",
+      result: result,
+    });
+  } catch (error) {
+    Sentry.captureException(error);
+    response.json({
+      message: "Unsuccessful execution of getAllRoles",
       error: error,
     });
   }

@@ -28,18 +28,28 @@ app.all("/", (request, response, next) => {
 app.get("/getCustomToken", authFunctions.getCustomToken);
 app.post("/createTestUser", authFunctions.createTestUser);
 
+/**
+ * API will error out if the role is not present.
+ * For create role it will error if the role is already present
+ */
 app.post("/createRole/:role", roleFunctions.createRole);
 app.put("/updateRole/:role", roleFunctions.updateRole);
 app.delete("/deleteRole/:role", roleFunctions.deleteRole);
 app.get("/getRole/:role", roleFunctions.getRole);
+app.get("/getRoles", roleFunctions.getAllRoles);
 
+/**
+ * Granular permissions management
+ */
 app.post("/updateRole/:role/addPermission", permissionFunctions.addPermission);
 app.post("/updateRole/:role/removePermission", permissionFunctions.removePermission);
 
+/**
+ * Operate on divisions
+ */
 app.post("/createDivision", divisionFunctions.createDivision);
 app.post("/updateDivision", divisionFunctions.updateDivision);
 app.post("/addStaffMember", divisionFunctions.addStaffMember);
 app.post("/updateStaffMember", divisionFunctions.updateStaffMember);
-app.get("/readDivision", divisionFunctions.readDivision);
 
 export const api = functions.https.onRequest(app);
