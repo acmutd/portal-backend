@@ -47,9 +47,7 @@ app.post("/updateRole/:role/removePermission", permissionFunctions.removePermiss
 /**
  * Operate on divisions
  */
-app.post("/createDivision", divisionFunctions.createDivision);
-app.post("/updateDivision", divisionFunctions.updateDivision);
-app.post("/addStaffMember", divisionFunctions.addStaffMember);
-app.post("/updateStaffMember", divisionFunctions.updateStaffMember);
+app.post("/:division/setStaffMember", divisionFunctions.setStaffMember);
+app.get("/:division/getAllStaff", divisionFunctions.getAllStaff);
 
 export const api = functions.https.onRequest(app);

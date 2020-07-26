@@ -25,7 +25,7 @@ export const createRole = async (request: Request, response: Response): Promise<
     const res = await firestore.collection(collectionName).doc(request.params.role).get();
     //check if role already exists
     if (res.exists) {
-      throw new Error("role already exists");
+      throw new Error(`role ${request.params.role} already exists`);
     }
     const result = await firestore.collection(collectionName).doc(request.params.role).set({
       permissions: permissions,
@@ -38,7 +38,7 @@ export const createRole = async (request: Request, response: Response): Promise<
     Sentry.captureException(error);
     response.json({
       message: "Unsuccessful execution of createRole",
-      error: error,
+      error: error?.message,
     });
   }
 };
@@ -117,7 +117,7 @@ export const getRole = async (request: Request, response: Response): Promise<voi
  */
 export const getAllRoles = async (request: Request, response: Response): Promise<void> => {
   try {
-    const result = await (await firestore.collection(collectionName).get()).docs.map((document) => {
+    const result = (await firestore.collection(collectionName).get()).docs.map((document) => {
       return {
         id: document.id,
         ...document.data(),
