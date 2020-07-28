@@ -6,13 +6,9 @@ env:
 
 on:
   push:
-    branches:
-      - master
-      - dev
+    branches: [dev, master]
   pull_request:
-    branches:
-      - master
-      - dev
+    branches: [dev, master]
 
 jobs:
   build:
@@ -36,7 +32,7 @@ jobs:
       - run: npm ci #clean install
       - run: npm run build --if-present #same as npm run build
       - run: npm test #run jest & enzyme testing for application
-  
+
   #automated deployment to firebase (if the build passes)
   deploy:
     name: Firebase deployment script
@@ -46,7 +42,7 @@ jobs:
     strategy:
       matrix:
         node-version: [10.x] #will add 12.x later
-    
+
     steps:
       - uses: actions/checkout@v2
       - name: Deploy to firebase environment with Node.js ${{ matrix.node-version }}
