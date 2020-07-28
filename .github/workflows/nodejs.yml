@@ -25,7 +25,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+      - uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
       - run: cd functions/
@@ -46,9 +46,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Deploy to firebase environment with Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+      - uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - runs: cd functions/
-      - runs: echo "deploying to firebase... (but like not really)"
+      - run: cd functions/
+      - run: echo "deploying to firebase... (but like not really)"
       # - runs: npm run deploy
