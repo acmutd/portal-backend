@@ -1,30 +1,24 @@
-
 import { auth } from "../admin/admin";
+import { Response, Request } from "express";
 
 /**
  * Receive the {getAccessTokenSilently} from auth0
  */
-exports.getCustomToken = (request: any, response: any) => {
+
+export async function getCustomToken(request: Request, response: Response, next: (err?: Error) => void): Promise<void> {
   const { sub: uid } = request.user;
 
-  auth
-    .createCustomToken(uid)
-    .then((customToken) => {
-      response.json({ firebaseToken: customToken });
-    })
-    .catch(function (error) {
-      response.status(500).send({
-        message: "Something went wrong acquiring a Firebase token.",
-        error: error,
-      });
-      console.log("Error creating custom token:", error);
-    });
-};
+  try {
+    const customToken = await auth.createCustomToken(uid);
+    response.json({ firebaseToken: customToken });
+  } catch (error) {
+    next(error);
+  }
+}
 
-
-exports.createTestUser = (request: any, response: any) => {
-  auth
-    .createUser({
+export async function createTestUser(request: Request, response: Response): Promise<void> {
+  try {
+    const userRecord = await auth.createUser({
       email: "user@example.com",
       emailVerified: false,
       phoneNumber: "+11234567890",
@@ -32,15 +26,13 @@ exports.createTestUser = (request: any, response: any) => {
       displayName: "John Doe",
       photoURL: "http://www.example.com/12345678/photo.png",
       disabled: false,
-    })
-    .then(function (userRecord) {
-      // See the UserRecord reference doc for the contents of userRecord.
-      console.log("Successfully created new user:", userRecord.uid);
-      response.json(userRecord.toJSON());
-    })
-    .catch(function (error) {
-      console.log("Error creating new user:", error);
-      response.send("Error creating new user");
     });
-};
 
+    // See the UserRecord reference doc for the contents of userRecord.
+    console.log("Successfully created new user:", userRecord.uid);
+    response.json(userRecord.toJSON());
+  } catch (error) {
+    console.log("Error creating new user:", error);
+    response.send("Error creating new user");
+  }
+}

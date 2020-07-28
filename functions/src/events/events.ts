@@ -39,112 +39,189 @@
 
 import { firestore } from "../admin/admin";
 
+type stats = {
+  likes: string[],
+  rsvp: string[], 
+  showedUp: number, 
+  stayed: number
+}
+
+type dates = {  
+  startTime: Date; //admin.firestore.Timestamp;
+  endTime: Date;
+}
+
+type address = {
+  fullAddress: string;
+  fullStreet: string;
+  streetNum: string;
+  street: string;
+  city: string;
+  state: string;
+  country: string;
+  zip: number;
+}
+
+type location = {
+  geo: Geolocation; //admin.firestore.GeoPoint
+  address: address;
+}
+
 interface event {
     title: string;
     description: string;
-    instructions: [];
+    instructions: string[];
     host: number;
     active: boolean;
-    tags: [];
-    category: [];
+    dates: dates;
+    tags: string[];
+    category: string[];
     online: boolean;
-    stats: {"likes" : [], "rsvp" : [], "showedUp" : number, "stayed" : number};
-    dates: {};
-    location: {"geo" : [], "address": { "fullAddress" : string
-                                        "fullStreet" : string
-                                        "streetNum" : number
-                                        "street" : string
-                                        "city" : string
-                                        "state" : string
-                                        "zip" : number
-                                        "country" : string
-                                       }
-    }
-    
+    stats: stats;
+    location: location;
 }
+    
 
-exports.createEvent = async (request: any, response: any) => {
-    const data = JSON.parse(request.body);
-    firestore
-        .collection("events")
-        .doc(data.docName)
+export const createEvent = async (request: Request, response: Response): Promise<void> => {
+    const data: event = request.body;
+    try {
+      const result = await firestore
+        .collection("event")
+        .doc(request.body.event)
         .set(data)
         .then(() => {
             response.json(data);
-        })
-        .catch((error: any) => {
-            response.send("Error creating event")
+        });
+        response.json({
+          message: "Successful execution of createEvent",
+          result: result,
+        });
+    } catch (error) {
+      Sentry.captureException(error);
+      response.json({
+        message: "Unsuccessful execution of createEvent",
+        error: error?.message,
     });
+  }
 };
 
-exports.getEvent = async (request: any, response: any) => {
-    await firestore
-      .collection("events")
-      .doc(request.params.event)
-      .get()
-      .then((data) => {
-        response.json(data);
-      })
-      .catch((error: any) => {
-        response.send("Event not found");
+export const getEvent = async (request: Request, response: Response) => {
+    const data: event = request.body;
+    try {
+      const result = await firestore
+        .collection("event")
+        .doc(request.body.event)
+        .get()
+        .then(() => {
+            response.json(data);
+        });
+        response.json({
+          message: "Successful execution of getEvent",
+          result: result,
+        });
+    } catch (error) {
+      Sentry.captureException(error);
+      response.json({
+        message: "Unsuccessful execution of getEvent",
+        error: error,
     });
+  }
 };
 
-exports.deleteEvent = async (request: any, response: any) => {
-    await firestore
-      .collection("events")
-      .doc(request.params.events)
-      .delete()
-      .then(() => {
-        response.json("Event deleted");
-      })
-      .catch((error: any) => {
-        response.send("Error deleting event");
+export const deleteEvent = async (request: Request, response: Response) => {
+    const data: event = request.body;
+    try {
+      const result = await firestore
+        .collection("event")
+        .doc(request.params.event)
+        .delete()
+        .then(() => {
+            response.json(data);
+        });
+        response.json({
+          message: "Successful execution of deleteEvent",
+          result: result,
+        });
+    } catch (error) {
+      Sentry.captureException(error);
+      response.json({
+        message: "Unsuccessful execution of deleteEvent",
+        error: error,
     });
+  }    
 };
 
 
-exports.getLocation = async (request: any, response: any) => {
-    await firestore
-      .collection("event")
-      .doc(request.params.event)
-      .collection("location")
-      .doc(request.params.event)
-      .get()
-      .then(() => {
-        response.json("Event location retrieved"); 
-      })
-      .catch((error: any) => {
-        response.send("Error getting event location");
+export const getLocation = async (request: Request, response: Response) => {
+    const data: event = request.body;
+    try {
+      const result = await firestore
+        .collection("event")
+        .doc(request.body.event)
+        .collection("location")
+        .doc(request.params.event)
+        .get()
+        .then(() => {
+            response.json(data);
+        });
+        response.json({
+          message: "Successful execution of getLocation",
+          result: result,
+        });
+    } catch (error) {
+      Sentry.captureException(error);
+      response.json({
+        message: "Unsuccessful execution of getLocation",
+        error: error,
     });
+  }
 };
 
-exports.updateLocation = async (request: any, response: any) => {
-    const data = JSON.parse(request.body);
-    await firestore
-      .collection("event")
-      .doc(request.location)
-      .update(data)
-      .then(() => {
-        response.json("Event location updated"); 
-      })
-      .catch((error: any) => {
-        response.send("Error updating event");
+export const updateLocation = async (request: Request, response: Response) => {
+    const data: event = request.body;
+    try {
+      const result = await firestore
+        .collection("events")
+        .doc(request.event).collection("location").doc(request.event)
+        .update(data)
+        .then(() => {
+            response.json(data);
+        });
+        response.json({
+          message: "Successful execution of updateLocation",
+          result: result,
+        });
+    } catch (error) {
+      Sentry.captureException(error);
+      response.json({
+        message: "Unsuccessful execution of updateLocation",
+        error: error,
     });
+  }
 };
 
-exports.getStats = async (request: any, response: any) => {
-    await firestore
-      .collection("event")
-      .doc(request.params.event)
-      .collection("stats")
-      .doc(request.params.event)
-      .get()
-      .then(() => {
-        response.json("Event stats retrieved"); 
-      })
-      .catch((error: any) => {
-        response.send("Error getting event stats");
+export const getStats = async (request: Request, response: Response) => {
+    const data: event = request.body;
+    try {
+      const result = await firestore
+        .collection("event")
+        .doc(request.params.events)
+        .collection("stats")
+        .doc(request.params.event)
+        .get()
+        .then(() => {
+            response.json(data);
+        });
+        response.json({
+          message: "Successful execution of getStats",
+          result: result,
+        });
+    } catch (error) {
+      Sentry.captureException(error);
+      response.json({
+        message: "Unsuccessful execution of getStats",
+        error: error,
     });
+  }
 };
 

@@ -3,18 +3,25 @@
  */
 
 import * as functions from "firebase-functions";
+<<<<<<< HEAD
 const authFunctions = require("./auth/auth");
 const divisionFunctions = require("./divisions/divisions");
 const eventFunctions = require("./events/events");
 import app from './express';
+=======
+import * as authFunctions from "./auth/auth";
+import * as Sentry from "@sentry/node";
+import app from "./express";
+>>>>>>> origin
 
 //this will match every call made to this api.
-app.all((request: any, response: any, next: any) => {
+app.all("/", (request, response, next) => {
   // check if the user has access to relevant permissions. If not then deny access
   // this function may end up pretty complex and need to be moved into a separate file under ./auth/verifyPermissions.ts
   // an alternative simpler way is to ensure that only requests that are validated on the front-end come through
   // if there is no way to call the api through the front end then is this additional check required?
   // we will likely have a separate auth0 production client id to ensure that just cloning & running the repo will not suffice
+  // eslint-disable-next-line
   if (false) {
     response.send("Unauthorized! Access Denied");
   }
@@ -25,7 +32,19 @@ app.all((request: any, response: any, next: any) => {
 
 app.get("/getCustomToken", authFunctions.getCustomToken);
 app.post("/createTestUser", authFunctions.createTestUser);
+app.get("/test-sentry", (req, res: any) => {
+  try {
+    throw new Error("testing sentry -harsha");
+  } catch (error) {
+    Sentry.captureException(error);
+    res.status(500).json({
+      error: error,
+      message: "busy throwing a 500 internal server error",
+    });
+  }
+});
 
+<<<<<<< HEAD
 app.post("/createTestDivision", divisionFunctions.createTestDivision);
 
 app.post("/createEvent", eventFunctions.createEvent);
@@ -37,3 +56,6 @@ app.post("/updateLocation", eventFunctions.updateLocation);
 app.post("/getStats", eventFunctions.getStats);
 
 exports.api = functions.https.onRequest(app);
+=======
+export const api = functions.https.onRequest(app);
+>>>>>>> origin
