@@ -4,7 +4,9 @@
 
 import * as functions from "firebase-functions";
 import * as authFunctions from "./auth/auth";
-import * as Sentry from "@sentry/node";
+import * as divisionFunctions from "./divisions/divisions";
+import * as roleFunctions from "./roles/roles";
+import * as permissionFunctions from "./roles/permissions";
 import app from "./express";
 
 //this will match every call made to this api.
@@ -25,16 +27,27 @@ app.all("/", (request, response, next) => {
 
 app.get("/getCustomToken", authFunctions.getCustomToken);
 app.post("/createTestUser", authFunctions.createTestUser);
-app.get("/test-sentry", (req, res: any) => {
-  try {
-    throw new Error("testing sentry -harsha");
-  } catch (error) {
-    Sentry.captureException(error);
-    res.status(500).json({
-      error: error,
-      message: "busy throwing a 500 internal server error",
-    });
-  }
-});
+
+/**
+ * API will error out if the role is not present.
+ * For create role it will error if the role is already present
+ */
+app.post("/createRole/:role", roleFunctions.createRole);
+app.put("/updateRole/:role", roleFunctions.updateRole);
+app.delete("/deleteRole/:role", roleFunctions.deleteRole);
+app.get("/getRole/:role", roleFunctions.getRole);
+app.get("/getRoles", roleFunctions.getAllRoles);
+
+/**
+ * Granular permissions management
+ */
+app.post("/updateRole/:role/addPermission", permissionFunctions.addPermission);
+app.post("/updateRole/:role/removePermission", permissionFunctions.removePermission);
+
+/**
+ * Operate on divisions
+ */
+app.post("/:division/setStaffMember", divisionFunctions.setStaffMember);
+app.get("/:division/getAllStaff", divisionFunctions.getAllStaff);
 
 export const api = functions.https.onRequest(app);
