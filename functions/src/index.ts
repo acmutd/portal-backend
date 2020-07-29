@@ -3,16 +3,12 @@
  */
 
 import * as functions from "firebase-functions";
-<<<<<<< HEAD
-const authFunctions = require("./auth/auth");
-const divisionFunctions = require("./divisions/divisions");
-const eventFunctions = require("./events/events");
 import app from './express';
-=======
 import * as authFunctions from "./auth/auth";
-import * as Sentry from "@sentry/node";
-import app from "./express";
->>>>>>> origin
+import * as divisionFunctions from "./divisions/divisions";
+import * as roleFunctions from "./roles/roles";
+import * as permissionFunctions from "./roles/permissions";
+import * as eventFunctions from "./events/events";
 
 //this will match every call made to this api.
 app.all("/", (request, response, next) => {
@@ -32,30 +28,33 @@ app.all("/", (request, response, next) => {
 
 app.get("/getCustomToken", authFunctions.getCustomToken);
 app.post("/createTestUser", authFunctions.createTestUser);
-app.get("/test-sentry", (req, res: any) => {
-  try {
-    throw new Error("testing sentry -harsha");
-  } catch (error) {
-    Sentry.captureException(error);
-    res.status(500).json({
-      error: error,
-      message: "busy throwing a 500 internal server error",
-    });
-  }
-});
+app.post("/createEvent/:event", eventFunctions.createEvent);
+app.post("/getEvent/:event", eventFunctions.getEvent);
+app.post("/updateEvent/:event", eventFunctions.updateEvent);
+app.post("/deleteEvent/:event", eventFunctions.deleteEvent);
+app.post("/updateLocation/:event", eventFunctions.updateLocation);
 
-<<<<<<< HEAD
-app.post("/createTestDivision", divisionFunctions.createTestDivision);
+/**
+ * API will error out if the role is not present.
+ * For create role it will error if the role is already present
+ */
+app.post("/createRole/:role", roleFunctions.createRole);
+app.put("/updateRole/:role", roleFunctions.updateRole);
+app.delete("/deleteRole/:role", roleFunctions.deleteRole);
+app.get("/getRole/:role", roleFunctions.getRole);
+app.get("/getRoles", roleFunctions.getAllRoles);
 
-app.post("/createEvent", eventFunctions.createEvent);
-app.post("/getEvent", eventFunctions.getEvent);
-app.post("/updateEvent", eventFunctions.updateEvent);
-app.post("/deleteEvent", eventFunctions.deleteEvent);
-app.post("/getLocation", eventFunctions.getLocation);
-app.post("/updateLocation", eventFunctions.updateLocation);
-app.post("/getStats", eventFunctions.getStats);
+/**
+ * Granular permissions management
+ */
+app.post("/updateRole/:role/addPermission", permissionFunctions.addPermission);
+app.post("/updateRole/:role/removePermission", permissionFunctions.removePermission);
 
-exports.api = functions.https.onRequest(app);
-=======
+/**
+ * Operate on divisions
+ */
+app.post("/:division/setStaffMember", divisionFunctions.setStaffMember);
+app.get("/:division/getAllStaff", divisionFunctions.getAllStaff);
+
 export const api = functions.https.onRequest(app);
->>>>>>> origin
+

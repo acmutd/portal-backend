@@ -4,15 +4,13 @@
  */
 
 import * as functions from "firebase-functions";
-<<<<<<< HEAD
-=======
 import express from "express";
 import jwt from "express-jwt";
 import jwksRsa from "jwks-rsa";
 import * as Sentry from "@sentry/node";
 import cors from "cors";
+import * as bodyParser from "body-parser";
 import { Response, Request } from "express";
->>>>>>> origin
 
 const app = express();
 
@@ -23,8 +21,9 @@ if (functions.config()?.sentry?.dns) Sentry.init({ dsn: functions.config().sentr
 app.use(Sentry.Handlers.requestHandler());
 
 app.use(cors({ origin: true }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
 // The error handler must be before any other error middleware and after all controllers
 app.use(Sentry.Handlers.errorHandler());
 
