@@ -180,6 +180,7 @@ export const updateEvent = async (request: Request, response: Response) => {
 
 export const updateLocation = async (request: Request, response: Response) => {
   const data: event = request.body;
+  if (!validateData(data)) response.send("invalid data");
   try {
     const result = await firestore
       .collection("events")
@@ -219,29 +220,11 @@ function validateData(event: event) {
     if (typeof item == "string") return false;
   })
 
-  /*event.location.address.map((item) => {
+  event.location.address.map((item) => {
     if (typeof item == "string") return false;
   })
+	
   return true;
-  */
-
-        /*Online: boolean
-        Stats: {
-            Likes: []
-            Rsvp: []
-            people_who_showed_up:
-        people_who_stayed_till_the_end:
-        }
-
-        Address: {
-            fullAddress: string,
-            fullStreet: string,
-            streetNum: string,
-            Street: string,
-            City: string,
-            State: string?,
-            Country: String
-        }*/
 }
 
 
