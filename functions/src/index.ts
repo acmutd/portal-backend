@@ -32,22 +32,22 @@ app.post("/createTestUser", authFunctions.createTestUser);
  * API will error out if the role is not present.
  * For create role it will error if the role is already present
  */
-app.post("/createRole/:role", roleFunctions.createRole);
-app.put("/updateRole/:role", roleFunctions.updateRole);
-app.delete("/deleteRole/:role", roleFunctions.deleteRole);
-app.get("/getRole/:role", roleFunctions.getRole);
-app.get("/getRoles", roleFunctions.getAllRoles);
+app.post("/role/:role", roleFunctions.createRole);
+app.put("/role/:role", roleFunctions.updateRole);
+app.delete("/role/:role", roleFunctions.deleteRole);
+app.get("/role/:role", roleFunctions.getRole);
+app.get("/role", roleFunctions.getAllRoles);
 
 /**
  * Granular permissions management
  */
-app.post("/updateRole/:role/addPermission", permissionFunctions.addPermission);
-app.post("/updateRole/:role/removePermission", permissionFunctions.removePermission);
+app.post("/role/:role/addPermission", permissionFunctions.addPermission);
+app.post("/role/:role/removePermission", permissionFunctions.removePermission);
 
 /**
  * Operate on divisions
  */
-app.post("/:division/setStaffMember", divisionFunctions.setStaffMember);
-app.get("/:division/getAllStaff", divisionFunctions.getAllStaff);
+app.post("/division/:division", divisionFunctions.setStaffMember);
+app.get("/division/:division", divisionFunctions.getAllStaff);
 
 export const api = functions.https.onRequest(app);
