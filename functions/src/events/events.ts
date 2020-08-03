@@ -42,16 +42,16 @@ import { Response, Request } from "express";
 import * as Sentry from "@sentry/node";
 
 type stats = {
-  likes: string[],
-  rsvp: string[],
-  showedUp: number,
-  stayed: number
-}
+  likes: string[];
+  rsvp: string[];
+  showedUp: number;
+  stayed: number;
+};
 
 type dates = {
   startTime: string; //Date; //admin.firestore.Timestamp;
   endTime: string; //Date;
-}
+};
 
 type address = {
   fullAddress: string;
@@ -61,12 +61,12 @@ type address = {
   city: string;
   state: string;
   country: string;
-}
+};
 
 type location = {
   geo: Geolocation; //admin.firestore.GeoPoint
   address: address;
-}
+};
 
 interface event {
   title: string;
@@ -82,17 +82,13 @@ interface event {
   location: location;
 }
 
-
 export const createEvent = async (request: Request, response: Response): Promise<void> => {
   const data: event = request.body;
   try {
-    const result = await firestore
-      .collection("event")
-      .doc(request.body.event)
-      .set(data)
-      .then(() => {
-        response.json(data);
-      });
+    if (!validateData(data)) {
+      throw new Error(`event ${request.params.event} has invalid data format`);
+    }
+    const result = await firestore.collection("event").doc(request.params.event).set(data);
     response.json({
       message: "Successful execution of createEvent",
       result: result,
@@ -106,7 +102,7 @@ export const createEvent = async (request: Request, response: Response): Promise
   }
 };
 
-export const getEvent = async (request: Request, response: Response) => {
+export const getEvent = async (request: Request, response: Response): Promise<void> => {
   const data: event = request.body;
   try {
     const result = await firestore
@@ -129,7 +125,7 @@ export const getEvent = async (request: Request, response: Response) => {
   }
 };
 
-export const deleteEvent = async (request: Request, response: Response) => {
+export const deleteEvent = async (request: Request, response: Response): Promise<void> => {
   const data: event = request.body;
   try {
     const result = await firestore
@@ -152,7 +148,7 @@ export const deleteEvent = async (request: Request, response: Response) => {
   }
 };
 
-export const updateEvent = async (request: Request, response: Response) => {
+export const updateEvent = async (request: Request, response: Response): Promise<void> => {
   const data: event = request.body;
   if (!validateData(data)) response.send("invalid data");
 
@@ -177,14 +173,15 @@ export const updateEvent = async (request: Request, response: Response) => {
   }
 };
 
-
-export const updateLocation = async (request: Request, response: Response) => {
+export const updateLocation = async (request: Request, response: Response): Promise<void> => {
   const data: event = request.body;
   if (!validateData(data)) response.send("invalid data");
   try {
     const result = await firestore
       .collection("events")
-      .doc(request.params.event).collection("location").doc(request.params.event)
+      .doc(request.params.event)
+      .collection("location")
+      .doc(request.params.event)
       .update(data)
       .then(() => {
         response.json(data);
@@ -212,19 +209,13 @@ function validateData(event: event) {
   }
   for (let i = 0; i < event.tags.length; i++) {
     if (event.tags[i] !== undefined && !(typeof event.tags[i] == "string")) return false;
-  }  
+  }
   for (let i = 0; i < event.category.length; i++) {
     if (event.category[i] !== undefined && !(typeof event.category[i] == "string")) return false;
   }
   event.stats.likes.map((item) => {
     if (typeof item == "string") return false;
-  })
+  });
 
-  event.location.address.map((item) => {
-    if (typeof item == "string") return false;
-  })
-	
   return true;
 }
-
-

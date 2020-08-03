@@ -3,7 +3,7 @@
  */
 
 import * as functions from "firebase-functions";
-import app from './express';
+import app from "./express";
 import * as authFunctions from "./auth/auth";
 import * as divisionFunctions from "./divisions/divisions";
 import * as roleFunctions from "./roles/roles";
@@ -56,5 +56,12 @@ app.post("/updateRole/:role/removePermission", permissionFunctions.removePermiss
 app.post("/:division/setStaffMember", divisionFunctions.setStaffMember);
 app.get("/:division/getAllStaff", divisionFunctions.getAllStaff);
 
-export const api = functions.https.onRequest(app);
+/**
+ * Operate on events
+ */
+app.post("/event/:event", eventFunctions.createEvent);
+app.put("/event/:event", eventFunctions.updateEvent);
+app.delete("/event/:event", eventFunctions.deleteEvent);
+app.get("/event/:event", eventFunctions.getEvent);
 
+export const api = functions.https.onRequest(app);
