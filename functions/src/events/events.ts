@@ -1,45 +1,8 @@
-/**
- * Events
-    Workshop 14
-        Title
-        Description
-        Instructions: []
-        Host: uid
-        Active: true
-        Dates: {
-	        Start: timestamp
-	        End: timestamp
-        }
-        Tags: [],
-        Category: [],
-        Online: boolean
-        Stats: {
-            Likes: []
-            Rsvp: []
-            people_who_showed_up:
-        people_who_stayed_till_the_end:
-        }
-        Location: {
-            Geo: {
-                Geopoint: geopoint,
-                Geohash: geohash
-        },
-        Address: {
-            fullAddress: string,
-            fullStreet: string,
-            streetNum: string,
-            Street: string,
-            City: string,
-            State: string?,
-            Country: String
-        }
-    }
-
- */
-
 import { firestore } from "../admin/admin";
 import { Response, Request } from "express";
 import * as Sentry from "@sentry/node";
+
+const collectionName = "event";
 
 type stats = {
   likes: string[];
@@ -85,10 +48,10 @@ interface event {
 export const createEvent = async (request: Request, response: Response): Promise<void> => {
   const data: event = request.body;
   try {
-    if (!validateData(data)) {
-      throw new Error(`event ${request.params.event} has invalid data format`);
-    }
-    const result = await firestore.collection("event").doc(request.params.event).set(data);
+    // if (!validateData(data)) {
+    //   throw new Error(`event ${request.params.event} has invalid data format`);
+    // }
+    const result = await firestore.collection(collectionName).doc(request.params.event).set(data);
     response.json({
       message: "Successful execution of createEvent",
       result: result,
@@ -103,15 +66,8 @@ export const createEvent = async (request: Request, response: Response): Promise
 };
 
 export const getEvent = async (request: Request, response: Response): Promise<void> => {
-  const data: event = request.body;
   try {
-    const result = await firestore
-      .collection("event")
-      .doc(request.body.event)
-      .get()
-      .then(() => {
-        response.json(data);
-      });
+    const result = await firestore.collection(collectionName).doc(request.params.event).get();
     response.json({
       message: "Successful execution of getEvent",
       result: result,
@@ -126,15 +82,8 @@ export const getEvent = async (request: Request, response: Response): Promise<vo
 };
 
 export const deleteEvent = async (request: Request, response: Response): Promise<void> => {
-  const data: event = request.body;
   try {
-    const result = await firestore
-      .collection("event")
-      .doc(request.params.event)
-      .delete()
-      .then(() => {
-        response.json(data);
-      });
+    const result = await firestore.collection(collectionName).doc(request.params.event).delete();
     response.json({
       message: "Successful execution of deleteEvent",
       result: result,
@@ -150,55 +99,28 @@ export const deleteEvent = async (request: Request, response: Response): Promise
 
 export const updateEvent = async (request: Request, response: Response): Promise<void> => {
   const data: event = request.body;
-  if (!validateData(data)) response.send("invalid data");
-
   try {
-    const result = await firestore
-      .collection("event")
-      .doc(request.params.event)
-      .update(data)
-      .then(() => {
-        response.json(data);
-      });
+    // if (!validateData(data)) {
+    //   throw new Error(`event ${request.params.event} has invalid data format`);
+    // }
+    const result = await firestore.collection(collectionName).doc(request.params.event).update(data);
     response.json({
-      message: "Successful execution of deleteEvent",
+      message: "Successful execution of updateEvent",
       result: result,
     });
   } catch (error) {
     Sentry.captureException(error);
     response.json({
-      message: "Unsuccessful execution of deleteEvent",
+      message: "Unsuccessful execution of updateEvent",
       error: error,
     });
   }
 };
 
-export const updateLocation = async (request: Request, response: Response): Promise<void> => {
-  const data: event = request.body;
-  if (!validateData(data)) response.send("invalid data");
-  try {
-    const result = await firestore
-      .collection("events")
-      .doc(request.params.event)
-      .collection("location")
-      .doc(request.params.event)
-      .update(data)
-      .then(() => {
-        response.json(data);
-      });
-    response.json({
-      message: "Successful execution of updateLocation",
-      result: result,
-    });
-  } catch (error) {
-    Sentry.captureException(error);
-    response.json({
-      message: "Unsuccessful execution of updateLocation",
-      error: error,
-    });
-  }
-};
-
+/**
+ * Needs to be tested
+ * @param event
+ */
 function validateData(event: event) {
   if (event.title !== undefined && !(typeof event.title == "string")) return false;
   if (event.description !== undefined && !(typeof event.description == "string")) return false;

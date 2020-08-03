@@ -26,13 +26,11 @@ app.all("/", (request, response, next) => {
   next();
 });
 
+/**
+ * Sample functions, not actually used
+ */
 app.get("/getCustomToken", authFunctions.getCustomToken);
 app.post("/createTestUser", authFunctions.createTestUser);
-app.post("/createEvent/:event", eventFunctions.createEvent);
-app.post("/getEvent/:event", eventFunctions.getEvent);
-app.post("/updateEvent/:event", eventFunctions.updateEvent);
-app.post("/deleteEvent/:event", eventFunctions.deleteEvent);
-app.post("/updateLocation/:event", eventFunctions.updateLocation);
 
 /**
  * API will error out if the role is not present.
