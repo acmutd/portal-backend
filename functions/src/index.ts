@@ -7,6 +7,7 @@ import * as authFunctions from "./auth/auth";
 import * as divisionFunctions from "./divisions/divisions";
 import * as roleFunctions from "./roles/roles";
 import * as permissionFunctions from "./roles/permissions";
+import * as applicationFunctions from "./application/rebrand";
 import app from "./express";
 
 //this will match every call made to this api.
@@ -49,5 +50,10 @@ app.post("/updateRole/:role/removePermission", permissionFunctions.removePermiss
  */
 app.post("/:division/setStaffMember", divisionFunctions.setStaffMember);
 app.get("/:division/getAllStaff", divisionFunctions.getAllStaff);
+
+/**
+ * Link shortener & Applications
+ */
+app.post("/generateLink", applicationFunctions.generateLink);
 
 export const api = functions.https.onRequest(app);
