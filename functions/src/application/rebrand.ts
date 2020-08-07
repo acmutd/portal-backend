@@ -1,6 +1,7 @@
 import { Response, Request } from "express";
 import * as Sentry from "@sentry/node";
 import request from "request";
+import * as functions from "firebase-functions";
 
 //will generate links like apply.acmutd.co/education
 interface links {
@@ -21,7 +22,7 @@ export const generateLink = async (req: Request, response: Response): Promise<vo
 
     const requestHeaders = {
       "Content-Type": "application/json",
-      apikey: "1d051af492364a339ddc158a78c6bb56",
+      apikey: functions.config().rebrandly.apikey,
     };
 
     request(
