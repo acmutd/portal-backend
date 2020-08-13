@@ -52,8 +52,12 @@ app.post("/:division/setStaffMember", divisionFunctions.setStaffMember);
 app.get("/:division/getAllStaff", divisionFunctions.getAllStaff);
 
 /**
- * Link shortener & Applications
+ * Link shortener
  */
-app.post("/generateLink", applicationFunctions.generateLink);
+app.post("/link", applicationFunctions.createLink);
+app.post("/link/:link", applicationFunctions.updateLink);
+app.get("/link/:link", applicationFunctions.getLink);
+app.delete("/link/:link", applicationFunctions.deleteLink);
+app.get("/link", applicationFunctions.getLinks);
 
 export const api = functions.https.onRequest(app);
