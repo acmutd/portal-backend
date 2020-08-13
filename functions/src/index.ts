@@ -8,7 +8,7 @@ import * as divisionFunctions from "./divisions/divisions";
 import * as roleFunctions from "./roles/roles";
 import * as permissionFunctions from "./roles/permissions";
 import * as applicationFunctions from "./application/rebrand";
-import * as sendgridFunctions from "./sendgrid/sendgrid";
+import * as sendgridFunctions from "./mail/sendgrid";
 import app from "./express";
 
 //this will match every call made to this api.
@@ -61,5 +61,6 @@ app.post("/generateLink", applicationFunctions.generateLink);
  * Sendgrid integration
  */
 app.post("/sendgrid/send", sendgridFunctions.sendTestEmail);
+app.post("/sendgrid/send2", sendgridFunctions.sendDynamicTemplate);
 
 export const api = functions.https.onRequest(app);
