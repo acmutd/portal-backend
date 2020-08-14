@@ -40,19 +40,19 @@ app.use(errorHandler);
 // Automatically send uncaught exception errors to Sentry
 process.on("uncaughtException", (err) => Sentry.captureException(err));
 
-const checkJwt = jwt({
-  secret: jwksRsa.expressJwtSecret({
-    cache: true,
-    rateLimit: true,
-    jwksRequestsPerMinute: 5,
-    jwksUri: `https://${functions.config().auth0.domain}/.well-known/jwks.json`,
-  }),
+// const checkJwt = jwt({
+//   secret: jwksRsa.expressJwtSecret({
+//     cache: true,
+//     rateLimit: true,
+//     jwksRequestsPerMinute: 5,
+//     jwksUri: `https://${functions.config().auth0.domain}/.well-known/jwks.json`,
+//   }),
 
-  audience: functions.config().auth0.audience,
-  issuer: `https://${functions.config().auth0.domain}/`,
-  algorithms: ["RS256"],
-});
-//user must be authenticated on auth0 for the requests to go through
-app.use(checkJwt);
+//   audience: functions.config().auth0.audience,
+//   issuer: `https://${functions.config().auth0.domain}/`,
+//   algorithms: ["RS256"],
+// });
+// //user must be authenticated on auth0 for the requests to go through
+// app.use(checkJwt);
 
 export default app;

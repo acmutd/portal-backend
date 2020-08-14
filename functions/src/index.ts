@@ -62,5 +62,7 @@ app.post("/generateLink", applicationFunctions.generateLink);
  */
 app.post("/sendgrid/send", sendgridFunctions.sendTestEmail);
 app.post("/sendgrid/send2", sendgridFunctions.sendDynamicTemplate);
+app.post("/sendgrid/upsertContact", sendgridFunctions.upsertContact);
+app.post("/sendgrid/sendMailingList", sendgridFunctions.sendMailingList);
 
 export const api = functions.https.onRequest(app);
