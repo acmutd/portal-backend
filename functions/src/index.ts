@@ -9,6 +9,7 @@ import * as roleFunctions from "./roles/roles";
 import * as permissionFunctions from "./roles/permissions";
 import * as applicationFunctions from "./application/rebrand";
 import * as sendgridFunctions from "./mail/sendgrid";
+import * as mailchimpFunctions from "./mail/mailchimp";
 import app from "./express";
 
 //this will match every call made to this api.
@@ -64,5 +65,10 @@ app.post("/sendgrid/send", sendgridFunctions.sendTestEmail);
 app.post("/sendgrid/send2", sendgridFunctions.sendDynamicTemplate);
 app.post("/sendgrid/upsertContact", sendgridFunctions.upsertContact);
 app.post("/sendgrid/sendMailingList", sendgridFunctions.sendMailingList);
+
+/**
+ * Mailchimp integration
+ */
+app.put("/mailchimp/subscribers", mailchimpFunctions.addSubscriber);
 
 export const api = functions.https.onRequest(app);
