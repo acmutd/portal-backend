@@ -8,6 +8,7 @@ import * as authFunctions from "./auth/auth";
 import * as divisionFunctions from "./divisions/divisions";
 import * as roleFunctions from "./roles/roles";
 import * as permissionFunctions from "./roles/permissions";
+import * as applicationFunctions from "./application/rebrand";
 import * as eventFunctions from "./events/events";
 
 //this will match every call made to this api.
@@ -61,5 +62,14 @@ app.post("/event/:event", eventFunctions.createEvent);
 app.put("/event/:event", eventFunctions.updateEvent);
 app.delete("/event/:event", eventFunctions.deleteEvent);
 app.get("/event/:event", eventFunctions.getEvent);
+
+/**
+ * Link shortener
+ */
+app.post("/link", applicationFunctions.createLink);
+app.post("/link/:link", applicationFunctions.updateLink);
+app.get("/link/:link", applicationFunctions.getLink);
+app.delete("/link/:link", applicationFunctions.deleteLink);
+app.get("/link", applicationFunctions.getLinks);
 
 export const api = functions.https.onRequest(app);
