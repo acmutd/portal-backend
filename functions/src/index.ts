@@ -3,12 +3,13 @@
  */
 
 import * as functions from "firebase-functions";
+import app from "./express";
 import * as authFunctions from "./auth/auth";
 import * as divisionFunctions from "./divisions/divisions";
 import * as roleFunctions from "./roles/roles";
 import * as permissionFunctions from "./roles/permissions";
 import * as applicationFunctions from "./application/rebrand";
-import app from "./express";
+import * as eventFunctions from "./events/events";
 
 //this will match every call made to this api.
 app.all("/", (request, response, next) => {
@@ -26,6 +27,9 @@ app.all("/", (request, response, next) => {
   next();
 });
 
+/**
+ * Sample functions, not actually used
+ */
 app.get("/getCustomToken", authFunctions.getCustomToken);
 app.post("/createTestUser", authFunctions.createTestUser);
 
@@ -33,23 +37,31 @@ app.post("/createTestUser", authFunctions.createTestUser);
  * API will error out if the role is not present.
  * For create role it will error if the role is already present
  */
-app.post("/createRole/:role", roleFunctions.createRole);
-app.put("/updateRole/:role", roleFunctions.updateRole);
-app.delete("/deleteRole/:role", roleFunctions.deleteRole);
-app.get("/getRole/:role", roleFunctions.getRole);
-app.get("/getRoles", roleFunctions.getAllRoles);
+app.post("/role/:role", roleFunctions.createRole);
+app.put("/role/:role", roleFunctions.updateRole);
+app.delete("/role/:role", roleFunctions.deleteRole);
+app.get("/role/:role", roleFunctions.getRole);
+app.get("/role", roleFunctions.getAllRoles);
 
 /**
  * Granular permissions management
  */
-app.post("/updateRole/:role/addPermission", permissionFunctions.addPermission);
-app.post("/updateRole/:role/removePermission", permissionFunctions.removePermission);
+app.post("/role/:role/addPermission", permissionFunctions.addPermission);
+app.post("/role/:role/removePermission", permissionFunctions.removePermission);
 
 /**
  * Operate on divisions
  */
-app.post("/:division/setStaffMember", divisionFunctions.setStaffMember);
-app.get("/:division/getAllStaff", divisionFunctions.getAllStaff);
+app.post("/division/:division", divisionFunctions.setStaffMember);
+app.get("/division/:division", divisionFunctions.getAllStaff);
+
+/**
+ * Operate on events
+ */
+app.post("/event/:event", eventFunctions.createEvent);
+app.put("/event/:event", eventFunctions.updateEvent);
+app.delete("/event/:event", eventFunctions.deleteEvent);
+app.get("/event/:event", eventFunctions.getEvent);
 
 /**
  * Link shortener
