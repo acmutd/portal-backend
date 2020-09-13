@@ -59,12 +59,12 @@ export const sendDynamicTemplate = async (request: Request, response: Response):
   }
 };
 
-//should be able to perform search for user information through either their email or uid
-interface userContact {
-  email: string;
-  uid: string;
-  list: string; //name of list
-}
+// //should be able to perform search for user information through either their email or uid
+// interface userContact {
+//   email: string;
+//   uid: string;
+//   list: string; //name of list
+// }
 
 export const upsertContact = async (request: Request, response: Response): Promise<void> => {
   try {
@@ -77,6 +77,9 @@ export const upsertContact = async (request: Request, response: Response): Promi
         contacts: [
           {
             email: "harsha.srikara@acmutd.co",
+            custom_fields: {
+              myfield: "something",
+            },
           },
         ],
       },
