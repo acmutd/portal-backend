@@ -9,7 +9,7 @@ const collectionName = "divisions";
 interface divisionData {
   uid?: string;
   email?: string;
-  title?: string;
+  title?: string; //title for the officer being added to division --> coordinator, officer, etc
 }
 
 export const setStaffMember = async (request: Request, response: Response): Promise<void> => {
