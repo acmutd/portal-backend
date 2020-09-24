@@ -36,7 +36,7 @@ export const create_vanity_link = functions.firestore
             dynamicTemplateData: {
               preheader: "Successful Generation of Vanity Link",
               subject: "Vanity Link",
-              link: document_value.vanity_domain + ".acmutd.co/" + document_value.vanity_slash,
+              vanity_link: document_value.vanity_domain + ".acmutd.co/" + document_value.vanity_slash,
             },
             templateId: "d-cd15e958009a43b3b3a8d7352ee12c79",
           };

@@ -1,12 +1,18 @@
 import * as Sentry from "@sentry/node";
 import { firestore } from "../admin/admin";
 
+type definition = {
+  id: string;
+  title: string;
+  fields: any;
+};
+
 type form_response = {
   form_id: string;
   token: string;
   landed_at: string;
   submitted_at: string;
-  definition: any; //im lazy, someone plz do this, example at bottom
+  definition: definition;
   answers: any; //im lazy, someone plz do this, example at bottom
 };
 interface typeform {
@@ -28,7 +34,7 @@ export const typeform_webhook = async (request: any, response: any): Promise<voi
   const questions = data.form_response.definition.fields;
   const answers = data.form_response.answers;
 
-  questions.forEach((element: any, index: any) => {
+  questions.forEach((element: any, index: number) => {
     const qa_res = {
       question: element.title,
       answer: Object.values(answers[index])[1] as string,
@@ -40,6 +46,7 @@ export const typeform_webhook = async (request: any, response: any): Promise<voi
   try {
     firestore.collection("typeform").add({
       typeform_id: data.form_response.definition.title,
+      submission_time: data.form_response.submitted_at,
       data: qa_responses,
     });
     response.json({
