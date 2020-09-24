@@ -42,6 +42,9 @@ export const typeform_webhook = async (request: any, response: any): Promise<voi
       typeform_id: data.form_response.definition.title,
       data: qa_responses,
     });
+    response.json({
+      message: "Successful execution of typeform_webhook",
+    });
   } catch (error) {
     Sentry.captureException(error);
     response.json({
