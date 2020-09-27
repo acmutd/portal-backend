@@ -2,14 +2,13 @@ import { Response, Request } from "express";
 import * as Sentry from "@sentry/node";
 import request from "request";
 import * as functions from "firebase-functions";
-// import axios, { AxiosRequestConfig } from "axios";
 
 //will generate links like apply.acmutd.co/education
 interface links {
   slash: string; //what comes after the /
   destination: string; //link to typeform or website or something
   title: string; //name of shortened link, not actually used
-  subdomain: string; //either apply or rsvp, more to be added later
+  subdomain: string; //apply, survey, rsvp, content
 }
 
 export const createLink = async (req: Request, response: Response): Promise<void> => {

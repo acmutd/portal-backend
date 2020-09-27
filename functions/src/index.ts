@@ -1,18 +1,23 @@
 /**
  * Handle express routing in this file
  */
+import app_secure from "./express_configs/express_secure";
+import app_open from "./express_configs/express_open";
 
 import * as functions from "firebase-functions";
-import app from "./express";
 import * as authFunctions from "./auth/auth";
 import * as divisionFunctions from "./divisions/divisions";
 import * as roleFunctions from "./roles/roles";
 import * as permissionFunctions from "./roles/permissions";
 import * as applicationFunctions from "./application/rebrand";
+import * as challengeFunctions from "./challenge/challenge";
+import * as sendgridFunctions from "./mail/sendgrid";
 import * as eventFunctions from "./events/events";
+import * as vanityFunctions from "./custom/vanity";
+import * as typeformFunctions from "./application/typeform";
 
 //this will match every call made to this api.
-app.all("/", (request, response, next) => {
+app_secure.all("/", (request, response, next) => {
   // check if the user has access to relevant permissions. If not then deny access
   // this function may end up pretty complex and need to be moved into a separate file under ./auth/verifyPermissions.ts
   // an alternative simpler way is to ensure that only requests that are validated on the front-end come through
@@ -30,46 +35,71 @@ app.all("/", (request, response, next) => {
 /**
  * Sample functions, not actually used
  */
-app.get("/getCustomToken", authFunctions.getCustomToken);
-app.post("/createTestUser", authFunctions.createTestUser);
+app_secure.get("/getCustomToken", authFunctions.getCustomToken);
+app_secure.post("/createTestUser", authFunctions.createTestUser);
 
 /**
  * API will error out if the role is not present.
  * For create role it will error if the role is already present
  */
-app.post("/role/:role", roleFunctions.createRole);
-app.put("/role/:role", roleFunctions.updateRole);
-app.delete("/role/:role", roleFunctions.deleteRole);
-app.get("/role/:role", roleFunctions.getRole);
-app.get("/role", roleFunctions.getAllRoles);
+app_secure.post("/role/:role", roleFunctions.createRole);
+app_secure.put("/role/:role", roleFunctions.updateRole);
+app_secure.delete("/role/:role", roleFunctions.deleteRole);
+app_secure.get("/role/:role", roleFunctions.getRole);
+app_secure.get("/role", roleFunctions.getAllRoles);
 
 /**
  * Granular permissions management
  */
-app.post("/role/:role/addPermission", permissionFunctions.addPermission);
-app.post("/role/:role/removePermission", permissionFunctions.removePermission);
+app_secure.post("/role/:role/addPermission", permissionFunctions.addPermission);
+app_secure.post("/role/:role/removePermission", permissionFunctions.removePermission);
 
 /**
  * Operate on divisions
  */
-app.post("/division/:division", divisionFunctions.setStaffMember);
-app.get("/division/:division", divisionFunctions.getAllStaff);
+app_secure.post("/division/:division", divisionFunctions.setStaffMember);
+app_secure.get("/division/:division", divisionFunctions.getAllStaff);
 
 /**
  * Operate on events
  */
-app.post("/event/:event", eventFunctions.createEvent);
-app.put("/event/:event", eventFunctions.updateEvent);
-app.delete("/event/:event", eventFunctions.deleteEvent);
-app.get("/event/:event", eventFunctions.getEvent);
+app_secure.post("/event/:event", eventFunctions.createEvent);
+app_secure.put("/event/:event", eventFunctions.updateEvent);
+app_secure.delete("/event/:event", eventFunctions.deleteEvent);
+app_secure.get("/event/:event", eventFunctions.getEvent);
 
 /**
  * Link shortener
  */
-app.post("/link", applicationFunctions.createLink);
-app.post("/link/:link", applicationFunctions.updateLink);
-app.get("/link/:link", applicationFunctions.getLink);
-app.delete("/link/:link", applicationFunctions.deleteLink);
-app.get("/link", applicationFunctions.getLinks);
+app_secure.post("/link", applicationFunctions.createLink);
+app_secure.post("/link/:link", applicationFunctions.updateLink);
+app_secure.get("/link/:link", applicationFunctions.getLink);
+app_secure.delete("/link/:link", applicationFunctions.deleteLink);
+app_secure.get("/link", applicationFunctions.getLinks);
 
-export const api = functions.https.onRequest(app);
+/**
+ * Sendgrid integration
+ */
+app_secure.post("/sendgrid/send", sendgridFunctions.sendTestEmail);
+app_secure.post("/sendgrid/send2", sendgridFunctions.sendDynamicTemplate);
+app_secure.post("/sendgrid/upsertContact", sendgridFunctions.upsertContact);
+app_secure.post("/sendgrid/sendMailingList", sendgridFunctions.sendMailingList);
+
+/**
+ * Challenges for ACM Development
+ */
+app_open.post("/tags/:tag", challengeFunctions.createTag);
+app_open.get("/tags/:tag", challengeFunctions.getTag);
+app_open.patch("/tags/:tag/:token", challengeFunctions.patchTag);
+app_open.delete("/tags/:tag/:token", challengeFunctions.deleteTag);
+
+/**
+ * typeform webhook
+ */
+app_open.post("/typeform", typeformFunctions.typeform_webhook);
+
+export const api = functions.https.onRequest(app_secure);
+export const challenge = functions.https.onRequest(app_open);
+
+// firestore triggers
+export const create_vanity_link = vanityFunctions.create_vanity_link;

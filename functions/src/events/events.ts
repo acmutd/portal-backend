@@ -121,23 +121,23 @@ export const updateEvent = async (request: Request, response: Response): Promise
  * Needs to be tested
  * @param event
  */
-function validateData(event: event) {
-  if (event.title !== undefined && !(typeof event.title == "string")) return false;
-  if (event.description !== undefined && !(typeof event.description == "string")) return false;
-  if (event.host !== undefined && !(typeof event.host == "number")) return false;
-  if (event.active !== undefined && !(typeof event.active == "boolean")) return false;
-  for (let i = 0; i < event.instructions.length; i++) {
-    if (event.instructions[i] !== undefined && !(typeof event.instructions[i] == "string")) return false;
-  }
-  for (let i = 0; i < event.tags.length; i++) {
-    if (event.tags[i] !== undefined && !(typeof event.tags[i] == "string")) return false;
-  }
-  for (let i = 0; i < event.category.length; i++) {
-    if (event.category[i] !== undefined && !(typeof event.category[i] == "string")) return false;
-  }
-  event.stats.likes.map((item) => {
-    if (typeof item == "string") return false;
-  });
+// function validateData(event: event) {
+//   if (event.title !== undefined && !(typeof event.title == "string")) return false;
+//   if (event.description !== undefined && !(typeof event.description == "string")) return false;
+//   if (event.host !== undefined && !(typeof event.host == "number")) return false;
+//   if (event.active !== undefined && !(typeof event.active == "boolean")) return false;
+//   for (let i = 0; i < event.instructions.length; i++) {
+//     if (event.instructions[i] !== undefined && !(typeof event.instructions[i] == "string")) return false;
+//   }
+//   for (let i = 0; i < event.tags.length; i++) {
+//     if (event.tags[i] !== undefined && !(typeof event.tags[i] == "string")) return false;
+//   }
+//   for (let i = 0; i < event.category.length; i++) {
+//     if (event.category[i] !== undefined && !(typeof event.category[i] == "string")) return false;
+//   }
+//   event.stats.likes.map((item) => {
+//     if (typeof item == "string") return false;
+//   });
 
-  return true;
-}
+//   return true;
+// }
