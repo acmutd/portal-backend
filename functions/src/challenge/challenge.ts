@@ -51,15 +51,15 @@ export const patchTag = async (request: any, response: any): Promise<void> => {
 
   firestore
     .collection("challenge")
-    .where("name", "==", request.params.tag)
+    .doc(request.params.token)
     .get()
     .then((document) => {
-      if (document.size === 0) {
-        response.status(404).json({ message: `no tag with name ${request.params.tag} exists` });
+      if (!document.exists) {
+        response.status(404).json({ message: `no token with value ${request.params.tag} exists` });
       }
-      const doc = document.docs[0];
-      if (doc.id !== request.params.token) {
-        response.status(403).json({ message: `invalid token` });
+      const doc = document.data();
+      if (doc?.name !== request.params.tag) {
+        response.status(403).json({ message: `invalid token or name` });
       } else {
         firestore.collection("challenge").doc(request.params.token).update({
           contents: tagData.contents,
@@ -75,15 +75,15 @@ export const patchTag = async (request: any, response: any): Promise<void> => {
 export const deleteTag = async (request: any, response: any): Promise<void> => {
   firestore
     .collection("challenge")
-    .where("name", "==", request.params.tag)
+    .doc(request.params.token)
     .get()
     .then((document) => {
-      if (document.size === 0) {
-        response.status(404).json({ message: `no tag with name ${request.params.tag} exists` });
+      if (!document.exists) {
+        response.status(404).json({ message: `no token with value ${request.params.token} exists` });
       }
-      const doc = document.docs[0];
-      if (doc.id !== request.params.token) {
-        response.status(403).json({ message: `invalid token` });
+      const doc = document.data();
+      if (doc?.name !== request.params.tag) {
+        response.status(403).json({ message: `invalid token or name` });
       } else {
         firestore.collection("challenge").doc(request.params.token).delete();
         response.status(200).send();
