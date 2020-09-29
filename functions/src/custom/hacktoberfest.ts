@@ -4,6 +4,9 @@ import * as axios from "axios";
 //import sendgrid from "@sendgrid/mail";
 import { firestore } from "../admin/admin";
 
+/**
+ * Note: if the discord username --> snowflake returns -1 then the full transaction will fail
+ */
 export const mapper = functions.firestore.document("typeform/{document_name}").onCreate(async (snap, context) => {
   const document = snap.data();
   try {
@@ -19,13 +22,13 @@ export const mapper = functions.firestore.document("typeform/{document_name}").o
           "This event will be hosted on the ACM Discord. To give you access to the Hacktoberfest channels, we will need your discord username.";
         const first_name_question = "What's your first name?";
         const last_name_question = "What's your last name?";
-        if (element.question == "email") {
+        if (element.question == email_question) {
           email = element.answer;
         }
-        if (element.question == "discord") {
+        if (element.question == discord_question) {
           discord_username = element.answer;
         }
-        if (element.question == "first") {
+        if (element.question == first_name_question) {
           first_name = element.answer;
         }
         if (element.question.includes(last_name_question)) {
@@ -194,6 +197,7 @@ export const send_confirmation = functions.firestore.document("typeform/{documen
   console.log("Add single send code in here");
 });
 
+// eventually refactor code to use this instead
 const runTransaction = (document_name: string, key: string, value: string) => {
   firestore.runTransaction(
     (t): Promise<void> => {
