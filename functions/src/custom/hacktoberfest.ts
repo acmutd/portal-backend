@@ -17,18 +17,17 @@ export const mapper = functions.firestore.document("typeform/{document_name}").o
       let first_name = "";
       let last_name = "";
       typeform_results.forEach((element: any) => {
-        const email_question = "Which email address shall we use?";
-        const discord_question =
-          "This event will be hosted on the ACM Discord. To give you access to the Hacktoberfest channels, we will need your discord username.";
-        const first_name_question = "What's your first name?";
-        const last_name_question = "What's your last name?";
-        if (element.question == email_question) {
+        const email_question = "email address";
+        const discord_question = "your discord username";
+        const first_name_question = "first name";
+        const last_name_question = "last name";
+        if (element.question.includes(email_question)) {
           email = element.answer;
         }
-        if (element.question == discord_question) {
+        if (element.question.includes(discord_question)) {
           discord_username = element.answer;
         }
-        if (element.question == first_name_question) {
+        if (element.question.includes(first_name_question)) {
           first_name = element.answer;
         }
         if (element.question.includes(last_name_question)) {
@@ -44,6 +43,8 @@ export const mapper = functions.firestore.document("typeform/{document_name}").o
           email: email,
         })
       ).data;
+
+      console.log(discord_snowflake);
 
       firestore.runTransaction(
         (t): Promise<void> => {
