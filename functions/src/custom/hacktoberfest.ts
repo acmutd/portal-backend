@@ -42,7 +42,7 @@ export const mapper = functions.firestore.document("typeform/{document_name}").o
           name: full_name,
           email: email,
         })
-      ).data;
+      ).data.snowflake;
 
       runTransaction("discord_to_email", discord_username, email);
       runTransaction("email_to_discord", email, discord_username);
