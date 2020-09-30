@@ -3,16 +3,19 @@ import { firestore } from "../admin/admin";
 export const getTag = async (request: any, response: any): Promise<void> => {
   firestore
     .collection("challenge")
-    .where("name", "==", request.params.tag)
+    .doc(request.params.token)
     .get()
     .then((document) => {
-      if (document.size === 0) {
+      if (!document.exists) {
+        response.status(404).json({ message: `no token with value ${request.params.token} exists` });
+      }
+      const doc = document.data();
+      if (doc?.name !== request.params.tag) {
         response.status(403).json({ message: `no tag with name ${request.params.tag} exists` });
       }
-      const doc = document.docs[0].data();
       response.json({
-        name: doc.name,
-        contents: doc.contents,
+        name: doc?.name,
+        contents: doc?.contents,
       });
     });
 };
@@ -55,7 +58,7 @@ export const patchTag = async (request: any, response: any): Promise<void> => {
     .get()
     .then((document) => {
       if (!document.exists) {
-        response.status(404).json({ message: `no token with value ${request.params.tag} exists` });
+        response.status(404).json({ message: `no token with value ${request.params.token} exists` });
       }
       const doc = document.data();
       if (doc?.name !== request.params.tag) {

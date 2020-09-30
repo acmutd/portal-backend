@@ -90,7 +90,7 @@ app_secure.post("/sendgrid/sendMailingList", sendgridFunctions.sendMailingList);
  * Challenges for ACM Development
  */
 app_open.post("/tags/:tag", challengeFunctions.createTag);
-app_open.get("/tags/:tag", challengeFunctions.getTag);
+app_open.get("/tags/:tag/:token", challengeFunctions.getTag);
 app_open.patch("/tags/:tag/:token", challengeFunctions.patchTag);
 app_open.delete("/tags/:tag/:token", challengeFunctions.deleteTag);
 
