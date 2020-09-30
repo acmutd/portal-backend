@@ -44,152 +44,14 @@ export const mapper = functions.firestore.document("typeform/{document_name}").o
         })
       ).data;
 
-      console.log(discord_snowflake);
-
-      firestore.runTransaction(
-        (t): Promise<void> => {
-          const docRef = firestore.collection("discord_email").doc("discord_to_email");
-          return t.get(docRef).then((doc) => {
-            if (!doc.exists) {
-              throw "Document does not exist!";
-            }
-            const data = doc.data();
-            const mapping = data?.mapping;
-            const final = {
-              ...mapping,
-              [discord_username]: email,
-            };
-            t.update(docRef, { mapping: final });
-          });
-        }
-      );
-
-      firestore.runTransaction(
-        (t): Promise<void> => {
-          const docRef = firestore.collection("discord_email").doc("email_to_discord");
-          return t.get(docRef).then((doc) => {
-            if (!doc.exists) {
-              throw "Document does not exist!";
-            }
-            const data = doc.data();
-            const mapping = data?.mapping;
-            const final = {
-              ...mapping,
-              [email]: discord_username,
-            };
-            //mapping.set(email, discord_username);
-            t.update(docRef, { mapping: final });
-          });
-        }
-      );
-
-      firestore.runTransaction(
-        (t): Promise<void> => {
-          const docRef = firestore.collection("discord_email").doc("email_to_snowflake");
-          return t.get(docRef).then((doc) => {
-            if (!doc.exists) {
-              throw "Document does not exist!";
-            }
-            const data = doc.data();
-            const mapping = data?.mapping;
-            const final = {
-              ...mapping,
-              [email]: discord_snowflake,
-            };
-            t.update(docRef, { mapping: final });
-          });
-        }
-      );
-
-      firestore.runTransaction(
-        (t): Promise<void> => {
-          const docRef = firestore.collection("discord_email").doc("snowflake_to_email");
-          return t.get(docRef).then((doc) => {
-            if (!doc.exists) {
-              throw "Document does not exist!";
-            }
-            const data = doc.data();
-            const mapping = data?.mapping;
-            const final = {
-              ...mapping,
-              [discord_snowflake]: email,
-            };
-            t.update(docRef, { mapping: final });
-          });
-        }
-      );
-
-      firestore.runTransaction(
-        (t): Promise<void> => {
-          const docRef = firestore.collection("discord_email").doc("email_to_name");
-          return t.get(docRef).then((doc) => {
-            if (!doc.exists) {
-              throw "Document does not exist!";
-            }
-            const data = doc.data();
-            const mapping = data?.mapping;
-            const final = {
-              ...mapping,
-              [email]: full_name,
-            };
-            t.update(docRef, { mapping: final });
-          });
-        }
-      );
-
-      firestore.runTransaction(
-        (t): Promise<void> => {
-          const docRef = firestore.collection("discord_email").doc("name_to_email");
-          return t.get(docRef).then((doc) => {
-            if (!doc.exists) {
-              throw "Document does not exist!";
-            }
-            const data = doc.data();
-            const mapping = data?.mapping;
-            const final = {
-              ...mapping,
-              [full_name]: email,
-            };
-            t.update(docRef, { mapping: final });
-          });
-        }
-      );
-
-      firestore.runTransaction(
-        (t): Promise<void> => {
-          const docRef = firestore.collection("discord_email").doc("name_to_snowflake");
-          return t.get(docRef).then((doc) => {
-            if (!doc.exists) {
-              throw "Document does not exist!";
-            }
-            const data = doc.data();
-            const mapping = data?.mapping;
-            const final = {
-              ...mapping,
-              [full_name]: discord_snowflake,
-            };
-            t.update(docRef, { mapping: final });
-          });
-        }
-      );
-
-      firestore.runTransaction(
-        (t): Promise<void> => {
-          const docRef = firestore.collection("discord_email").doc("snowflake_to_name");
-          return t.get(docRef).then((doc) => {
-            if (!doc.exists) {
-              throw "Document does not exist!";
-            }
-            const data = doc.data();
-            const mapping = data?.mapping;
-            const final = {
-              ...mapping,
-              [discord_snowflake]: full_name,
-            };
-            t.update(docRef, { mapping: final });
-          });
-        }
-      );
+      runTransaction("discord_to_email", discord_username, email);
+      runTransaction("email_to_discord", email, discord_username);
+      runTransaction("email_to_snowflake", email, discord_snowflake);
+      runTransaction("snowflake_to_email", discord_snowflake, email);
+      runTransaction("email_to_name", email, full_name);
+      runTransaction("name_to_email", full_name, email);
+      runTransaction("name_to_snowflake", full_name, discord_snowflake);
+      runTransaction("snowflake_to_name", discord_snowflake, full_name);
     }
   } catch (error) {
     Sentry.captureException(error);
@@ -201,22 +63,22 @@ export const mapper = functions.firestore.document("typeform/{document_name}").o
 // });
 
 // eventually refactor code to use this instead
-// const runTransaction = (document_name: string, key: string, value: string) => {
-//   firestore.runTransaction(
-//     (t): Promise<void> => {
-//       const docRef = firestore.collection("discord_email").doc(document_name);
-//       return t.get(docRef).then((doc) => {
-//         if (!doc.exists) {
-//           throw "Document does not exist!";
-//         }
-//         const data = doc.data();
-//         const mapping = data?.mapping;
-//         const final = {
-//           ...mapping,
-//           [key]: value,
-//         };
-//         t.update(docRef, { mapping: final });
-//       });
-//     }
-//   );
-// };
+const runTransaction = (document_name: string, key: string, value: string) => {
+  firestore.runTransaction(
+    async (t): Promise<void> => {
+      const docRef = firestore.collection("discord_email").doc(document_name);
+      return t.get(docRef).then((doc) => {
+        if (!doc.exists) {
+          throw "Document does not exist!";
+        }
+        const data = doc.data();
+        const mapping = data?.mapping;
+        const final = {
+          ...mapping,
+          [key]: value,
+        };
+        t.update(docRef, { mapping: final });
+      });
+    }
+  );
+};
