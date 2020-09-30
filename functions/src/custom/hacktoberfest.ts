@@ -36,12 +36,14 @@ export const mapper = functions.firestore.document("typeform/{document_name}").o
         }
       });
 
+      const full_name = first_name + " " + last_name;
       const discord_snowflake = (
         await axios.default.post("http://35.226.240.23:1337/mapdiscord", {
           username: discord_username,
+          name: full_name,
+          email: email,
         })
       ).data;
-      const full_name = first_name + " " + last_name;
 
       firestore.runTransaction(
         (t): Promise<void> => {
@@ -193,27 +195,27 @@ export const mapper = functions.firestore.document("typeform/{document_name}").o
   }
 });
 
-export const send_confirmation = functions.firestore.document("typeform/{document_name}").onCreate((snap, context) => {
-  console.log("Add single send code in here");
-});
+// export const send_confirmation = functions.firestore.document("typeform/{document_name}").onCreate((snap, context) => {
+//   console.log("Add single send code in here");
+// });
 
 // eventually refactor code to use this instead
-const runTransaction = (document_name: string, key: string, value: string) => {
-  firestore.runTransaction(
-    (t): Promise<void> => {
-      const docRef = firestore.collection("discord_email").doc(document_name);
-      return t.get(docRef).then((doc) => {
-        if (!doc.exists) {
-          throw "Document does not exist!";
-        }
-        const data = doc.data();
-        const mapping = data?.mapping;
-        const final = {
-          ...mapping,
-          [key]: value,
-        };
-        t.update(docRef, { mapping: final });
-      });
-    }
-  );
-};
+// const runTransaction = (document_name: string, key: string, value: string) => {
+//   firestore.runTransaction(
+//     (t): Promise<void> => {
+//       const docRef = firestore.collection("discord_email").doc(document_name);
+//       return t.get(docRef).then((doc) => {
+//         if (!doc.exists) {
+//           throw "Document does not exist!";
+//         }
+//         const data = doc.data();
+//         const mapping = data?.mapping;
+//         const final = {
+//           ...mapping,
+//           [key]: value,
+//         };
+//         t.update(docRef, { mapping: final });
+//       });
+//     }
+//   );
+// };

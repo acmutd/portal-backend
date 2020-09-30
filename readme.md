@@ -1,6 +1,6 @@
-# Title
+# ACM API
 
-API for accessing _ACM_ membership portal.
+The official API of ACM UTD. View API [Documentation](https://documenter.getpostman.com/view/6712035/TVKJxEVW)
 
 ### Quick Start
 - Clone the repo
@@ -45,29 +45,42 @@ Project structure
 root
 ├── firebase.json
 ├── functions
-│   ├── lib
-│   │   ├── admin
-│   │   │   ├── admin.js
-│   │   │   └── admin.js.map
-│   │   ├── auth
-│   │   │   ├── auth.js
-│   │   │   └── auth.js.map
-│   │   ├── index.js
-│   │   └── index.js.map
+│   ├── acm-core-service-account.json
 │   ├── package-lock.json
 │   ├── package.json
 │   ├── src
 │   │   ├── admin
 │   │   │   └── admin.ts
+│   │   ├── application
+│   │   │   ├── rebrand.ts
+│   │   │   └── typeform.ts
 │   │   ├── auth
 │   │   │   └── auth.ts
+│   │   ├── authTypes.ts
+│   │   ├── challenge
+│   │   │   └── challenge.ts
+│   │   ├── custom
+│   │   │   ├── hacktoberfest.ts
+│   │   │   └── vanity.ts
+│   │   ├── divisions
+│   │   │   ├── GET
+│   │   │   ├── POST
+│   │   │   └── divisions.ts
 │   │   ├── events
-│   │   ├── express.ts
+│   │   │   └── events.ts
+│   │   ├── express_configs
+│   │   │   ├── express_open.ts
+│   │   │   └── express_secure.ts
 │   │   ├── index.ts
-│   │   └── user
+│   │   ├── mail
+│   │   │   ├── mailchimp.ts
+│   │   │   └── sendgrid.ts
+│   │   ├── roles
+│   │   │   ├── permissions.ts
+│   │   │   └── roles.ts
+│   │   └── services
+│   │       └── ErrorService.ts
 │   ├── tsconfig.json
-│   └── tslint.json
-├── package-lock.json
 └── readme.md
 ```
 
