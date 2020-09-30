@@ -14,6 +14,7 @@ import * as challengeFunctions from "./challenge/challenge";
 import * as sendgridFunctions from "./mail/sendgrid";
 import * as eventFunctions from "./events/events";
 import * as vanityFunctions from "./custom/vanity";
+import * as hacktoberfestFunctions from "./custom/hacktoberfest";
 import * as typeformFunctions from "./application/typeform";
 
 //this will match every call made to this api.
@@ -103,3 +104,4 @@ export const challenge = functions.https.onRequest(app_open);
 
 // firestore triggers
 export const create_vanity_link = vanityFunctions.create_vanity_link;
+export const email_discord_mapper = hacktoberfestFunctions.mapper;
