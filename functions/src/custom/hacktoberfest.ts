@@ -107,14 +107,21 @@ const uploadToSendgrid = async (
           first_name: first_name,
           last_name: last_name,
           custom_fields: {
-            discord_username: discord_username,
-            discord_snowflake: discord_snowflake,
+            w3_T: discord_username,
+            w4_T: discord_snowflake,
           },
         },
       ],
     },
   };
-  const result = await client.request(req);
+  client
+    .request(req)
+    .then(() => {
+      console.log("yay it worked");
+    })
+    .catch((err) => {
+      console.log("you broke it!", err?.response?.body);
+    });
 };
 
 const send_confirmation = async (
@@ -125,14 +132,24 @@ const send_confirmation = async (
 ): Promise<void> => {
   sendgrid.setApiKey(functions.config().sendgrid.apikey);
   const msg: sendgrid.MailDataRequired = {
-    from: "hacktoberfest@acmutd.co",
+    from: {
+      email: "hacktoberfest@acmutd.co",
+      name: "ACM Hacktoberfest Team",
+    },
     to: email,
     dynamicTemplateData: {
       first_name: first_name,
       last_name: last_name,
       discord_username: discord_username,
     },
-    templateId: "d-cd15e958009a43b3b3a8d7352ee12c79", // hacktoberfest template
+    templateId: "d-18614de920ad48b780be05f846d6a896", // hacktoberfest template
   };
   sendgrid.send(msg);
+  // uncomment if sending the email breaks
+  // .then(() => {
+  //   console.log("yay it worked");
+  // })
+  // .catch((err) => {
+  //   console.log("you broke it!", err?.response?.body);
+  // });
 };
