@@ -114,14 +114,13 @@ const uploadToSendgrid = async (
       ],
     },
   };
-  client
-    .request(req)
-    .then(() => {
-      console.log("yay it worked");
-    })
-    .catch((err) => {
-      console.log("you broke it!", err?.response?.body);
-    });
+  client.request(req);
+  // .then(() => {
+  //   console.log("yay it worked");
+  // })
+  // .catch((err) => {
+  //   console.log("you broke it!", err?.response?.body);
+  // });
 };
 
 const send_confirmation = async (
