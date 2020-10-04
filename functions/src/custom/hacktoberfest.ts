@@ -68,19 +68,9 @@ export const mapper = functions.firestore.document("typeform/{document_name}").o
 const runTransaction = (document_name: string, key: string, value: string) => {
   firestore.runTransaction(
     async (t): Promise<void> => {
-      const docRef = firestore.collection("discord_email").doc(document_name);
-      return t.get(docRef).then((doc) => {
-        if (!doc.exists) {
-          throw "Document does not exist!";
-        }
-        const data = doc.data();
-        const mapping = data?.mapping;
-        const final = {
-          ...mapping,
-          [key]: value,
-        };
-        t.update(docRef, { mapping: final });
-      });
+      firestore.collection('discord_email').doc(document_name).set(
+        {[key]: value}, {merge: true}
+      );
     }
   );
 };
