@@ -66,9 +66,10 @@ export const mapper = functions.firestore.document("typeform/{document_name}").o
 
 // eventually refactor code to use this instead
 const runTransaction = (document_name: string, key: string, value: string) => {
-  firestore.collection('discord_email').doc(document_name).set(
-    {[key]: value}, {merge: true}
-  );
+  firestore
+    .collection("discord_email")
+    .doc(document_name)
+    .set({ [key]: value }, { merge: true });
 };
 
 /**
