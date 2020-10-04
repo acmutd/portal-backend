@@ -58,13 +58,16 @@ export const mapper = functions.firestore.document("typeform/{document_name}").o
       runTransaction("name_to_email", full_name, email);
       runTransaction("name_to_snowflake", full_name, discord_snowflake);
       runTransaction("snowflake_to_name", discord_snowflake, full_name);
+      firestore
+        .collection("discord_email")
+        .doc("snowflake_to_points")
+        .set({ [discord_snowflake]: 0 }, { merge: true });
     }
   } catch (error) {
     Sentry.captureException(error);
   }
 });
 
-// eventually refactor code to use this instead
 const runTransaction = (document_name: string, key: string, value: string) => {
   firestore
     .collection("discord_email")
