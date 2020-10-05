@@ -38,6 +38,9 @@ export const mapper = functions.firestore.document("typeform/{document_name}").o
       });
 
       const full_name = first_name + " " + last_name;
+
+      send_confirmation(email, first_name, last_name, discord_username);
+
       const discord_snowflake = (
         await axios.default.post("http://35.226.240.23:1337/mapdiscord", {
           username: discord_username,
@@ -47,8 +50,6 @@ export const mapper = functions.firestore.document("typeform/{document_name}").o
       ).data.snowflake;
 
       uploadToSendgrid(first_name, last_name, discord_username, discord_snowflake, email);
-      send_confirmation(email, first_name, last_name, discord_username);
-
 
       runTransaction("name_to_snowflake", full_name, discord_snowflake);
       runTransaction("email_to_snowflake", email, discord_snowflake);
@@ -60,15 +61,15 @@ export const mapper = functions.firestore.document("typeform/{document_name}").o
 
       // Note that although the other documents are automatically generated,
       // you will need to create snowflake_to_all manually.
-      firestore
-        .collection("htf_leaderboard/snowflake_to_all/mapping")
-        .doc(discord_snowflake)
-        .set({
+      firestore.collection("htf_leaderboard/snowflake_to_all/mapping").doc(discord_snowflake).set(
+        {
           name: full_name,
           email: email,
           discord: discord_username,
-          points: 0
-        }, { merge: true });
+          points: 0,
+        },
+        { merge: true }
+      );
     }
   } catch (error) {
     Sentry.captureException(error);
