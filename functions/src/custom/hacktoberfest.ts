@@ -49,34 +49,41 @@ export const mapper = functions.firestore.document("typeform/{document_name}").o
       uploadToSendgrid(first_name, last_name, discord_username, discord_snowflake, email);
       send_confirmation(email, first_name, last_name, discord_username);
 
-      //refactor this to be looped later on
-      runTransaction("discord_to_email", discord_username, email);
-      runTransaction("email_to_discord", email, discord_username);
-      runTransaction("email_to_snowflake", email, discord_snowflake);
-      runTransaction("snowflake_to_email", discord_snowflake, email);
-      runTransaction("email_to_name", email, full_name);
-      runTransaction("name_to_email", full_name, email);
+
       runTransaction("name_to_snowflake", full_name, discord_snowflake);
+      runTransaction("email_to_snowflake", email, discord_snowflake);
+      runTransaction("discord_to_snowflake", discord_username, discord_snowflake);
+
       runTransaction("snowflake_to_name", discord_snowflake, full_name);
+      runTransaction("snowflake_to_email", discord_snowflake, email);
+      runTransaction("snowflake_to_discord", discord_snowflake, discord_username);
+
+      // Note that although the other documents are automatically generated,
+      // you will need to create snowflake_to_all manually.
       firestore
-        .collection("discord_email")
-        .doc("snowflake_to_points")
-        .set({ [discord_snowflake]: 0 }, { merge: true });
+        .collection("htf_leaderboard/snowflake_to_all/mapping")
+        .doc(discord_snowflake)
+        .set({
+          name: full_name,
+          email: email,
+          discord: discord_username,
+          points: 0
+        }, { merge: true });
     }
   } catch (error) {
     Sentry.captureException(error);
   }
 });
 
-const runTransaction = (document_name: string, key: string, value: string) => {
+const runTransaction = (document_name: string, key: string, value: any) => {
   firestore
-    .collection("discord_email")
+    .collection("htf_leaderboard")
     .doc(document_name)
     .set({ [key]: value }, { merge: true });
 };
 
 /**
- * Add person to the hacktobefest mailing list
+ * Add person to the hacktoberfest mailing list
  */
 const uploadToSendgrid = async (
   first_name: string,
