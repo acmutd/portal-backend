@@ -150,3 +150,20 @@ const send_confirmation = async (
   //   console.log("you broke it!", err?.response?.body);
   // });
 };
+
+export const retrieve_record = async (request: any, response: any): Promise<void> => {
+  const email = request.params.email;
+  console.log(email);
+  try {
+    const document = (
+      await firestore.collection("htf_leaderboard/snowflake_to_all/mapping").where("email", "==", email).limit(1).get()
+    ).docs[0].data();
+    response.json(document);
+  } catch (error) {
+    Sentry.captureException(error);
+    response.json({
+      message: "Error occurred in retriving record",
+      error: error,
+    });
+  }
+};
