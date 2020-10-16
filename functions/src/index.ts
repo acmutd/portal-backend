@@ -102,7 +102,7 @@ app_open.post("/typeform", typeformFunctions.typeform_webhook);
 /**
  * htf-development retrieval
  */
-app_open.get("/htf-development/:email", hacktoberfestFunctions.retrieve_record);
+app_open.post("/htf-development", hacktoberfestFunctions.retrieve_record);
 
 export const api = functions.https.onRequest(app_secure);
 export const challenge = functions.https.onRequest(app_open);
