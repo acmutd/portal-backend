@@ -152,8 +152,7 @@ const send_confirmation = async (
 };
 
 export const retrieve_record = async (request: any, response: any): Promise<void> => {
-  const email = request.params.email;
-  console.log(email);
+  const email = request?.body.email;
   try {
     const document = (
       await firestore.collection("htf_leaderboard/snowflake_to_all/mapping").where("email", "==", email).limit(1).get()
