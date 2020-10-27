@@ -106,6 +106,11 @@ app_open.post("/typeform", typeformFunctions.typeform_webhook);
 app_secure.get("/debug-sentry", errorFunctions.debug_sentry);
 app_open.get("/debug-sentry", errorFunctions.debug_sentry);
 
+/**
+ * htf-development retrieval
+ */
+app_open.post("/htf-development", hacktoberfestFunctions.retrieve_record);
+
 export const api = functions.https.onRequest(app_secure);
 export const challenge = functions.https.onRequest(app_open);
 
