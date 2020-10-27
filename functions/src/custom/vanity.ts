@@ -106,6 +106,8 @@ export const build_vanity_link = functions.firestore
           slashtag: slashtag,
         };
         create_link(data);
+        send_confirmation(data, email, full_name);
+        console.log(full_name, email);
       }
     } catch (error) {
       Sentry.captureException(error);
@@ -137,4 +139,20 @@ const create_link = async (vanity: vanity): Promise<void> => {
     body: JSON.stringify(linkRequest),
     headers: requestHeaders,
   });
+};
+
+const send_confirmation = (vanity: vanity, email: string, name: string) => {
+  sendgrid.setApiKey(functions.config().sendgrid.apikey);
+  const msg: sendgrid.MailDataRequired = {
+    from: "development@acmutd.co",
+    to: email,
+    dynamicTemplateData: {
+      preheader: "Successful Generation of Vanity Link",
+      subject: "Vanity Link Confirmation",
+      vanity_link: vanity.subdomain + "." + vanity.primary_domain + "/" + vanity.slashtag,
+      full_name: name,
+    },
+    templateId: "d-cd15e958009a43b3b3a8d7352ee12c79",
+  };
+  sendgrid.send(msg);
 };
