@@ -110,4 +110,4 @@ export const challenge = functions.https.onRequest(app_open);
 // firestore triggers
 export const build_vanity_link = vanityFunctions.build_vanity_link;
 export const create_vanity_link = vanityFunctions.create_vanity_link;
-//export const email_discord_mapper = hacktoberfestFunctions.mapper;
+export const email_discord_mapper = hacktoberfestFunctions.mapper;
