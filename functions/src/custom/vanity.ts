@@ -3,7 +3,7 @@ import * as Sentry from "@sentry/node";
 import request from "request";
 import sendgrid from "@sendgrid/mail";
 
-interface vanity {
+interface Vanity {
   destination: string;
   primary_domain: string;
   subdomain: string;
@@ -99,7 +99,7 @@ export const build_vanity_link = functions.firestore
           }
         });
 
-        const data: vanity = {
+        const data: Vanity = {
           destination: destination,
           primary_domain: primary_domain,
           subdomain: subdomain,
@@ -114,7 +114,7 @@ export const build_vanity_link = functions.firestore
     }
   });
 
-const create_link = async (vanity: vanity): Promise<void> => {
+const create_link = async (vanity: Vanity): Promise<void> => {
   const linkRequest = {
     destination: vanity.destination,
     domain: { fullName: vanity.subdomain + "." + vanity.primary_domain },
@@ -141,7 +141,7 @@ const create_link = async (vanity: vanity): Promise<void> => {
   });
 };
 
-const send_confirmation = (vanity: vanity, email: string, name: string) => {
+const send_confirmation = (vanity: Vanity, email: string, name: string) => {
   sendgrid.setApiKey(functions.config().sendgrid.apikey);
   const msg: sendgrid.MailDataRequired = {
     from: "development@acmutd.co",
