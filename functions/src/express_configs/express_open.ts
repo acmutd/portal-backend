@@ -37,13 +37,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // The error handler must be before any other error middleware and after all controllers
 app.use(
   Sentry.Handlers.errorHandler({
-    shouldHandleError(error) {
-      // Capture all errors over 400
-      if ((error.status as number) >= 400) {
-        return true;
-      }
-      return false;
-    },
+    // report the error to sentry if >=400
+    shouldHandleError: (error) => (error.status as number) >= 400,
   })
 );
 

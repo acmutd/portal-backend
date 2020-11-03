@@ -62,7 +62,7 @@ function errorHandler(error: Error, request: Request, response: Response, next: 
 app.use(errorHandler);
 
 // Automatically send uncaught exception errors to Sentry
-process.on("uncaughtException", (error) => Sentry.captureException(error));
+process.on("uncaughtException", (err) => Sentry.captureException(err));
 
 const checkJwt = jwt({
   secret: jwksRsa.expressJwtSecret({

@@ -16,7 +16,7 @@ import * as eventFunctions from "./events/events";
 import * as vanityFunctions from "./custom/vanity";
 import * as hacktoberfestFunctions from "./custom/hacktoberfest";
 import * as typeformFunctions from "./application/typeform";
-import * as errorFunctions from "./services/ErrorService";
+import * as errorFunctions from "./services/errorService";
 
 //this will match every call made to this api.
 app_secure.all("/", (request, response, next) => {
