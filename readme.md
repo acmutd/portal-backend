@@ -61,6 +61,7 @@ root
 │   │   │   └── challenge.ts
 │   │   ├── custom
 │   │   │   ├── hacktoberfest.ts
+|   |   |   ├── hackutd.ts
 │   │   │   └── vanity.ts
 │   │   ├── divisions
 │   │   │   ├── GET
@@ -86,11 +87,9 @@ root
 
 ### How to Contribute
 
-When testing deployment on a feature branch rename last line in `index.ts` to be as follows
+Reach out to the [Director of Development](mailto:development@acmutd.co) to learn more about how to contribute to our open source projects. If you are interested in joining the team as a developer learn more in the [dev readme](https://github.com/acmutd/Development/blob/master/developer.md). 
 
-`exports.api-YOURNAME = functions.https.onRequest(app);`
-
-When making a pull request to `dev` ensure that it has been reverted to exports.api.
+If you'd like to take ownership over a project or become a core maintainer for these projects learn more about becoming an _ACM Development_ officer in the [officer readme](https://github.com/acmutd/Development/blob/master/dev_officer.md). 
 
 ##### Pull Requests & Issues
 

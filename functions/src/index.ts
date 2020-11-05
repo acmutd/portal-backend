@@ -16,6 +16,8 @@ import * as eventFunctions from "./events/events";
 import * as vanityFunctions from "./custom/vanity";
 import * as hacktoberfestFunctions from "./custom/hacktoberfest";
 import * as typeformFunctions from "./application/typeform";
+import * as hackutdFunctions from "./custom/hackutd";
+import { send } from "@sendgrid/mail";
 
 //this will match every call made to this api.
 app_secure.all("/", (request, response, next) => {
@@ -85,6 +87,7 @@ app_secure.post("/sendgrid/send", sendgridFunctions.sendTestEmail);
 app_secure.post("/sendgrid/send2", sendgridFunctions.sendDynamicTemplate);
 app_secure.post("/sendgrid/upsertContact", sendgridFunctions.upsertContact);
 app_secure.post("/sendgrid/sendMailingList", sendgridFunctions.sendMailingList);
+app_open.get("/sendgrid/getMailingLists", sendgridFunctions.getMailingLists);
 
 /**
  * Challenges for ACM Development
@@ -104,6 +107,11 @@ app_open.post("/typeform", typeformFunctions.typeform_webhook);
  */
 app_open.post("/htf-development", hacktoberfestFunctions.retrieve_record);
 
+/**
+ * hackutd endpoints
+ */
+app_open.post("/hackutd", hackutdFunctions.mongo_integration);
+
 export const api = functions.https.onRequest(app_secure);
 export const challenge = functions.https.onRequest(app_open);
 
@@ -111,3 +119,4 @@ export const challenge = functions.https.onRequest(app_open);
 export const build_vanity_link = vanityFunctions.build_vanity_link;
 export const create_vanity_link = vanityFunctions.create_vanity_link;
 export const email_discord_mapper = hacktoberfestFunctions.mapper;
+export const hackutd_mapper = hackutdFunctions.uploadToSendgrid;
