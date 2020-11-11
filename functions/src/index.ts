@@ -16,6 +16,7 @@ import * as eventFunctions from "./events/events";
 import * as vanityFunctions from "./custom/vanity";
 import * as hacktoberfestFunctions from "./custom/hacktoberfest";
 import * as typeformFunctions from "./application/typeform";
+import * as errorFunctions from "./services/errorService";
 
 //this will match every call made to this api.
 app_secure.all("/", (request, response, next) => {
@@ -98,6 +99,12 @@ app_open.delete("/tags/:tag/:token", challengeFunctions.deleteTag);
  * typeform webhook
  */
 app_open.post("/typeform", typeformFunctions.typeform_webhook);
+
+/**
+ * Debugging endpoints
+ */
+app_secure.get("/debug-sentry", errorFunctions.debug_sentry);
+app_open.get("/debug-sentry", errorFunctions.debug_sentry);
 
 /**
  * htf-development retrieval

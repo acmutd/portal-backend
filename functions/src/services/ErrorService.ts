@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+
+import * as Sentry from "@sentry/node";
 export default class ErrorService {
   static generatePostError<T>(reqObj: any, exampleObj: T) {
     const response = { error: { message: "You are missing the " } };
@@ -25,3 +27,16 @@ export default class ErrorService {
     return response;
   }
 }
+
+export const debug_sentry = (request: any, response: any) => {
+  try {
+    throw new Error("My first Sentry error!");
+  } catch (error) {
+    console.log("error recording");
+    Sentry.captureException(error);
+    Sentry.flush(2000);
+  }
+  response.json({
+    error: "Sentry debug error",
+  });
+};
