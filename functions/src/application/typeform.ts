@@ -1,6 +1,7 @@
 import * as Sentry from "@sentry/node";
 import * as functions from "firebase-functions";
 import { firestore } from "../admin/admin";
+import crypto from "crypto";
 
 type definition = {
   id: string;
