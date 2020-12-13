@@ -13,6 +13,7 @@ type form_response = {
   landed_at: string;
   submitted_at: string;
   definition: definition;
+  hidden: any;
   answers: any; //im lazy, someone plz do this
 };
 interface typeform {
@@ -33,6 +34,21 @@ export const typeform_webhook = async (request: any, response: any): Promise<voi
   const qa_responses: qa[] = [];
   const questions = data.form_response.definition.fields;
   const answers = data.form_response.answers;
+  const hidden = data.form_response.hidden;
+
+  for (const [key, value] of Object.entries(hidden || {})) {
+    // do not save fields that expose security vulnerabilities
+    // never pass in a jwt via typeform to acm-core
+    if (key === "jwt") {
+      continue;
+    }
+    const qa_res = {
+      question: key as string,
+      answer: value as string,
+      type: "hidden_field",
+    };
+    qa_responses.push(qa_res);
+  }
 
   questions.forEach((element: any, index: number) => {
     const qa_res = {
@@ -59,4 +75,8 @@ export const typeform_webhook = async (request: any, response: any): Promise<voi
       error: error,
     });
   }
+};
+
+const validate_JWT = (jwt: string) => {
+  console.log("hello");
 };

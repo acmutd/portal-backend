@@ -1,11 +1,13 @@
 interface JwtClaims {
-  iss: string;
+  email?: string;
+  iss: number;
   sub: string;
   aud: string;
-  iat: string;
+  nbf?: number;
+  iat: number;
   exp: string;
-  azp: string;
-  gty: string;
+  azp?: string;
+  gty?: string;
 }
 
 declare namespace Express {

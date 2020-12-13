@@ -1,6 +1,7 @@
 /**
  * Handle express routing in this file
  */
+import app_cf from "./express_configs/express_cf";
 import app_secure from "./express_configs/express_secure";
 import app_open from "./express_configs/express_open";
 
@@ -111,6 +112,18 @@ app_open.get("/debug-sentry", errorFunctions.debug_sentry);
  */
 app_open.post("/htf-development", hacktoberfestFunctions.retrieve_record);
 
+/**
+ * Cloudflare access protected endpoint
+ */
+app_cf.get("/verify", (req, res) => {
+  console.log(req.user);
+  res.json({
+    message: "Successful execution of jwt verification",
+    email: req.user.email,
+  });
+});
+
+export const cf = functions.https.onRequest(app_cf);
 export const api = functions.https.onRequest(app_secure);
 export const challenge = functions.https.onRequest(app_open);
 

@@ -69,11 +69,11 @@ const checkJwt = jwt({
     cache: true,
     rateLimit: true,
     jwksRequestsPerMinute: 5,
-    jwksUri: `https://${functions.config().auth0.domain}/.well-known/jwks.json`,
+    jwksUri: `https://${functions.config().cloudflare.domain}/cdn-cgi/access/certs`,
   }),
 
-  audience: functions.config().auth0.audience,
-  issuer: `https://${functions.config().auth0.domain}/`,
+  audience: functions.config().cloudflare.audience,
+  issuer: `https://${functions.config().cloudflare.domain}`,
   algorithms: ["RS256"],
 });
 //user must be authenticated on auth0 for the requests to go through
