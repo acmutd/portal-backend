@@ -1,4 +1,5 @@
 import * as Sentry from "@sentry/node";
+import * as functions from "firebase-functions";
 import { firestore } from "../admin/admin";
 
 type definition = {
@@ -30,6 +31,11 @@ interface qa {
 
 export const typeform_webhook = async (request: any, response: any): Promise<void> => {
   const data: typeform = request.body;
+  if (!verify_signature(request.header("Typeform-Signature"), request.body)) {
+    response.status(403).json({
+      message: "Unauthorized",
+    });
+  }
 
   const qa_responses: qa[] = [];
   const questions = data.form_response.definition.fields;
@@ -75,4 +81,13 @@ export const typeform_webhook = async (request: any, response: any): Promise<voi
       error: error,
     });
   }
+};
+
+const verify_signature = (expectedSig: any, body: any) => {
+  const hash = crypto.createHmac("sha256", functions.config().typeform.secret).update(body).digest("base64");
+  const actualSig = `sha256=${hash}`;
+  if (actualSig !== expectedSig) {
+    return false;
+  }
+  return true;
 };
