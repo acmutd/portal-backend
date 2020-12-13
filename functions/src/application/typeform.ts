@@ -1,7 +1,7 @@
 import * as Sentry from "@sentry/node";
-import * as functions from "firebase-functions";
+// import * as functions from "firebase-functions";
 import { firestore } from "../admin/admin";
-import crypto from "crypto";
+// import crypto from "crypto";
 
 type definition = {
   id: string;
@@ -86,16 +86,16 @@ export const typeform_webhook = async (request: any, response: any): Promise<voi
   }
 };
 
-const verify_signature = (expectedSig: any, body: any) => {
-  const hash = crypto
-    .createHmac("sha256", functions.config().typeform.secret)
-    .update(JSON.stringify(body))
-    .digest("base64");
-  const actualSig = `sha256=${hash}`;
-  console.log("expected: " + expectedSig);
-  console.log("actual: " + actualSig);
-  if (actualSig !== expectedSig) {
-    return false;
-  }
-  return true;
-};
+// const verify_signature = (expectedSig: any, body: any) => {
+//   const hash = crypto
+//     .createHmac("sha256", functions.config().typeform.secret)
+//     .update(JSON.stringify(body))
+//     .digest("base64");
+//   const actualSig = `sha256=${hash}`;
+//   console.log("expected: " + expectedSig);
+//   console.log("actual: " + actualSig);
+//   if (actualSig !== expectedSig) {
+//     return false;
+//   }
+//   return true;
+// };

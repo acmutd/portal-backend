@@ -32,8 +32,8 @@ app.use(Sentry.Handlers.tracingHandler());
 
 app.use(cors({ origin: true }));
 // app.use(bodyParser.raw({ type: "application/json" }));
-// app.use(bodyParser.json());
-// app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // The error handler must be before any other error middleware and after all controllers
 app.use(
