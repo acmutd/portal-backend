@@ -76,7 +76,3 @@ export const typeform_webhook = async (request: any, response: any): Promise<voi
     });
   }
 };
-
-const validate_JWT = (jwt: string) => {
-  console.log("hello");
-};

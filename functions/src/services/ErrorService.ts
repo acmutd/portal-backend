@@ -1,8 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-
 import * as Sentry from "@sentry/node";
-export default class ErrorService {
+export class ErrorService {
   static generatePostError<T>(reqObj: any, exampleObj: T) {
     const response = { error: { message: "You are missing the " } };
     const missing: string[] = [];
