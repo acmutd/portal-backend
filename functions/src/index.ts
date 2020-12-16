@@ -116,10 +116,19 @@ app_open.post("/htf-development", hacktoberfestFunctions.retrieve_record);
  * Cloudflare access protected endpoint
  */
 app_cf.get("/verify", (req, res) => {
-  console.log(req.user);
   res.json({
     message: "Successful execution of jwt verification",
     email: req.user.email,
+  });
+});
+
+/**
+ * Auth0 protected endpoint
+ */
+app_secure.get("/verify", (req, res) => {
+  console.log(req);
+  res.json({
+    message: "Successful execution of jwt verification",
   });
 });
 
