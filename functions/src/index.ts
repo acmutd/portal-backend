@@ -117,8 +117,10 @@ app_open.post("/htf-development", hacktoberfestFunctions.retrieve_record);
  */
 app_cf.get("/verify", (req, res) => {
   res.json({
-    message: "Successful execution of jwt verification",
     email: req.user.email,
+    name: "harsha srikara",
+    jwt: req.user,
+    body: req.body,
   });
 });
 

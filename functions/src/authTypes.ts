@@ -1,5 +1,6 @@
 interface JwtClaims {
   email?: string;
+  custom?: Record<string, unknown>;
   iss: number;
   sub: string;
   aud: string;

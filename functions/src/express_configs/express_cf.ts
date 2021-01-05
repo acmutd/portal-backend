@@ -79,4 +79,18 @@ const checkJwt = jwt({
 //user must be authenticated on auth0 for the requests to go through
 app.use(checkJwt);
 
+/**
+ * Extract jwt fields aand inject into request body
+ */
+function extractJWT(request: Request, response: Response, next: () => void) {
+  request.body.sub = request.user.sub;
+  if ("custom" in request.user) {
+    request.body.idp = "Auth0";
+  } else {
+    request.body.idp = "GSuite";
+  }
+  next();
+}
+app.use(extractJWT);
+
 export default app;
