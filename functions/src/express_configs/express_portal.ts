@@ -44,6 +44,7 @@ app.use(
   Sentry.Handlers.errorHandler({
     shouldHandleError(error) {
       // Capture all errors over 400
+      Sentry.captureException(error);
       if ((error.status as number) >= 400) {
         return true;
       }
@@ -65,7 +66,7 @@ app.use(errorHandler);
 // Automatically send uncaught exception errors to Sentry
 process.on("uncaughtException", (err) => Sentry.captureException(err));
 
-const checkJwt = jwt({
+const checkJwt_auth0 = jwt({
   secret: jwksRsa.expressJwtSecret({
     cache: true,
     rateLimit: true,
@@ -73,12 +74,26 @@ const checkJwt = jwt({
     jwksUri: `https://${functions.config().cloudflare.domain}/cdn-cgi/access/certs`,
   }),
 
-  audience: functions.config().cloudflare.audience,
+  audience: functions.config().cloudflare.portal_auth0_audience,
+  issuer: `https://${functions.config().cloudflare.domain}`,
+  algorithms: ["RS256"],
+});
+
+const checkJwt_gsuite = jwt({
+  secret: jwksRsa.expressJwtSecret({
+    cache: true,
+    rateLimit: true,
+    jwksRequestsPerMinute: 5,
+    jwksUri: `https://${functions.config().cloudflare.domain}/cdn-cgi/access/certs`,
+  }),
+
+  audience: functions.config().cloudflare.portal_gsuite_audience,
   issuer: `https://${functions.config().cloudflare.domain}`,
   algorithms: ["RS256"],
 });
 //user must be authenticated on auth0 for the requests to go through
-app.use(checkJwt);
+app.use("/auth0", checkJwt_auth0);
+app.use("/gsuite", checkJwt_gsuite);
 
 /**
  * Extract jwt fields aand inject into request body

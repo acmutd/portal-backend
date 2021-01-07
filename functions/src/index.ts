@@ -1,6 +1,7 @@
 /**
  * Handle express routing in this file
  */
+import app_portal from "./express_configs/express_portal";
 import app_cf from "./express_configs/express_cf";
 import app_secure from "./express_configs/express_secure";
 import app_open from "./express_configs/express_open";
@@ -120,6 +121,18 @@ app_cf.get("/verify", portalFunctions.verify); //to be phased out
 app_cf.get("/verify-idp", portalFunctions.verify_idp);
 
 /**
+ * The two following endpoints are duplicated across both /auth0 and /gsuite
+ * This is because they have common requirements
+ * Additional endpoints for separate forms will be on one or the other path
+ */
+app_portal.get("/auth0/verify-idp", portalFunctions.verify_idp);
+app_portal.get("/gsuite/verify-idp", portalFunctions.verify_idp);
+
+app_portal.get("/auth0/verify", portalFunctions.verify);
+app_portal.get("/gsuite/verify", portalFunctions.verify);
+
+/**
+ * @deprecated
  * Auth0 protected endpoint
  */
 app_secure.get("/verify", (req, res) => {
@@ -131,6 +144,7 @@ app_secure.get("/verify", (req, res) => {
 
 export const cf = functions.https.onRequest(app_cf);
 export const api = functions.https.onRequest(app_secure);
+export const portal = functions.https.onRequest(app_portal);
 export const challenge = functions.https.onRequest(app_open);
 
 // firestore triggers
