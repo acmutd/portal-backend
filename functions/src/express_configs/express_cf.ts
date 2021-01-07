@@ -26,6 +26,7 @@ if (functions.config()?.sentry?.dns) {
       new Tracing.Integrations.Express({ app }),
     ],
     tracesSampleRate: 1.0,
+    environment: process.env.NODE_ENV,
   });
 }
 

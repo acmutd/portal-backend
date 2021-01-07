@@ -18,6 +18,7 @@ import * as vanityFunctions from "./custom/vanity";
 import * as hacktoberfestFunctions from "./custom/hacktoberfest";
 import * as typeformFunctions from "./application/typeform";
 import * as errorFunctions from "./services/ErrorService";
+import * as portalFunctions from "./application/portal";
 
 //this will match every call made to this api.
 app_secure.all("/", (request, response, next) => {
@@ -115,14 +116,8 @@ app_open.post("/htf-development", hacktoberfestFunctions.retrieve_record);
 /**
  * Cloudflare access protected endpoint
  */
-app_cf.get("/verify", (req, res) => {
-  res.json({
-    email: req.user.email,
-    name: "harsha srikara",
-    jwt: req.user,
-    body: req.body,
-  });
-});
+app_cf.get("/verify", portalFunctions.verify); //to be phased out
+app_cf.get("/verify-idp", portalFunctions.verify_idp);
 
 /**
  * Auth0 protected endpoint
