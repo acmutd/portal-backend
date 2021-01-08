@@ -131,6 +131,8 @@ app_portal.get("/gsuite/verify-idp", portalFunctions.verify_idp);
 app_portal.get("/auth0/verify", portalFunctions.verify);
 app_portal.get("/gsuite/verify", portalFunctions.verify);
 
+app_portal.post("/auth0/create-blank-profile", portalFunctions.create_blank_profile);
+
 /**
  * @deprecated
  * Auth0 protected endpoint
@@ -142,6 +144,7 @@ app_secure.get("/verify", (req, res) => {
   });
 });
 
+// http server endpoints
 export const cf = functions.https.onRequest(app_cf);
 export const api = functions.https.onRequest(app_secure);
 export const portal = functions.https.onRequest(app_portal);
@@ -151,3 +154,4 @@ export const challenge = functions.https.onRequest(app_open);
 export const build_vanity_link = vanityFunctions.build_vanity_link;
 export const create_vanity_link = vanityFunctions.create_vanity_link;
 export const email_discord_mapper = hacktoberfestFunctions.mapper;
+export const create_profile = portalFunctions.create_profile;
