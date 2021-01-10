@@ -35,7 +35,6 @@ app_cf.all("/", (request: Request, response: Response, next) => {
   next();
 });
 app_open.all("/", (request: Request, response: Response, next) => {
-  logger.log(request);
   next();
 });
 

@@ -7,6 +7,7 @@ import * as functions from "firebase-functions";
 
 export interface sendgrid_email {
   from: string;
+  from_name: string;
   to: string;
   template_id: string;
   dynamicSubstitutions: Record<string, unknown>; //apparently this is the correct typescript way to define any object
@@ -58,7 +59,10 @@ export const send_dynamic_template = (data: sendgrid_email): void => {
   try {
     sendgrid.setApiKey(functions.config().sendgrid.apikey);
     const msg: sendgrid.MailDataRequired = {
-      from: data.from,
+      from: {
+        email: data.from,
+        name: data.from_name,
+      },
       to: data.to,
       dynamicTemplateData: data.dynamicSubstitutions,
       templateId: data.template_id,

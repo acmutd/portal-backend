@@ -35,7 +35,11 @@ app.use(Sentry.Handlers.requestHandler());
 // TracingHandler creates a trace for every incoming request
 app.use(Sentry.Handlers.tracingHandler());
 
-app.use(cors({ origin: true }));
+app.use(
+  cors({
+    origin: ["https://app.acmutd.co", "http://localhost:3000", "https://portal.acmutd.co"],
+  })
+);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -101,7 +105,7 @@ app.use("/gsuite", checkJwt_gsuite);
  */
 function extractJWT(request: Request, response: Response, next: () => void) {
   request.body.sub = request.user.sub;
-  if ("custom" in request.user) {
+  if (request.user.aud.includes(functions.config().cloudflare.portal_auth0_audience)) {
     request.body.idp = "auth0";
   } else {
     request.body.idp = "gsuite";

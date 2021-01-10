@@ -120,6 +120,7 @@ export const send_confirmation = functions.firestore
       const email_data: sendgrid_email = {
         to: email,
         from: metadata?.from,
+        from_name: metadata?.from_name,
         template_id: metadata?.sendgrid_dynamic_template,
         dynamicSubstitutions: {
           first_name: first_name,

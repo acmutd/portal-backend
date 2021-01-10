@@ -1,6 +1,6 @@
 import { Response, Request } from "express";
 import * as functions from "firebase-functions";
-import Sentry from "@sentry/node";
+import * as Sentry from "@sentry/node";
 import { firestore } from "../admin/admin";
 import sendgrid from "@sendgrid/mail";
 import RequestOptions from "@sendgrid/helpers/classes/request";
@@ -12,8 +12,6 @@ export const verify = (request: Request, response: Response): void => {
   response.json({
     email: request.user.email,
     name: request.body.parsed_name,
-    // jwt: request.user,
-    // body: request.body,
   });
 };
 
@@ -135,12 +133,18 @@ export const get_profile = async (request: Request, response: Response): Promise
         ...result.data(),
         exists: true,
       });
+      return;
     }
     response.json({
       exists: false,
     });
-  } catch (error) {
-    Sentry.captureException(error);
+  } catch (err) {
+    Sentry.captureException(err);
+    response.json({
+      message: "Unsuccessful execution of fetch profile",
+      error: err,
+      exists: false,
+    });
   }
 };
 

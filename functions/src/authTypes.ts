@@ -3,7 +3,7 @@ interface JwtClaims {
   custom?: Record<string, unknown>;
   iss: number;
   sub: string;
-  aud: string;
+  aud: string[];
   nbf?: number;
   iat: number;
   exp: string;
