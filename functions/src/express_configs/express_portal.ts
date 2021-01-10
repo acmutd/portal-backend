@@ -93,6 +93,7 @@ const checkJwt_gsuite = jwt({
 });
 //user must be authenticated on auth0 for the requests to go through
 app.use("/auth0", checkJwt_auth0);
+// user must be authenticated on gsuite for the requests to go through
 app.use("/gsuite", checkJwt_gsuite);
 
 /**
