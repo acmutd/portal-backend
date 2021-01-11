@@ -28,6 +28,7 @@ export const create_blank_profile = async (request: Request, response: Response)
       {
         email: request.user.email,
         sub: data.sub,
+        past_applications: [],
       },
       { merge: true }
     );
@@ -142,6 +143,36 @@ export const get_profile = async (request: Request, response: Response): Promise
     Sentry.captureException(err);
     response.json({
       message: "Unsuccessful execution of fetch profile",
+      error: err,
+      exists: false,
+    });
+  }
+};
+
+export const get_developer_profile = async (request: Request, response: Response): Promise<void> => {
+  const data = request.body;
+  try {
+    const result = await firestore.collection(profile_collection).doc(data.sub).get();
+    const fields = result.data();
+    if (result.exists) {
+      response.json({
+        unique_sub: data.sub,
+        email: fields?.email,
+        first_name: fields?.first_name,
+        last_name: fields?.last_name,
+        major: fields?.major,
+        classification: fields?.classification,
+        net_id: fields?.net_id,
+      });
+      return;
+    }
+    response.json({
+      exists: false,
+    });
+  } catch (err) {
+    Sentry.captureException(err);
+    response.json({
+      message: "Unsuccessful execution of fetch developer profile",
       error: err,
       exists: false,
     });

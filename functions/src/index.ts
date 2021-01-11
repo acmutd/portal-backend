@@ -136,6 +136,7 @@ app_portal.get("/gsuite/verify", portalFunctions.verify);
 //all initialization requests on portal frontend for forms are get requests
 app_portal.get("/auth0/create-blank-profile", portalFunctions.create_blank_profile);
 app_portal.get("/auth0/profile", portalFunctions.get_profile);
+app_portal.get("/auth0/developer", portalFunctions.get_developer_profile);
 
 /**
  * @deprecated
