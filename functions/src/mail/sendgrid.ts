@@ -4,6 +4,7 @@ import { Response, Request } from "express";
 import * as Sentry from "@sentry/node";
 import RequestOptions from "@sendgrid/helpers/classes/request";
 import * as functions from "firebase-functions";
+import logger from "../services/logging";
 
 export interface sendgrid_email {
   from: string;
@@ -68,6 +69,10 @@ export const send_dynamic_template = (data: sendgrid_email): void => {
       templateId: data.template_id,
     };
     sendgrid.send(msg);
+    logger.log({
+      ...data,
+      message: "Executing send_dynamic_template",
+    });
   } catch (error) {
     Sentry.captureException(error);
   }
@@ -117,6 +122,10 @@ export const upsert_contact = async (user: user_contact): Promise<void> => {
   };
   //const result = await client.request(req);
   await client.request(req);
+  logger.log({
+    ...user,
+    message: "Executing upsert_contact",
+  });
 };
 
 export const sendMailingList = async (request: Request, response: Response): Promise<void> => {

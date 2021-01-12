@@ -5,6 +5,7 @@ import { firestore } from "../admin/admin";
 import sendgrid from "@sendgrid/mail";
 import RequestOptions from "@sendgrid/helpers/classes/request";
 import client from "@sendgrid/client";
+import { send_dynamic_template, upsert_contact } from "../mail/sendgrid";
 
 const profile_collection = "profile";
 
@@ -56,7 +57,7 @@ export const create_profile = functions.firestore
         let first_name = "";
         let last_name = "";
         let utd_student = "";
-        let net_id = "";
+        let net_id = "xxx000000";
         let university = "University of Texas at Dallas";
         let classification = "";
         let major = "";
@@ -103,7 +104,31 @@ export const create_profile = functions.firestore
             sub = element.answer;
           }
         });
-        // send a confirmation email here
+
+        send_dynamic_template({
+          from: "contact@acmutd.co",
+          from_name: "ACM Team",
+          to: email,
+          template_id: "d-ecc89a45df224386a022bb4c91762529",
+          dynamicSubstitutions: {
+            first_name: first_name,
+            last_name: last_name,
+          },
+        });
+        upsert_contact({
+          email: email,
+          first_name: first_name,
+          last_name: last_name,
+          list: "812fb281-b20b-405a-a281-097cc56210e0",
+          meta: {
+            w5_T: classification,
+            w6_T: major,
+            w7_T: utd_student,
+            w8_T: net_id,
+            w9_T: sub,
+            w10_T: university,
+          },
+        });
 
         firestore.collection(profile_collection).doc(sub).set(
           {

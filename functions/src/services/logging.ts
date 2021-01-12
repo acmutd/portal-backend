@@ -4,6 +4,7 @@ import * as functions from "firebase-functions";
 
 const options: logdna.ConstructorOptions = {
   app: "acm-core",
+  env: process.env.NODE_ENV,
   // level: logdna.LogLevel.debug, // set a default for when level is not provided in function calls
 };
 
