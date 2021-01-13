@@ -76,7 +76,7 @@ const checkJwt = jwt({
   issuer: `https://${functions.config().auth0.domain}/`,
   algorithms: ["RS256"],
 });
-//uåser must be authenticated on auth0 for the requests to go through
+//user must be authenticated on auth0 for the requests to go through
 app.use(checkJwt);
 
 export default app;

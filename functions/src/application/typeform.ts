@@ -1,5 +1,7 @@
 import * as Sentry from "@sentry/node";
+// import * as functions from "firebase-functions";
 import { firestore } from "../admin/admin";
+// import crypto from "crypto";
 
 type definition = {
   id: string;
@@ -13,6 +15,7 @@ type form_response = {
   landed_at: string;
   submitted_at: string;
   definition: definition;
+  hidden: any;
   answers: any; //im lazy, someone plz do this
 };
 interface typeform {
@@ -29,10 +32,32 @@ interface qa {
 
 export const typeform_webhook = async (request: any, response: any): Promise<void> => {
   const data: typeform = request.body;
+  //if (!verify_signature(request.header("Typeform-Signature"), request.body)) {
+  // response.json({
+  //   message: "Unauthorized",
+  //   act: actualSig,
+  //   exp: request.header("Typeform-Signature"),
+  // });
+  //}
 
   const qa_responses: qa[] = [];
   const questions = data.form_response.definition.fields;
   const answers = data.form_response.answers;
+  const hidden = data.form_response.hidden;
+
+  for (const [key, value] of Object.entries(hidden || {})) {
+    // do not save fields that expose security vulnerabilities
+    // never pass in a jwt via typeform to acm-core
+    if (key === "jwt") {
+      continue;
+    }
+    const qa_res = {
+      question: key as string,
+      answer: value as string,
+      type: "hidden_field",
+    };
+    qa_responses.push(qa_res);
+  }
 
   questions.forEach((element: any, index: number) => {
     const qa_res = {
@@ -60,3 +85,17 @@ export const typeform_webhook = async (request: any, response: any): Promise<voi
     });
   }
 };
+
+// const verify_signature = (expectedSig: any, body: any) => {
+//   const hash = crypto
+//     .createHmac("sha256", functions.config().typeform.secret)
+//     .update(JSON.stringify(body))
+//     .digest("base64");
+//   const actualSig = `sha256=${hash}`;
+//   console.log("expected: " + expectedSig);
+//   console.log("actual: " + actualSig);
+//   if (actualSig !== expectedSig) {
+//     return false;
+//   }
+//   return true;
+// };

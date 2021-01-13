@@ -74,7 +74,7 @@ export const build_vanity_link = functions.firestore
       let subdomain = "";
       let slashtag = "";
 
-      const fullname_question = "full name";
+      const fullname_question = "name";
       const email_question = "email";
       const destination_question = "vanity link";
       const primary_domain_question = "primary domain";
