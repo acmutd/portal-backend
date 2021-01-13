@@ -155,11 +155,14 @@ export const get_profile = async (request: Request, response: Response): Promise
   try {
     const result = await firestore.collection(profile_collection).doc(data.sub).get();
     if (result.exists) {
-      response.json({
-        ...result.data(),
-        exists: true,
-      });
-      return;
+      const fields = result.data() as Record<string, unknown>;
+      if ("first_name" in fields) {
+        response.json({
+          ...result.data(),
+          exists: true,
+        });
+        return;
+      }
     }
     response.json({
       exists: false,

@@ -107,8 +107,8 @@ export const send_confirmation = functions.firestore
       let sub = "";
       typeform_results.forEach((element: any) => {
         const email_question = "email";
-        const first_name_question = "firstname";
-        const last_name_question = "lastname";
+        const first_name_question = "first_name";
+        const last_name_question = "last_name";
         const sub_question = "sub";
         if (element.question.includes(email_question)) {
           email = element.answer;
