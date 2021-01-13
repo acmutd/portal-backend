@@ -1,6 +1,9 @@
 import * as Sentry from "@sentry/node";
-// import * as functions from "firebase-functions";
+import * as functions from "firebase-functions";
 import { firestore } from "../admin/admin";
+import logger from "../services/logging";
+import { upsert_contact, send_dynamic_template, user_contact, sendgrid_email } from "../mail/sendgrid";
+import admin from "firebase-admin";
 // import crypto from "crypto";
 
 type definition = {
@@ -23,8 +26,7 @@ interface typeform {
   event_type: string;
   form_response: form_response;
 }
-
-interface qa {
+export interface qa {
   question: string;
   answer: string;
   type: string;
@@ -85,6 +87,76 @@ export const typeform_webhook = async (request: any, response: any): Promise<voi
     });
   }
 };
+
+export const send_confirmation = functions.firestore
+  .document("typeform/{document_name}")
+  .onCreate(async (snap, context) => {
+    const document = snap.data();
+    try {
+      const meta_doc = await firestore.collection("typeform_meta").doc(document.typeform_id).get();
+      if (!meta_doc.exists) {
+        logger.log(`No email template found for typeform ${document.typeform_id}`);
+        return;
+      }
+      const metadata = meta_doc.data();
+      const typeform_results = document.data;
+
+      let email = "";
+      let first_name = "";
+      let last_name = "";
+      let sub = "";
+      typeform_results.forEach((element: any) => {
+        const email_question = "email";
+        const first_name_question = "first_name";
+        const last_name_question = "last_name";
+        const sub_question = "sub";
+        if (element.question.includes(email_question)) {
+          email = element.answer;
+        }
+        if (element.question.includes(first_name_question)) {
+          first_name = element.answer;
+        }
+        if (element.question.includes(last_name_question)) {
+          last_name = element.answer;
+        }
+        if (element.question.includes(sub_question)) {
+          sub = element.answer;
+        }
+      });
+      const email_data: sendgrid_email = {
+        to: email,
+        from: metadata?.from,
+        from_name: metadata?.from_name,
+        template_id: metadata?.sendgrid_dynamic_template,
+        dynamicSubstitutions: {
+          first_name: first_name,
+          last_name: last_name,
+        },
+      };
+      const contact_data: user_contact = {
+        email: email,
+        first_name: first_name,
+        last_name: last_name,
+        list: metadata?.sendgrid_marketing_list,
+      };
+      logger.log(
+        `sending email to user ${sub} with email ${email} in response to completion of form ${document.typeform_id}`
+      );
+      await firestore
+        .collection("profile")
+        .doc(sub)
+        .update({
+          past_applications: admin.firestore.FieldValue.arrayUnion({
+            name: document.typeform_id,
+            submitted_at: document.submission_time,
+          }),
+        });
+      send_dynamic_template(email_data);
+      upsert_contact(contact_data);
+    } catch (error) {
+      Sentry.captureException(error);
+    }
+  });
 
 // const verify_signature = (expectedSig: any, body: any) => {
 //   const hash = crypto

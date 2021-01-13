@@ -35,7 +35,11 @@ app.use(Sentry.Handlers.requestHandler());
 // TracingHandler creates a trace for every incoming request
 app.use(Sentry.Handlers.tracingHandler());
 
-app.use(cors({ origin: true }));
+app.use(
+  cors({
+    origin: ["https://app.acmutd.co", "http://localhost:3000", "https://portal.acmutd.co"],
+  })
+);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -44,6 +48,7 @@ app.use(
   Sentry.Handlers.errorHandler({
     shouldHandleError(error) {
       // Capture all errors over 400
+      Sentry.captureException(error);
       if ((error.status as number) >= 400) {
         return true;
       }
@@ -65,7 +70,7 @@ app.use(errorHandler);
 // Automatically send uncaught exception errors to Sentry
 process.on("uncaughtException", (err) => Sentry.captureException(err));
 
-const checkJwt = jwt({
+const checkJwt_auth0 = jwt({
   secret: jwksRsa.expressJwtSecret({
     cache: true,
     rateLimit: true,
@@ -73,22 +78,41 @@ const checkJwt = jwt({
     jwksUri: `https://${functions.config().cloudflare.domain}/cdn-cgi/access/certs`,
   }),
 
-  audience: functions.config().cloudflare.audience,
+  audience: functions.config().cloudflare.portal_auth0_audience,
+  issuer: `https://${functions.config().cloudflare.domain}`,
+  algorithms: ["RS256"],
+});
+
+const checkJwt_gsuite = jwt({
+  secret: jwksRsa.expressJwtSecret({
+    cache: true,
+    rateLimit: true,
+    jwksRequestsPerMinute: 5,
+    jwksUri: `https://${functions.config().cloudflare.domain}/cdn-cgi/access/certs`,
+  }),
+
+  audience: functions.config().cloudflare.portal_gsuite_audience,
   issuer: `https://${functions.config().cloudflare.domain}`,
   algorithms: ["RS256"],
 });
 //user must be authenticated on auth0 for the requests to go through
-app.use(checkJwt);
+app.use("/auth0", checkJwt_auth0);
+// user must be authenticated on gsuite for the requests to go through
+app.use("/gsuite", checkJwt_gsuite);
 
 /**
  * Extract jwt fields aand inject into request body
  */
 function extractJWT(request: Request, response: Response, next: () => void) {
   request.body.sub = request.user.sub;
-  if ("custom" in request.user) {
+  if (request.user.aud.includes(functions.config().cloudflare.portal_auth0_audience)) {
     request.body.idp = "auth0";
   } else {
     request.body.idp = "gsuite";
+    const identifier = (request.user.email as string).split("@")[0];
+    const first_name = identifier.split(".")[0];
+    const last_name = identifier.split(".")[1];
+    request.body.parsed_name = first_name + " " + last_name;
   }
   next();
 }

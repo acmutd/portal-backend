@@ -1,9 +1,12 @@
 /**
  * Handle express routing in this file
  */
+import app_portal from "./express_configs/express_portal";
 import app_cf from "./express_configs/express_cf";
 import app_secure from "./express_configs/express_secure";
 import app_open from "./express_configs/express_open";
+
+import { Request, Response } from "express";
 
 import * as functions from "firebase-functions";
 import * as authFunctions from "./auth/auth";
@@ -18,20 +21,20 @@ import * as vanityFunctions from "./custom/vanity";
 import * as hacktoberfestFunctions from "./custom/hacktoberfest";
 import * as typeformFunctions from "./application/typeform";
 import * as errorFunctions from "./services/ErrorService";
+import * as portalFunctions from "./application/portal";
+import logger, { debug_logger } from "./services/logging";
 
 //this will match every call made to this api.
-app_secure.all("/", (request, response, next) => {
-  // check if the user has access to relevant permissions. If not then deny access
-  // this function may end up pretty complex and need to be moved into a separate file under ./auth/verifyPermissions.ts
-  // an alternative simpler way is to ensure that only requests that are validated on the front-end come through
-  // if there is no way to call the api through the front end then is this additional check required?
-  // we will likely have a separate auth0 production client id to ensure that just cloning & running the repo will not suffice
-  // eslint-disable-next-line
-  if (false) {
-    response.send("Unauthorized! Access Denied");
-  }
-
+app_portal.all("/", (request: Request, response: Response, next) => {
+  logger.log(request);
   //next() basically says to run the next route that matches the url
+  next();
+});
+app_cf.all("/", (request: Request, response: Response, next) => {
+  logger.log(request);
+  next();
+});
+app_open.all("/", (request: Request, response: Response, next) => {
   next();
 });
 
@@ -83,10 +86,10 @@ app_secure.get("/link", applicationFunctions.getLinks);
 /**
  * Sendgrid integration
  */
-app_secure.post("/sendgrid/send", sendgridFunctions.sendTestEmail);
-app_secure.post("/sendgrid/send2", sendgridFunctions.sendDynamicTemplate);
-app_secure.post("/sendgrid/upsertContact", sendgridFunctions.upsertContact);
-app_secure.post("/sendgrid/sendMailingList", sendgridFunctions.sendMailingList);
+app_secure.post("/sendgrid/test-email", sendgridFunctions.sendTestEmail);
+app_portal.post("/sendgrid/confirmation", sendgridFunctions.send_email);
+app_portal.post("/sendgrid/upsert-contact", sendgridFunctions.upsertContact);
+app_secure.post("/sendgrid/send-mailing-list", sendgridFunctions.sendMailingList);
 
 /**
  * Challenges for ACM Development
@@ -106,6 +109,7 @@ app_open.post("/typeform", typeformFunctions.typeform_webhook);
  */
 app_secure.get("/debug-sentry", errorFunctions.debug_sentry);
 app_open.get("/debug-sentry", errorFunctions.debug_sentry);
+app_open.get("/debug-logger", debug_logger);
 
 /**
  * htf-development retrieval
@@ -115,19 +119,46 @@ app_open.post("/htf-development", hacktoberfestFunctions.retrieve_record);
 /**
  * Cloudflare access protected endpoint
  */
-app_cf.get("/verify", (req, res) => {
-  console.log(req.user);
+app_cf.get("/verify", portalFunctions.verify); //to be phased out
+app_cf.get("/verify-idp", portalFunctions.verify_idp);
+
+/**
+ * The two following endpoints are duplicated across both /auth0 and /gsuite
+ * This is because they have common requirements
+ * Additional endpoints for separate forms will be on one or the other path
+ */
+app_portal.get("/auth0/verify-idp", portalFunctions.verify_idp);
+app_portal.get("/gsuite/verify-idp", portalFunctions.verify_idp);
+
+app_portal.get("/auth0/verify", portalFunctions.verify);
+app_portal.get("/gsuite/verify", portalFunctions.verify);
+
+//all initialization requests on portal frontend for forms are get requests
+app_portal.get("/auth0/create-blank-profile", portalFunctions.create_blank_profile);
+app_portal.get("/auth0/profile", portalFunctions.get_profile);
+app_portal.get("/auth0/developer", portalFunctions.get_developer_profile);
+
+/**
+ * @deprecated
+ * Auth0 protected endpoint
+ */
+app_secure.get("/verify", (req, res) => {
+  console.log(req);
   res.json({
     message: "Successful execution of jwt verification",
-    email: req.user.email,
   });
 });
 
+// http server endpoints
 export const cf = functions.https.onRequest(app_cf);
 export const api = functions.https.onRequest(app_secure);
+export const portal = functions.https.onRequest(app_portal);
 export const challenge = functions.https.onRequest(app_open);
 
 // firestore triggers
 export const build_vanity_link = vanityFunctions.build_vanity_link;
 export const create_vanity_link = vanityFunctions.create_vanity_link;
 export const email_discord_mapper = hacktoberfestFunctions.mapper;
+export const create_profile = portalFunctions.create_profile;
+export const education_confirmation = portalFunctions.education_confirmation;
+export const typeform_confirmation = typeformFunctions.send_confirmation;

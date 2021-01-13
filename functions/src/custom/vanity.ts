@@ -104,7 +104,7 @@ export const build_vanity_link = functions.firestore
     }
   });
 
-const create_link = async (vanity: Vanity): Promise<void> => {
+const create_link = async (vanity: Vanity): Promise<request.Request> => {
   const linkRequest = {
     destination: vanity.destination,
     domain: { fullName: vanity.subdomain + "." + vanity.primary_domain },
@@ -123,7 +123,7 @@ const create_link = async (vanity: Vanity): Promise<void> => {
     apikey: apikey,
   };
 
-  request({
+  return request({
     uri: "https://api.rebrandly.com/v1/links",
     method: "POST",
     body: JSON.stringify(linkRequest),
@@ -131,7 +131,7 @@ const create_link = async (vanity: Vanity): Promise<void> => {
   });
 };
 
-const send_confirmation = (vanity: Vanity, email: string, name: string) => {
+const send_confirmation = (vanity: Vanity, email: string, name: string): Promise<[any, any]> => {
   sendgrid.setApiKey(functions.config().sendgrid.apikey);
   const msg: sendgrid.MailDataRequired = {
     from: "development@acmutd.co",
@@ -144,5 +144,5 @@ const send_confirmation = (vanity: Vanity, email: string, name: string) => {
     },
     templateId: "d-cd15e958009a43b3b3a8d7352ee12c79",
   };
-  sendgrid.send(msg);
+  return sendgrid.send(msg);
 };

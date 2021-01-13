@@ -5,6 +5,8 @@
     "noUnusedLocals": true,
     "outDir": "lib",
     "sourceMap": true,
+    "inlineSources": true,
+    "sourceRoot": "/",
     "strict": true,
     "target": "es2017",
     "esModuleInterop": true,
