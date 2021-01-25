@@ -9,6 +9,7 @@ interface JwtClaims {
   exp: string;
   azp?: string;
   gty?: string;
+  "https://acmutd.co/email"?: string;
 }
 
 declare namespace Express {

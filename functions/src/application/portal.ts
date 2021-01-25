@@ -6,13 +6,13 @@ import sendgrid from "@sendgrid/mail";
 import RequestOptions from "@sendgrid/helpers/classes/request";
 import client from "@sendgrid/client";
 import { send_dynamic_template, upsert_contact } from "../mail/sendgrid";
+import admin from "firebase-admin";
 
 const profile_collection = "profile";
 
 export const verify = (request: Request, response: Response): void => {
   response.json({
-    email: request.user.email,
-    name: request.body.parsed_name,
+    email: request.body.email,
   });
 };
 
@@ -25,14 +25,20 @@ export const verify_idp = (request: Request, response: Response): void => {
 export const create_blank_profile = async (request: Request, response: Response): Promise<void> => {
   const data = request.body;
   try {
-    firestore.collection(profile_collection).doc(data.sub).set(
-      {
-        email: request.user.email,
-        sub: data.sub,
-        past_applications: [],
-      },
-      { merge: true }
-    );
+    firestore
+      .collection(profile_collection)
+      .doc(data.sub)
+      .set(
+        {
+          email: request.user.email,
+          sub: data.sub,
+          past_applications: admin.firestore.FieldValue.arrayUnion({
+            name: "Profile Updated",
+            submitted_at: new Date(),
+          }),
+        },
+        { merge: true }
+      );
     response.json({
       email: request.user.email,
       sub: data.sub,

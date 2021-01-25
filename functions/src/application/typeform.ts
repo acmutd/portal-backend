@@ -3,7 +3,7 @@ import * as functions from "firebase-functions";
 import { firestore } from "../admin/admin";
 import logger from "../services/logging";
 import { upsert_contact, send_dynamic_template, user_contact, sendgrid_email } from "../mail/sendgrid";
-import admin from "firebase-admin";
+// import admin from "firebase-admin";
 // import crypto from "crypto";
 
 type definition = {
@@ -107,16 +107,16 @@ export const send_confirmation = functions.firestore
       let sub = "";
       typeform_results.forEach((element: any) => {
         const email_question = "email";
-        const first_name_question = "first_name";
-        const last_name_question = "last_name";
+        const first_name_questions = ["first name", "first_name"];
+        const last_name_questions = ["last name", "last_name"];
         const sub_question = "sub";
         if (element.question.includes(email_question)) {
           email = element.answer;
         }
-        if (element.question.includes(first_name_question)) {
+        if (element.question.includes(first_name_questions[0]) || element.question.includes(first_name_questions[1])) {
           first_name = element.answer;
         }
-        if (element.question.includes(last_name_question)) {
+        if (element.question.includes(last_name_questions[0]) || element.question.includes(last_name_questions[1])) {
           last_name = element.answer;
         }
         if (element.question.includes(sub_question)) {
@@ -139,18 +139,19 @@ export const send_confirmation = functions.firestore
         last_name: last_name,
         list: metadata?.sendgrid_marketing_list,
       };
-      logger.log(
-        `sending email to user ${sub} with email ${email} in response to completion of form ${document.typeform_id}`
-      );
-      await firestore
-        .collection("profile")
-        .doc(sub)
-        .update({
-          past_applications: admin.firestore.FieldValue.arrayUnion({
-            name: document.typeform_id,
-            submitted_at: document.submission_time,
-          }),
-        });
+      console.log(sub);
+      // logger.log(
+      //   `sending email to user ${sub} with email ${email} in response to completion of form ${document.typeform_id}`
+      // );
+      // await firestore
+      //   .collection("profile")
+      //   .doc(sub)
+      //   .update({
+      //     past_applications: admin.firestore.FieldValue.arrayUnion({
+      //       name: document.typeform_id,
+      //       submitted_at: document.submission_time,
+      //     }),
+      //   });
       send_dynamic_template(email_data);
       upsert_contact(contact_data);
     } catch (error) {

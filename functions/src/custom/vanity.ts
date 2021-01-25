@@ -63,7 +63,7 @@ export const build_vanity_link = functions.firestore
   .onCreate(async (snap, context) => {
     const document = snap.data();
     try {
-      if (document.typeform_id !== "Link Generator") {
+      if (document.typeform_id !== "Link Generator Old") {
         return;
       }
       const typeform_results = document.data;
