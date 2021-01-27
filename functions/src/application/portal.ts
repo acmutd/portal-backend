@@ -30,17 +30,45 @@ export const create_blank_profile = async (request: Request, response: Response)
       .doc(data.sub)
       .set(
         {
-          email: request.user.email,
+          email: data.email,
           sub: data.sub,
           past_applications: admin.firestore.FieldValue.arrayUnion({
             name: "Profile Updated",
-            submitted_at: new Date(),
+            submitted_at: new Date().toISOString(),
           }),
         },
         { merge: true }
       );
     response.json({
-      email: request.user.email,
+      email: data.email,
+      sub: data.sub,
+    });
+  } catch (err) {
+    Sentry.captureException(err);
+    response.json({
+      message: "Failed to create a blank profile",
+      error: err,
+    });
+  }
+};
+
+export const record_event = async (request: Request, response: Response): Promise<void> => {
+  const data = request.body;
+  try {
+    firestore
+      .collection(profile_collection)
+      .doc(data.sub)
+      .set(
+        {
+          past_applications: admin.firestore.FieldValue.arrayUnion({
+            name: "Profile Updated",
+            submitted_at: new Date().toISOString(),
+          }),
+        },
+        { merge: true }
+      );
+    response.json({
+      email: data.email,
       sub: data.sub,
     });
   } catch (err) {
@@ -246,7 +274,7 @@ export const education_confirmation = functions.firestore
   });
 
 /**
- * Add person to the hacktoberfest mailing list
+ * Add person to the profile mailing list
  */
 const uploadToSendgrid = async (first_name: string, last_name: string, email: string): Promise<void> => {
   client.setApiKey(functions.config().sendgrid.apikey);
