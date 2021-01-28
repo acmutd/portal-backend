@@ -70,7 +70,7 @@ export const record_event = async (request: Request, response: Response): Promis
         {
           email: data.email,
           sub: data.sub,
-          past_applications: admin.firestore.FieldValue.arrayUnion({
+          past_events: admin.firestore.FieldValue.arrayUnion({
             name: result.data()?.name,
             submitted_at: new Date().toISOString(),
           }),
