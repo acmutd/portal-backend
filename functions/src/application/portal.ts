@@ -9,6 +9,7 @@ import { send_dynamic_template, upsert_contact } from "../mail/sendgrid";
 import admin from "firebase-admin";
 
 const profile_collection = "profile";
+const event_collection = "event";
 
 export const verify = (request: Request, response: Response): void => {
   response.json({
@@ -53,28 +54,36 @@ export const create_blank_profile = async (request: Request, response: Response)
 };
 
 export const record_event = async (request: Request, response: Response): Promise<void> => {
+  const pathname = (request.query.checkpath as string).substring((request.query.checkpath as string).lastIndexOf("/"));
+  console.log(pathname);
   const data = request.body;
   try {
+    const result = await firestore
+      .collection(event_collection)
+      .doc(pathname as string)
+      .get();
+
     firestore
       .collection(profile_collection)
       .doc(data.sub)
       .set(
         {
+          email: data.email,
+          sub: data.sub,
           past_applications: admin.firestore.FieldValue.arrayUnion({
-            name: "Profile Updated",
+            name: result.data()?.name,
             submitted_at: new Date().toISOString(),
           }),
         },
         { merge: true }
       );
     response.json({
-      email: data.email,
-      sub: data.sub,
+      event_name: result.data()?.name,
     });
   } catch (err) {
     Sentry.captureException(err);
     response.json({
-      message: "Failed to create a blank profile",
+      message: "Failed to record event",
       error: err,
     });
   }

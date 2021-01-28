@@ -23,6 +23,7 @@ import * as typeformFunctions from "./application/typeform";
 import * as errorFunctions from "./services/ErrorService";
 import * as portalFunctions from "./application/portal";
 import logger, { debug_logger } from "./services/logging";
+import { app } from "firebase-admin";
 
 //this will match every call made to this api.
 app_portal.all("/", (request: Request, response: Response, next) => {
@@ -137,6 +138,8 @@ app_portal.get("/gsuite/verify", portalFunctions.verify);
 app_portal.get("/auth0/create-blank-profile", portalFunctions.create_blank_profile);
 app_portal.get("/auth0/profile", portalFunctions.get_profile);
 app_portal.get("/auth0/developer", portalFunctions.get_developer_profile);
+
+app_portal.get("/auth0/checkin", portalFunctions.record_event);
 
 /**
  * @deprecated
