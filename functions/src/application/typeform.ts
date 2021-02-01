@@ -3,7 +3,7 @@ import * as functions from "firebase-functions";
 import { firestore } from "../admin/admin";
 import logger from "../services/logging";
 import { upsert_contact, send_dynamic_template, user_contact, sendgrid_email } from "../mail/sendgrid";
-// import admin from "firebase-admin";
+import admin from "firebase-admin";
 // import crypto from "crypto";
 
 type definition = {
@@ -139,21 +139,21 @@ export const send_confirmation = functions.firestore
         last_name: last_name,
         list: metadata?.sendgrid_marketing_list,
       };
-      console.log(sub);
-      // logger.log(
-      //   `sending email to user ${sub} with email ${email} in response to completion of form ${document.typeform_id}`
-      // );
-      // await firestore
-      //   .collection("profile")
-      //   .doc(sub)
-      //   .update({
-      //     past_applications: admin.firestore.FieldValue.arrayUnion({
-      //       name: document.typeform_id,
-      //       submitted_at: document.submission_time,
-      //     }),
-      //   });
       send_dynamic_template(email_data);
       upsert_contact(contact_data);
+
+      logger.log(
+        `sending email to user ${sub} with email ${email} in response to completion of form ${document.typeform_id}`
+      );
+      await firestore
+        .collection("profile")
+        .doc(sub)
+        .update({
+          past_applications: admin.firestore.FieldValue.arrayUnion({
+            name: document.typeform_id,
+            submitted_at: document.submission_time,
+          }),
+        });
     } catch (error) {
       Sentry.captureException(error);
     }

@@ -90,6 +90,11 @@ function extractJWT(request: Request, response: Response, next: () => void) {
     request.body.idp = "auth0";
   } else {
     request.body.idp = "gsuite";
+    const identifier = (request.user.email as string).split("@")[0];
+    const first_name = identifier.split(".")[0];
+    const last_name = identifier.split(".")[1];
+    request.body.parsed_name = first_name + " " + last_name;
+    request.body.email = request.user.email;
   }
   next();
 }

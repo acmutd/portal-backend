@@ -122,19 +122,18 @@ app.use(logRequest);
  * Extract jwt fields and inject into request body
  * Use for parsing G Suite name from cloudflare access token
  */
-function extractJWT(request: Request, response: Response, next: () => void) {
-  request.body.sub = request.user.sub;
-  if (request.user.aud.includes(functions.config().auth0.audience)) {
-    request.body.idp = "auth0";
-  } else {
-    request.body.idp = "gsuite";
-    const identifier = (request.user.email as string).split("@")[0];
-    const first_name = identifier.split(".")[0];
-    const last_name = identifier.split(".")[1];
-    request.body.parsed_name = first_name + " " + last_name;
-  }
-  next();
-}
+// function extractJWT(request: Request, response: Response, next: () => void) {
+//   if (request.user.aud.includes(functions.config().auth0.audience)) {
+//     request.body.idp = "auth0";
+//   } else {
+//     request.body.idp = "gsuite";
+//     const identifier = (request.user.email as string).split("@")[0];
+//     const first_name = identifier.split(".")[0];
+//     const last_name = identifier.split(".")[1];
+//     request.body.parsed_name = first_name + " " + last_name;
+//   }
+//   next();
+// }
 // app.use(extractJWT);
 
 export default app;
