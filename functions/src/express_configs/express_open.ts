@@ -9,6 +9,8 @@ import * as Sentry from "@sentry/node";
 import * as Tracing from "@sentry/tracing";
 import cors from "cors";
 import * as bodyParser from "body-parser";
+import logger from "../services/logging";
+import { Request, Response } from "express";
 
 const app = express();
 
@@ -53,7 +55,10 @@ function errorHandler(error: Error, request: any, response: any, next: (err?: Er
 }
 app.use(errorHandler);
 
-// Automatically send uncaught exception errors to Sentry
-process.on("uncaughtException", (err) => Sentry.captureException(err));
+function logRequest(request: Request, response: Response, next: () => void) {
+  logger.log(request);
+  next();
+}
+app.use(logRequest);
 
 export default app;

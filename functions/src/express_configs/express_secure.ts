@@ -12,6 +12,7 @@ import * as Tracing from "@sentry/tracing";
 import cors from "cors";
 import * as bodyParser from "body-parser";
 import { Response, Request } from "express";
+import logger from "../services/logging";
 
 const app = express();
 
@@ -26,6 +27,7 @@ if (functions.config()?.sentry?.dns) {
       new Tracing.Integrations.Express({ app }),
     ],
     tracesSampleRate: 1.0,
+    environment: process.env.NODE_ENV,
   });
 }
 
@@ -78,5 +80,11 @@ const checkJwt = jwt({
 });
 //user must be authenticated on auth0 for the requests to go through
 app.use(checkJwt);
+
+function logRequest(request: Request, response: Response, next: () => void) {
+  logger.log(request);
+  next();
+}
+app.use(logRequest);
 
 export default app;

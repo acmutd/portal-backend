@@ -5,6 +5,7 @@ import sendgrid from "@sendgrid/mail";
 import RequestOptions from "@sendgrid/helpers/classes/request";
 import client from "@sendgrid/client";
 import { firestore } from "../admin/admin";
+import { Request, Response } from "express";
 
 /**
  * Note: if the discord username --> snowflake returns -1 then the full transaction will fail
@@ -151,7 +152,7 @@ const send_confirmation = async (
   // });
 };
 
-export const retrieve_record = async (request: any, response: any): Promise<void> => {
+export const retrieve_record = async (request: Request, response: Response): Promise<void> => {
   const email = request?.body.email;
   try {
     const document = (

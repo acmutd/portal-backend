@@ -12,6 +12,7 @@ import * as Tracing from "@sentry/tracing";
 import cors from "cors";
 import * as bodyParser from "body-parser";
 import { Response, Request } from "express";
+import logger from "../services/logging";
 
 const app = express();
 
@@ -75,47 +76,64 @@ const checkJwt_auth0 = jwt({
     cache: true,
     rateLimit: true,
     jwksRequestsPerMinute: 5,
-    jwksUri: `https://${functions.config().cloudflare.domain}/cdn-cgi/access/certs`,
+    jwksUri: `https://${functions.config().auth0.domain}/.well-known/jwks.json`,
   }),
 
-  audience: functions.config().cloudflare.portal_auth0_audience,
-  issuer: `https://${functions.config().cloudflare.domain}`,
+  audience: functions.config().auth0.audience,
+  issuer: `https://${functions.config().auth0.domain}/`,
   algorithms: ["RS256"],
 });
 
-const checkJwt_gsuite = jwt({
-  secret: jwksRsa.expressJwtSecret({
-    cache: true,
-    rateLimit: true,
-    jwksRequestsPerMinute: 5,
-    jwksUri: `https://${functions.config().cloudflare.domain}/cdn-cgi/access/certs`,
-  }),
+// const checkJwt_gsuite = jwt({
+//   secret: jwksRsa.expressJwtSecret({
+//     cache: true,
+//     rateLimit: true,
+//     jwksRequestsPerMinute: 5,
+//     jwksUri: `https://${functions.config().cloudflare.domain}/cdn-cgi/access/certs`,
+//   }),
 
-  audience: functions.config().cloudflare.portal_gsuite_audience,
-  issuer: `https://${functions.config().cloudflare.domain}`,
-  algorithms: ["RS256"],
-});
+//   audience: functions.config().cloudflare.portal_gsuite_audience,
+//   issuer: `https://${functions.config().cloudflare.domain}`,
+//   algorithms: ["RS256"],
+// });
 //user must be authenticated on auth0 for the requests to go through
 app.use("/auth0", checkJwt_auth0);
 // user must be authenticated on gsuite for the requests to go through
-app.use("/gsuite", checkJwt_gsuite);
+// app.use("/gsuite", checkJwt_gsuite);
 
-/**
- * Extract jwt fields aand inject into request body
- */
-function extractJWT(request: Request, response: Response, next: () => void) {
+function extractAuth0Fields(request: Request, response: Response, next: () => void) {
   request.body.sub = request.user.sub;
-  if (request.user.aud.includes(functions.config().cloudflare.portal_auth0_audience)) {
-    request.body.idp = "auth0";
-  } else {
-    request.body.idp = "gsuite";
-    const identifier = (request.user.email as string).split("@")[0];
-    const first_name = identifier.split(".")[0];
-    const last_name = identifier.split(".")[1];
-    request.body.parsed_name = first_name + " " + last_name;
-  }
+  request.body.email = request.user["https://acmutd.co/email"];
+  request.body.idp = "auth0";
   next();
 }
-app.use(extractJWT);
+app.use(extractAuth0Fields);
+
+/**
+ * Log entire request
+ */
+function logRequest(request: Request, response: Response, next: () => void) {
+  logger.log(request);
+  next();
+}
+app.use(logRequest);
+
+/**
+ * Extract jwt fields and inject into request body
+ * Use for parsing G Suite name from cloudflare access token
+ */
+// function extractJWT(request: Request, response: Response, next: () => void) {
+//   if (request.user.aud.includes(functions.config().auth0.audience)) {
+//     request.body.idp = "auth0";
+//   } else {
+//     request.body.idp = "gsuite";
+//     const identifier = (request.user.email as string).split("@")[0];
+//     const first_name = identifier.split(".")[0];
+//     const last_name = identifier.split(".")[1];
+//     request.body.parsed_name = first_name + " " + last_name;
+//   }
+//   next();
+// }
+// app.use(extractJWT);
 
 export default app;

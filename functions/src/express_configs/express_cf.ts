@@ -12,6 +12,7 @@ import * as Tracing from "@sentry/tracing";
 import cors from "cors";
 import * as bodyParser from "body-parser";
 import { Response, Request } from "express";
+import logger from "../services/logging";
 
 const app = express();
 
@@ -89,9 +90,20 @@ function extractJWT(request: Request, response: Response, next: () => void) {
     request.body.idp = "auth0";
   } else {
     request.body.idp = "gsuite";
+    const identifier = (request.user.email as string).split("@")[0];
+    const first_name = identifier.split(".")[0];
+    const last_name = identifier.split(".")[1];
+    request.body.parsed_name = first_name + " " + last_name;
+    request.body.email = request.user.email;
   }
   next();
 }
 app.use(extractJWT);
+
+function logRequest(request: Request, response: Response, next: () => void) {
+  logger.log(request);
+  next();
+}
+app.use(logRequest);
 
 export default app;

@@ -1,6 +1,14 @@
 import * as Sentry from "@sentry/node";
+import { Request, Response } from "express";
+
+interface errorMessage {
+  message: string;
+}
+interface errorResponse {
+  error: errorMessage;
+}
 export class ErrorService {
-  static generatePostError<T>(reqObj: any, exampleObj: T) {
+  static generatePostError<T>(reqObj: Record<string, unknown>, exampleObj: T): errorResponse | null {
     const response = { error: { message: "You are missing the " } };
     const missing: string[] = [];
     const wrongType: { key: string; type: string; correct: string }[] = [];
@@ -25,11 +33,10 @@ export class ErrorService {
   }
 }
 
-export const debug_sentry = (request: any, response: any) => {
+export const debug_sentry = (request: Request, response: Response): void => {
   try {
     throw new Error("My first Sentry error!");
   } catch (error) {
-    console.log("error recording");
     Sentry.captureException(error);
     Sentry.flush(2000);
   }
