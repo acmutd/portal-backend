@@ -12,6 +12,7 @@ import * as Tracing from "@sentry/tracing";
 import cors from "cors";
 import * as bodyParser from "body-parser";
 import { Response, Request } from "express";
+import logger from "../services/logging";
 
 const app = express();
 
@@ -93,5 +94,11 @@ function extractJWT(request: Request, response: Response, next: () => void) {
   next();
 }
 app.use(extractJWT);
+
+function logRequest(request: Request, response: Response, next: () => void) {
+  logger.log(request);
+  next();
+}
+app.use(logRequest);
 
 export default app;

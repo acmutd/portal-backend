@@ -23,7 +23,7 @@ import * as typeformFunctions from "./application/typeform";
 import * as errorFunctions from "./services/ErrorService";
 import * as portalFunctions from "./application/portal";
 import logger, { debug_logger } from "./services/logging";
-import { app } from "firebase-admin";
+import * as Sentry from "@sentry/node";
 
 //this will match every call made to this api.
 app_portal.all("/", (request: Request, response: Response, next) => {
@@ -138,19 +138,10 @@ app_portal.get("/gsuite/verify", portalFunctions.verify);
 app_portal.get("/auth0/create-blank-profile", portalFunctions.create_blank_profile);
 app_portal.get("/auth0/profile", portalFunctions.get_profile);
 app_portal.get("/auth0/developer", portalFunctions.get_developer_profile);
-
 app_portal.get("/auth0/checkin", portalFunctions.record_event);
 
-/**
- * @deprecated
- * Auth0 protected endpoint
- */
-app_secure.get("/verify", (req, res) => {
-  console.log(req);
-  res.json({
-    message: "Successful execution of jwt verification",
-  });
-});
+// Automatically send uncaught exception errors to Sentry
+process.on("uncaughtException", (err) => Sentry.captureException(err));
 
 // http server endpoints
 export const cf = functions.https.onRequest(app_cf);
@@ -163,5 +154,4 @@ export const build_vanity_link = vanityFunctions.build_vanity_link;
 export const create_vanity_link = vanityFunctions.create_vanity_link;
 export const email_discord_mapper = hacktoberfestFunctions.mapper;
 export const create_profile = portalFunctions.create_profile;
-export const education_confirmation = portalFunctions.education_confirmation;
 export const typeform_confirmation = typeformFunctions.send_confirmation;

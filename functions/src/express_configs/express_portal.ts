@@ -12,6 +12,7 @@ import * as Tracing from "@sentry/tracing";
 import cors from "cors";
 import * as bodyParser from "body-parser";
 import { Response, Request } from "express";
+import logger from "../services/logging";
 
 const app = express();
 
@@ -83,9 +84,6 @@ const checkJwt_auth0 = jwt({
   algorithms: ["RS256"],
 });
 
-console.log(`https://${functions.config().auth0.domain}/`);
-console.log(functions.config().auth0.audience);
-
 // const checkJwt_gsuite = jwt({
 //   secret: jwksRsa.expressJwtSecret({
 //     cache: true,
@@ -112,7 +110,17 @@ function extractAuth0Fields(request: Request, response: Response, next: () => vo
 app.use(extractAuth0Fields);
 
 /**
+ * Log entire request
+ */
+function logRequest(request: Request, response: Response, next: () => void) {
+  logger.log(request);
+  next();
+}
+app.use(logRequest);
+
+/**
  * Extract jwt fields and inject into request body
+ * Use for parsing G Suite name from cloudflare access token
  */
 function extractJWT(request: Request, response: Response, next: () => void) {
   request.body.sub = request.user.sub;
