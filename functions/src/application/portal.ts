@@ -73,11 +73,21 @@ export const record_event = async (request: Request, response: Response): Promis
           sub: data.sub,
           past_events: admin.firestore.FieldValue.arrayUnion({
             name: result.data()?.name,
-            submitted_at: new Date().toISOString(),
+            submitted_at: result.data()?.date,
           }),
         },
         { merge: true }
       );
+
+    firestore
+      .collection(event_collection)
+      .doc(pathname as string)
+      .update({
+        attendance: admin.firestore.FieldValue.arrayUnion({
+          sub: data.sub,
+          email: data.email,
+        }),
+      });
     logger.log({
       ...data,
       ...result.data(),

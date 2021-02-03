@@ -6,6 +6,9 @@ import { upsert_contact, send_dynamic_template, user_contact, sendgrid_email } f
 import admin from "firebase-admin";
 // import crypto from "crypto";
 
+const profile_collection = "profile";
+const typeform_meta_collection = "typeform_meta";
+
 type definition = {
   id: string;
   title: string;
@@ -93,7 +96,7 @@ export const send_confirmation = functions.firestore
   .onCreate(async (snap, context) => {
     const document = snap.data();
     try {
-      const meta_doc = await firestore.collection("typeform_meta").doc(document.typeform_id).get();
+      const meta_doc = await firestore.collection(typeform_meta_collection).doc(document.typeform_id).get();
       if (!meta_doc.exists) {
         logger.log(`No email template found for typeform ${document.typeform_id}`);
         return;
@@ -146,12 +149,21 @@ export const send_confirmation = functions.firestore
         `sending email to user ${sub} with email ${email} in response to completion of form ${document.typeform_id}`
       );
       await firestore
-        .collection("profile")
+        .collection(profile_collection)
         .doc(sub)
         .update({
           past_applications: admin.firestore.FieldValue.arrayUnion({
             name: document.typeform_id,
             submitted_at: document.submission_time,
+          }),
+        });
+      await firestore
+        .collection(typeform_meta_collection)
+        .doc(document.typeform_id)
+        .update({
+          submitted: admin.firestore.FieldValue.arrayUnion({
+            sub: sub,
+            email: email,
           }),
         });
     } catch (error) {
