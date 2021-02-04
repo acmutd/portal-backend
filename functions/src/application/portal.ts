@@ -50,6 +50,7 @@ export const create_blank_profile = async (request: Request, response: Response)
 
 export const record_event = async (request: Request, response: Response): Promise<void> => {
   const pathname = (request.query.checkpath as string).substring((request.query.checkpath as string).lastIndexOf("/"));
+  const is_checkin = (request.query.checkpath as string).includes("checkin");
   const data = request.body;
   try {
     const result = await firestore
@@ -64,6 +65,8 @@ export const record_event = async (request: Request, response: Response): Promis
       return;
     }
 
+    const field_name = is_checkin ? "past_events" : "past_rsvps";
+
     firestore
       .collection(profile_collection)
       .doc(data.sub)
@@ -71,19 +74,20 @@ export const record_event = async (request: Request, response: Response): Promis
         {
           email: data.email,
           sub: data.sub,
-          past_events: admin.firestore.FieldValue.arrayUnion({
+          [field_name]: admin.firestore.FieldValue.arrayUnion({
             name: result.data()?.name,
             submitted_at: result.data()?.date,
           }),
         },
         { merge: true }
       );
+    const field = is_checkin ? "attendance" : "rsvp";
 
     firestore
       .collection(event_collection)
       .doc(pathname as string)
       .update({
-        attendance: admin.firestore.FieldValue.arrayUnion({
+        [field]: admin.firestore.FieldValue.arrayUnion({
           sub: data.sub,
           email: data.email,
         }),

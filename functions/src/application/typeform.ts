@@ -4,6 +4,7 @@ import { firestore } from "../admin/admin";
 import logger from "../services/logging";
 import { upsert_contact, send_dynamic_template, user_contact, sendgrid_email } from "../mail/sendgrid";
 import admin from "firebase-admin";
+import { build_vanity_link } from "../custom/custom_forms";
 // import crypto from "crypto";
 
 const profile_collection = "profile";
@@ -166,6 +167,24 @@ export const send_confirmation = functions.firestore
             email: email,
           }),
         });
+    } catch (error) {
+      Sentry.captureException(error);
+    }
+  });
+
+export const custom_form_actions = functions.firestore
+  .document("typeform/{document_name}")
+  .onCreate(async (snap, context) => {
+    const document = snap.data();
+    try {
+      switch (document.typeform_id) {
+        case "Link Generator":
+          build_vanity_link(document);
+          break;
+        default:
+          logger.log(`No custom action found for typeform ${document.typeform_id}... exiting`);
+          return;
+      }
     } catch (error) {
       Sentry.captureException(error);
     }
