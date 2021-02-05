@@ -4,7 +4,8 @@ import { firestore } from "../admin/admin";
 import logger from "../services/logging";
 import { upsert_contact, send_dynamic_template, user_contact, sendgrid_email } from "../mail/sendgrid";
 import admin from "firebase-admin";
-import { build_vanity_link } from "../custom/custom_forms";
+import { build_vanity_link } from "../custom/vanity";
+import { connect_sendgrid } from "../custom/sendgrid_map";
 // import crypto from "crypto";
 
 const profile_collection = "profile";
@@ -181,11 +182,19 @@ export const custom_form_actions = functions.firestore
         case "Link Generator":
           build_vanity_link(document);
           break;
+        case "Connect Sendgrid":
+          connect_sendgrid(document);
+          break;
         default:
           logger.log(`No custom action found for typeform ${document.typeform_id}... exiting`);
           return;
       }
     } catch (error) {
+      console.log(error);
+      logger.log({
+        ...error,
+        message: "Error occured in custom typeform function",
+      });
       Sentry.captureException(error);
     }
   });

@@ -82,7 +82,10 @@ const send_confirmation = (
 ): Promise<[any, any]> => {
   sendgrid.setApiKey(functions.config().sendgrid.apikey);
   const msg: sendgrid.MailDataRequired = {
-    from: "development@acmutd.co",
+    from: {
+      email: "development@acmutd.co",
+      name: "ACM Development",
+    },
     to: email,
     dynamicTemplateData: {
       preheader: "Successful Generation of Vanity Link",

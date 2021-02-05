@@ -11,7 +11,7 @@ export interface sendgrid_email {
   from_name: string;
   to: string;
   template_id: string;
-  dynamicSubstitutions: Record<string, unknown>; //apparently this is the correct typescript way to define any object
+  dynamicSubstitutions: Record<string, unknown>;
 }
 
 export const sendTestEmail = async (request: Request, response: Response): Promise<void> => {
@@ -174,4 +174,32 @@ export const getMailingLists = async (request: Request, response: Response): Pro
       error: error,
     });
   }
+};
+
+export const create_marketing_list = async (name: string): Promise<string> => {
+  client.setApiKey(functions.config().sendgrid.apikey);
+  const req: RequestOptions = {
+    method: "POST",
+    url: "/v3/marketing/lists",
+    body: {
+      name: name,
+    },
+  };
+  const result = await client.request(req);
+  logger.log({
+    message: "Successfully created new mailing list",
+    name: name,
+    id: result[1].id,
+  });
+  return result[1].id;
+};
+
+export const get_dynamic_template = async (template_id: string): Promise<string> => {
+  client.setApiKey(functions.config().sendgrid.apikey);
+  const req: RequestOptions = {
+    method: "GET",
+    url: `/v3/templates/${template_id}`,
+  };
+  const result = await client.request(req);
+  return result[1].name;
 };
