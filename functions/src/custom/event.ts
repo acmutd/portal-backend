@@ -1,6 +1,7 @@
 import { firestore } from "../admin/admin";
 import logger from "../services/logging";
 import { send_dynamic_template, sendgrid_email } from "../mail/sendgrid";
+import { get_auth_token, add_callback } from "../admin/auth0";
 
 export interface EventDoc {
   name: string;
@@ -8,7 +9,7 @@ export interface EventDoc {
   date: string;
 }
 
-const typeform_meta_collection = "events";
+const event_collection = "events";
 
 export const create_event = async (document: FirebaseFirestore.DocumentData): Promise<void> => {
   const typeform_results = document.data;
@@ -32,14 +33,8 @@ export const create_event = async (document: FirebaseFirestore.DocumentData): Pr
     if (element.question.includes(email_question)) email = element.answer;
     if (element.question.includes(name_question)) name = element.answer;
     if (element.question.includes(path_name_question)) path_name = element.answer;
-    if (element.question.includes(date_question)) date = element.answer;
+    if (element.question.includes(date_question)) date = new Date(element.answer).toDateString();
   });
-
-  const data: EventDoc = {
-    name: name,
-    path_name: path_name,
-    date: date,
-  };
 
   const email_options: sendgrid_email = {
     from: "development@acmutd.co",
@@ -50,18 +45,32 @@ export const create_event = async (document: FirebaseFirestore.DocumentData): Pr
       first_name: first_name,
       last_name: last_name,
       name: name,
-      path_name: path_name,
+      checkin_link: `https://app.acmutd.co/checkin/${path_name}`,
       date: date,
       preheader: "Successful Event Check-in Creation Connection",
       subject: "Event Creation Confirmation",
     },
   };
+
+  const data: EventDoc = {
+    name: name,
+    path_name: path_name,
+    date: date,
+  };
+
   create_map(data);
+  add_callback(`https://app.acmutd.co/checkin/${path_name}`, await get_auth_token());
   send_dynamic_template(email_options);
 };
 
 const create_map = (document: EventDoc): void => {
-  firestore.collection(typeform_meta_collection).doc(document.name).create(document);
+  firestore
+    .collection(event_collection)
+    .doc(document.path_name)
+    .create({
+      ...document,
+      path_name: `/checkin/${document.path_name}`,
+    });
   logger.log({
     ...document,
     message: "Successfully created an event check-in",
