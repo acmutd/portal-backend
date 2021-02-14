@@ -9,7 +9,7 @@ export interface EventDoc {
   date: string;
 }
 
-const event_collection = "events";
+const event_collection = "event";
 
 export const create_event = async (document: FirebaseFirestore.DocumentData): Promise<void> => {
   const typeform_results = document.data;
