@@ -39,7 +39,7 @@ export const create_event = async (document: FirebaseFirestore.DocumentData): Pr
   const email_options: sendgrid_email = {
     from: "development@acmutd.co",
     from_name: "ACM Development",
-    template_id: "d-8d16910adcae4b918ba9c44670d963ac",
+    template_id: "d-f2d3b8a1b4dd4c14895905b7abb4581b",
     to: email,
     dynamicSubstitutions: {
       first_name: first_name,
