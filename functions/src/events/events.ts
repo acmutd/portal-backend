@@ -1,3 +1,7 @@
+/**
+ * @deprecated file
+ */
+
 import { firestore } from "../admin/admin";
 import { Response, Request } from "express";
 import * as Sentry from "@sentry/node";

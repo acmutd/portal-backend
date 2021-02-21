@@ -194,7 +194,6 @@ export const custom_form_actions = functions.firestore
           return;
       }
     } catch (error) {
-      console.log(error);
       logger.log({
         ...error,
         message: "Error occured in custom typeform function",

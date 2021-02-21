@@ -47,3 +47,11 @@ https://us-central1-acm-core.cloudfunctions.net/portal
 ```
 
 The endpoints are deployed under `/portal`
+
+### Questions
+
+Sometimes you may have additional questions. If the answer was not found in this readme please feel free to reach out to the [Director of Development](mailto:development@acmutd.co) for _ACM_
+
+We request that you be as detailed as possible in your questions, doubts or concerns to ensure that we can be of maximum assistance. Thank you!
+
+![ACM Development](https://www.acmutd.co/brand/Development/Banners/light_dark_background.png)
