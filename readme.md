@@ -1,6 +1,6 @@
 # ACM API
 
-The official API of ACM UTD. View API [Documentation](https://documenter.getpostman.com/view/6712035/TVKJxEVW)
+The official Core API of ACM UTD. View API [Documentation](https://documenter.getpostman.com/view/6712035/TVKJxEVW)
 
 ### Quick Start
 - Clone the repo
@@ -12,6 +12,8 @@ $ npm install -g firebase-tools
 ```
 $ firebase login
 ```
+Note: Make sure to sign in with your ACM G Suite account. If you are already signed in with another account you can use `firebase logout` to sign out first.
+
 #### Testing Locally
 - Set up admin credentials following the firebase [docs](https://firebase.google.com/docs/functions/local-emulator#set_up_admin_credentials_optional). The key should be saved at `functions/acm-core-service-account.json` and should not be tracked.
 - Output firebase configuration to local file. This file should also not be tracked.
@@ -23,12 +25,13 @@ $ firebase functions:config:get > functions/.runtimeconfig.json
 $ npm run serve
 ```
 ⚠️ Pay attention to the warnings! Unless you are emulating other firebase services, your code can still affect production data.
-- Acquire a testing access_token for auth0 under Applications > Dev Testing API (Test Application) > Quick start.
 
-- Finally, you can invoke a function (`exampleFunction`) locally either with an http client like curl or postman:
+- Acquire a testing `access_token` for auth0 under APIs > ACM Core > Test.
+
+- Finally, you can invoke an endpoint (`/portal/endpoint`) locally either with an http client like curl or postman:
 ```
 curl --request GET \
-  --url http://localhost:5001/acm-core/us-central1/api/exampleFunction \
+  --url http://localhost:5002/acm-core/us-central1/portal/endpoint \
   --header 'Authorization: Bearer token'
 ```
 You can also use the [firebase functions shell](https://firebase.google.com/docs/functions/local-shell) if you prefer that.
@@ -37,74 +40,6 @@ You can also use the [firebase functions shell](https://firebase.google.com/docs
 ```
 $ npm run deploy
 ```
-
-### Extended Start Guide
-
-Project structure
-```
-root
-├── firebase.json
-├── functions
-│   ├── acm-core-service-account.json
-│   ├── package-lock.json
-│   ├── package.json
-│   ├── src
-│   │   ├── admin
-│   │   │   └── admin.ts
-│   │   ├── application
-│   │   │   ├── rebrand.ts
-│   │   │   └── typeform.ts
-│   │   ├── auth
-│   │   │   └── auth.ts
-│   │   ├── authTypes.ts
-│   │   ├── challenge
-│   │   │   └── challenge.ts
-│   │   ├── custom
-│   │   │   ├── hacktoberfest.ts
-│   │   │   └── vanity.ts
-│   │   ├── divisions
-│   │   │   ├── GET
-│   │   │   ├── POST
-│   │   │   └── divisions.ts
-│   │   ├── events
-│   │   │   └── events.ts
-│   │   ├── express_configs
-│   │   │   ├── express_open.ts
-│   │   │   └── express_secure.ts
-│   │   ├── index.ts
-│   │   ├── mail
-│   │   │   ├── mailchimp.ts
-│   │   │   └── sendgrid.ts
-│   │   ├── roles
-│   │   │   ├── permissions.ts
-│   │   │   └── roles.ts
-│   │   └── services
-│   │       └── ErrorService.ts
-│   ├── tsconfig.json
-└── readme.md
-```
-
-### How to Contribute
-
-When testing deployment on a feature branch rename last line in `index.ts` to be as follows
-
-`exports.api-YOURNAME = functions.https.onRequest(app);`
-
-When making a pull request to `dev` ensure that it has been reverted to exports.api.
-
-##### Pull Requests & Issues
-
-Follow _ACM Development_ standards and guidelines. 2 approving reviews required for merge. Tag all developers on team as reviewers. Review code within 48hrs of making a pull request.
-
-### Contributors
-
- - [Harsha Srikara](https://harshasrikara.com)
- - [David Richey](https://darichey.com)
- - [Aliah Shaira De Guzman]()
- - [Sivam Patel](https://github.com/sivampatel)
- - [Kendra Huang](https://github.com/kendra-huang)
- - [Jafar Ali](https://github.com/jafrilli)
-
 ### Questions
 
 Sometimes you may have additional questions. If the answer was not found in this readme please feel free to reach out to the [Director of Development](mailto:development@acmutd.co) for _ACM_
