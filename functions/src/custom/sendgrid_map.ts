@@ -67,11 +67,11 @@ export const connect_sendgrid = async (document: FirebaseFirestore.DocumentData)
       subject: "Sendgrid Connect Confirmation",
     },
   };
-  create_map(data);
+  await create_map(data);
   send_dynamic_template(email_options);
 };
 
-const create_map = (document: SendgridDoc): void => {
+const create_map = async (document: SendgridDoc): Promise<void> => {
   firestore.collection(typeform_meta_collection).doc(document.typeform_name).create({
     sendgrid_dynamic_template: document.sendgrid_dynamic_id,
     from: document.sender_email,
