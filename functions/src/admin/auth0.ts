@@ -43,10 +43,7 @@ export const add_callback = async (url: string, access_token: string): Promise<v
       }
     );
   } catch (err) {
-    logger.log({
-      ...err,
-      message: "Error occurred in updating callback urls on Auth0",
-    });
+    logger.log(err);
     Sentry.captureException(err);
   }
 };

@@ -193,12 +193,12 @@ export const custom_form_actions = functions.firestore
           logger.log(`No custom action found for typeform ${document.typeform_id}... exiting`);
           return;
       }
-    } catch (error) {
+    } catch (err) {
       logger.log({
-        ...error,
+        err,
         message: "Error occured in custom typeform function",
       });
-      Sentry.captureException(error);
+      Sentry.captureException(err);
     }
   });
 
