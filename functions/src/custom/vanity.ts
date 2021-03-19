@@ -2,6 +2,9 @@ import * as functions from "firebase-functions";
 import request from "request";
 import sendgrid from "@sendgrid/mail";
 
+const vanity_domain_field = "vanity_domain";
+const vanity_slash_field = "vanity_slash";
+
 export interface Vanity {
   destination: string;
   primary_domain: string;
@@ -9,7 +12,10 @@ export interface Vanity {
   slashtag: string;
 }
 
-export const build_vanity_link = (document: FirebaseFirestore.DocumentData): void => {
+export const build_vanity_link = (
+  document: FirebaseFirestore.DocumentData,
+  vanity_collection: FirebaseFirestore.CollectionReference
+): void => {
   const typeform_results = document.data;
   let first_name = "";
   let last_name = "";
@@ -43,11 +49,14 @@ export const build_vanity_link = (document: FirebaseFirestore.DocumentData): voi
     subdomain: subdomain,
     slashtag: slashtag,
   };
-  create_link(data);
+  create_link(data, vanity_collection);
   send_confirmation(data, email, first_name, last_name);
 };
 
-const create_link = async (vanity: Vanity): Promise<request.Request> => {
+const create_link = async (
+  vanity: Vanity,
+  vanity_collection: FirebaseFirestore.CollectionReference
+): Promise<request.Request> => {
   const linkRequest = {
     destination: vanity.destination,
     domain: { fullName: vanity.subdomain + "." + vanity.primary_domain },
@@ -66,6 +75,16 @@ const create_link = async (vanity: Vanity): Promise<request.Request> => {
     apikey: apikey,
   };
 
+  const query_vanity_domain = vanity_collection.where(vanity_domain_field, "==", vanity.subdomain);
+  const query_vanity_slash = vanity_collection.where(vanity_slash_field, "==", vanity.slashtag);
+  if (query_vanity_domain && query_vanity_slash) {
+    return request({
+      uri: "https://api.rebrandly.com/v1/links",
+      method: "PUT",
+      body: JSON.stringify(linkRequest),
+      headers: requestHeaders,
+    });
+  }
   return request({
     uri: "https://api.rebrandly.com/v1/links",
     method: "POST",

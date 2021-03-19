@@ -11,6 +11,7 @@ import { create_event } from "../custom/event";
 
 const profile_collection = "profile";
 const typeform_meta_collection = "typeform_meta";
+const vanity_link_collection = "vanity_link";
 
 type definition = {
   id: string;
@@ -27,11 +28,13 @@ type form_response = {
   hidden: any;
   answers: any; //im lazy, someone plz do this
 };
+
 interface typeform {
   event_id: string;
   event_type: string;
   form_response: form_response;
 }
+
 export interface qa {
   question: string;
   answer: string;
@@ -178,10 +181,11 @@ export const custom_form_actions = functions.firestore
   .document("typeform/{document_name}")
   .onCreate(async (snap, context) => {
     const document = snap.data();
+    const vanity_collection = firestore.collection(vanity_link_collection);
     try {
       switch (document.typeform_id) {
         case "Link Generator":
-          build_vanity_link(document);
+          build_vanity_link(document, vanity_collection);
           break;
         case "Connect Sendgrid":
           connect_sendgrid(document);
