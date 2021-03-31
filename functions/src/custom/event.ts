@@ -8,6 +8,7 @@ export interface EventDoc {
   name: string;
   path_name: string;
   date: string;
+  public: boolean;
 }
 
 const event_collection = "event";
@@ -21,6 +22,7 @@ export const create_event = async (document: FirebaseFirestore.DocumentData): Pr
     let name = "";
     let path_name = "";
     let date = "";
+    let public_event = false;
 
     const first_name_question = "first_name";
     const last_name_question = "last_name";
@@ -28,6 +30,7 @@ export const create_event = async (document: FirebaseFirestore.DocumentData): Pr
     const name_question = "Name of Event";
     const path_name_question = "path";
     const date_question = "date";
+    const public_event_question = "public event";
 
     typeform_results.forEach((element: any) => {
       if (element.question.includes(first_name_question)) first_name = element.answer;
@@ -36,6 +39,7 @@ export const create_event = async (document: FirebaseFirestore.DocumentData): Pr
       if (element.question.includes(name_question)) name = element.answer;
       if (element.question.includes(path_name_question)) path_name = element.answer;
       if (element.question.includes(date_question)) date = new Date(element.answer).toDateString();
+      if (element.question.includes(public_event_question)) public_event = element.answer;
     });
 
     const email_options: sendgrid_email = {
@@ -51,6 +55,7 @@ export const create_event = async (document: FirebaseFirestore.DocumentData): Pr
         date: date,
         preheader: "Successful Event Check-in Creation Connection",
         subject: "Event Creation Confirmation",
+        public_event: public_event,
       },
     };
 
@@ -58,6 +63,7 @@ export const create_event = async (document: FirebaseFirestore.DocumentData): Pr
       name: name,
       path_name: path_name,
       date: date,
+      public: public_event,
     };
 
     await create_map(data);
