@@ -11,7 +11,6 @@ import { create_event } from "../custom/event";
 
 const profile_collection = "profile";
 const typeform_meta_collection = "typeform_meta";
-const vanity_link_collection = "vanity_link";
 
 type definition = {
   id: string;
@@ -181,11 +180,10 @@ export const custom_form_actions = functions.firestore
   .document("typeform/{document_name}")
   .onCreate(async (snap, context) => {
     const document = snap.data();
-    const vanity_collection = firestore.collection(vanity_link_collection);
     try {
       switch (document.typeform_id) {
         case "Link Generator":
-          build_vanity_link(document, vanity_collection);
+          build_vanity_link(document);
           break;
         case "Connect Sendgrid":
           connect_sendgrid(document);
