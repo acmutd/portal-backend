@@ -27,11 +27,13 @@ type form_response = {
   hidden: any;
   answers: any; //im lazy, someone plz do this
 };
+
 interface typeform {
   event_id: string;
   event_type: string;
   form_response: form_response;
 }
+
 export interface qa {
   question: string;
   answer: string;

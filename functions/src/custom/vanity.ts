@@ -47,7 +47,7 @@ export const build_vanity_link = (document: FirebaseFirestore.DocumentData): voi
   send_confirmation(data, email, first_name, last_name);
 };
 
-const create_link = async (vanity: Vanity): Promise<request.Request> => {
+const create_link = async (vanity: Vanity): Promise<void> => {
   const linkRequest = {
     destination: vanity.destination,
     domain: { fullName: vanity.subdomain + "." + vanity.primary_domain },
@@ -66,12 +66,32 @@ const create_link = async (vanity: Vanity): Promise<request.Request> => {
     apikey: apikey,
   };
 
-  return request({
-    uri: "https://api.rebrandly.com/v1/links",
-    method: "POST",
-    body: JSON.stringify(linkRequest),
-    headers: requestHeaders,
-  });
+  request(
+    {
+      uri: `https://api.rebrandly.com/v1/links?domain.fullName=${linkRequest.domain.fullName}&slashtag=${linkRequest.slashtag}`,
+      method: "GET",
+      headers: requestHeaders,
+    },
+    (error: any, response: any, body) => {
+      //Update the vanity link if a link with this fullName and slashtag exists.
+      if (Object.keys(JSON.parse(body)).length != 0) {
+        return request({
+          uri: `https://api.rebrandly.com/v1/links/${JSON.parse(body)[0].id}`,
+          method: "POST",
+          body: JSON.stringify(linkRequest),
+          headers: requestHeaders,
+        });
+      }
+
+      //Create a new vanity link
+      return request({
+        uri: "https://api.rebrandly.com/v1/links",
+        method: "POST",
+        body: JSON.stringify(linkRequest),
+        headers: requestHeaders,
+      });
+    }
+  );
 };
 
 const send_confirmation = (
