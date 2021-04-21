@@ -6,6 +6,7 @@ import { upsert_contact, send_dynamic_template, user_contact, sendgrid_email } f
 import admin from "firebase-admin";
 import { build_vanity_link } from "../custom/vanity";
 import { connect_sendgrid } from "../custom/sendgrid_map";
+import { add_form } from "../custom/form";
 import { create_event } from "../custom/event";
 // import crypto from "crypto";
 
@@ -190,6 +191,9 @@ export const custom_form_actions = functions.firestore
           break;
         case "Event Generator":
           create_event(document);
+          break;
+        case "Typeform Adder":
+          add_form(document);
           break;
         default:
           logger.log(`No custom action found for typeform ${document.typeform_id}... exiting`);
