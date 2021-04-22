@@ -71,14 +71,17 @@ export const connect_sendgrid = async (document: FirebaseFirestore.DocumentData)
   send_dynamic_template(email_options);
 };
 
-const create_map = async (document: SendgridDoc): Promise<void> => {
-  firestore.collection(typeform_meta_collection).doc(document.typeform_name).create({
-    sendgrid_dynamic_template: document.sendgrid_dynamic_id,
-    from: document.sender_email,
-    from_name: document.sender_from,
-    sendgrid_marketing_list: document.sendgrid_marketing_list,
-    sendgrid_template_name: document.dynamic_template_name,
-  });
+export const create_map = async (document: SendgridDoc): Promise<void> => {
+  firestore.collection(typeform_meta_collection).doc(document.typeform_name).set(
+    {
+      sendgrid_dynamic_template: document.sendgrid_dynamic_id,
+      from: document.sender_email,
+      from_name: document.sender_from,
+      sendgrid_marketing_list: document.sendgrid_marketing_list,
+      sendgrid_template_name: document.dynamic_template_name,
+    },
+    { merge: true }
+  );
   logger.log({
     ...document,
     message: "Successfully connected Typeform with Sendgrid",

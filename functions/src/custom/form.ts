@@ -1,11 +1,12 @@
 import { firestore } from "../admin/admin";
 import * as functions from "firebase-functions";
 import logger from "../services/logging";
-import { send_dynamic_template, sendgrid_email } from "../mail/sendgrid";
+import { send_dynamic_template, sendgrid_email, create_marketing_list } from "../mail/sendgrid";
 import * as Sentry from "@sentry/node";
 import axios from "axios";
 import { get_auth_token, add_callback } from "../admin/auth0";
 import { Response, Request } from "express";
+import { create_map, SendgridDoc } from "../custom/sendgrid_map";
 
 export interface FormDoc {
   typeform_id: string;
@@ -66,14 +67,24 @@ export const add_form = async (document: FirebaseFirestore.DocumentData): Promis
     const typeform_id = await get_typeform_id(typeform_name);
 
     const data: FormDoc = {
-      typeform_id: typeform_id,
       typeform_name: typeform_name,
+      typeform_id: typeform_id,
       description: description,
       endpoint: endpoint,
       external_link: external_link,
     };
 
-    await create_map(data);
+    const generic_email: SendgridDoc = {
+      typeform_name: typeform_name,
+      sendgrid_dynamic_id: "d-217be862cfaf41d4abfbede579e73e52",
+      sendgrid_marketing_list: await create_marketing_list(typeform_name),
+      sender_email: "contact@acmutd.co",
+      sender_from: "ACM Contact",
+      dynamic_template_name: "Generic Thanks Form",
+    };
+
+    await create_map(generic_email);
+    await create_form_map(data);
     add_callback(`https://app.acmutd.co/forms/${endpoint}`, await get_auth_token());
     send_dynamic_template(email_options);
   } catch (err) {
@@ -82,7 +93,7 @@ export const add_form = async (document: FirebaseFirestore.DocumentData): Promis
   }
 };
 
-const create_map = async (document: FormDoc): Promise<void> => {
+const create_form_map = async (document: FormDoc): Promise<void> => {
   await firestore.collection(form_collection).add({
     ...document,
     active: true,

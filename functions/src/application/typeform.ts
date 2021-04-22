@@ -140,6 +140,7 @@ export const send_confirmation = functions.firestore
         dynamicSubstitutions: {
           first_name: first_name,
           last_name: last_name,
+          typeform_id: document.typeform_id,
         },
       };
       const contact_data: user_contact = {
