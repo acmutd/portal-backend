@@ -76,11 +76,10 @@ const create_link = async (vanity: Vanity): Promise<void> => {
       config
     )
     .then((res) => {
-      console.log(res.data);
       //Update the vanity link if a link with this fullName and slashtag exists.
-      if (Object.keys(JSON.parse(res.data)).length != 0)
+      if (Object.keys(res.data).length != 0)
         return axios({
-          url: `https://api.rebrandly.com/v1/links/${JSON.parse(res.data)[0].id}`,
+          url: `https://api.rebrandly.com/v1/links/${res.data[0].id}`,
           method: "post",
           data: JSON.stringify(linkRequest),
           headers: requestHeaders,
