@@ -1,5 +1,5 @@
 import * as functions from "firebase-functions";
-import request from "request";
+import axios from "axios";
 import sendgrid from "@sendgrid/mail";
 
 export interface Vanity {
@@ -66,32 +66,33 @@ const create_link = async (vanity: Vanity): Promise<void> => {
     apikey: apikey,
   };
 
-  request(
-    {
-      uri: `https://api.rebrandly.com/v1/links?domain.fullName=${linkRequest.domain.fullName}&slashtag=${linkRequest.slashtag}`,
-      method: "GET",
-      headers: requestHeaders,
-    },
-    (error: any, response: any, body) => {
+  const config = {
+    headers: requestHeaders,
+  };
+
+  axios
+    .get(
+      `https://api.rebrandly.com/v1/links?domain.fullName=${linkRequest.domain.fullName}&slashtag=${linkRequest.slashtag}`,
+      config
+    )
+    .then((res) => {
       //Update the vanity link if a link with this fullName and slashtag exists.
-      if (Object.keys(JSON.parse(body)).length != 0) {
-        return request({
-          uri: `https://api.rebrandly.com/v1/links/${JSON.parse(body)[0].id}`,
-          method: "POST",
-          body: JSON.stringify(linkRequest),
+      if (Object.keys(res.data).length != 0)
+        return axios({
+          url: `https://api.rebrandly.com/v1/links/${res.data[0].id}`,
+          method: "post",
+          data: JSON.stringify(linkRequest),
           headers: requestHeaders,
         });
-      }
 
       //Create a new vanity link
-      return request({
-        uri: "https://api.rebrandly.com/v1/links",
-        method: "POST",
-        body: JSON.stringify(linkRequest),
+      return axios({
+        url: "https://api.rebrandly.com/v1/links",
+        method: "post",
+        data: JSON.stringify(linkRequest),
         headers: requestHeaders,
       });
-    }
-  );
+    });
 };
 
 const send_confirmation = (
