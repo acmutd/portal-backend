@@ -65,6 +65,8 @@ export const add_form = async (document: FirebaseFirestore.DocumentData): Promis
     };
 
     const typeform_id = await get_typeform_id(typeform_name);
+    await add_hidden_fields(typeform_id);
+    await add_webhook(typeform_id);
 
     const data: FormDoc = {
       typeform_name: typeform_name,
@@ -85,8 +87,8 @@ export const add_form = async (document: FirebaseFirestore.DocumentData): Promis
 
     await create_map(generic_email);
     await create_form_map(data);
-    add_callback(`https://app.acmutd.co/forms/${endpoint}`, await get_auth_token());
-    send_dynamic_template(email_options);
+    //add_callback(`https://app.acmutd.co/forms/${endpoint}`, await get_auth_token());
+    //send_dynamic_template(email_options);
   } catch (err) {
     logger.log(err);
     Sentry.captureException(err);
@@ -117,6 +119,37 @@ const get_typeform_id = async (typeform_name: string): Promise<string> => {
   };
   const result = await axios.get("https://api.typeform.com/forms?" + new URLSearchParams(query).toString(), config);
   return result.data.items[0].id;
+};
+
+const add_hidden_fields = async (typeform_id: string): Promise<void> => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${functions.config().typeform.access_token}`,
+    },
+  };
+  const typeform = await axios.get(`https://api.typeform.com/forms/${typeform_id}`, config);
+  const typeform_body = {
+    ...typeform.data,
+    hidden: ["classification", "email", "first_name", "last_name", "major", "net_id", "unique_sub"],
+  };
+  const result = await axios.put(`https://api.typeform.com/forms/${typeform_id}`, typeform_body, config);
+  return result.data;
+};
+
+const add_webhook = async (typeform_id: string): Promise<void> => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${functions.config().typeform.access_token}`,
+    },
+  };
+  const body = {
+    url: functions.config().typeform.webhook_url,
+    enabled: true,
+    verify_ssl: true,
+    secret: functions.config().typeform.secret,
+  };
+  const result = await axios.put(`https://api.typeform.com/forms/${typeform_id}/webhooks/acmcore`, body, config);
+  return result.data;
 };
 
 export const get_active_applications = async (request: Request, response: Response): Promise<void> => {
