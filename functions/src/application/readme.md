@@ -33,6 +33,8 @@ One essential part to ensuring that members who submit forms to ACM are happy an
 
 This functions queries the `typeform_meta` firestore collection with the `typeform_id` to see whether there exists a confirmation email that should be sent. If the exists information regarding the Sendgrid template / sender information then this firestore trigger will call the Sendgrid API to send out that specific email. Adding a new configuration can be done through the officer utility [Sendgrid x Typeform](https://survey.acmutd.co/email). 
 
+Note: While the confirmation emails feature is still functional. There is now a much better to way to link typeforms + portal + sendgrid. Use the typeform adder --> [link](https://survey.acmutd.co/form). More documentation can be found in Drive > Officer Tools.
+
 ##### Custom Actions
 
 Sometimes we want to perform a custom action based on the submission of a typeform. These are typically the internal utilities made for the ACM officer to refine workflows. All custom action functions are saved in [Custom Actions](../custom). These are also Firestore Triggers and get executed anytime a new document is created. The following functions have custom triggers:
@@ -40,6 +42,7 @@ Sometimes we want to perform a custom action based on the submission of a typefo
  - [Vanity Form](https://survey.acmutd.co/vanity)
  - [Sendgrid Form](https://survey.acmutd.co/email)
  - [Event Form](https://survey.acmutd.co/event)
+ - [Portal Form Adder Form](https://survey.acmutd.co/form)
 
 ### Questions
 

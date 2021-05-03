@@ -87,8 +87,8 @@ export const add_form = async (document: FirebaseFirestore.DocumentData): Promis
 
     await create_map(generic_email);
     await create_form_map(data);
-    //add_callback(`https://app.acmutd.co/forms/${endpoint}`, await get_auth_token());
-    //send_dynamic_template(email_options);
+    add_callback(`https://app.acmutd.co/forms/${endpoint}`, await get_auth_token());
+    send_dynamic_template(email_options);
   } catch (err) {
     logger.log(err);
     Sentry.captureException(err);
