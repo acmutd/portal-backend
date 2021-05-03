@@ -1,6 +1,6 @@
 # ACM API
 
-The official Core API of ACM UTD. View API [Documentation](https://documenter.getpostman.com/view/6712035/TVKJxEVW)
+The official Core API of ACM UTD. View API [Documentation](https://api-docs.acmutd.co)
 
 ### Quick Start
 - Clone the repo

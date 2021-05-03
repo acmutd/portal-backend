@@ -4,6 +4,7 @@
 import app_portal from "../express_configs/express_portal";
 import { Request, Response } from "express";
 import * as portalFunctions from "../application/portal";
+import { get_active_applications } from "../custom/form";
 
 //this will match every call made to this api.
 app_portal.all("/", (request: Request, response: Response, next) => {
@@ -27,6 +28,7 @@ app_portal.get("/auth0/create-blank-profile", portalFunctions.create_blank_profi
 app_portal.get("/auth0/profile", portalFunctions.get_profile);
 app_portal.get("/auth0/developer", portalFunctions.get_developer_profile);
 app_portal.get("/auth0/checkin", portalFunctions.record_event);
+app_portal.get("/auth0/applications", get_active_applications);
 
 // http server endpoints
 export default app_portal;
