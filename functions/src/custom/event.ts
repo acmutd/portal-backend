@@ -3,6 +3,7 @@ import logger from "../services/logging";
 import { send_dynamic_template, sendgrid_email } from "../mail/sendgrid";
 import { get_auth_token, add_callback } from "../admin/auth0";
 import * as Sentry from "@sentry/node";
+import { log_to_slack, slack_message } from "../services/slack";
 
 export interface EventDoc {
   name: string;
@@ -66,9 +67,17 @@ export const create_event = async (document: FirebaseFirestore.DocumentData): Pr
       public: public_event,
     };
 
+    const message: slack_message = {
+      form_name: "Event Check-in Generator",
+      name: first_name + " " + last_name,
+      email: email,
+      url: `https://app.acmutd.co/checkin/${path_name}`,
+    };
+
     await create_map(data);
-    add_callback(`https://app.acmutd.co/checkin/${path_name}`, await get_auth_token());
-    send_dynamic_template(email_options);
+    await add_callback(`https://app.acmutd.co/checkin/${path_name}`, await get_auth_token());
+    await send_dynamic_template(email_options);
+    await log_to_slack(message);
   } catch (err) {
     logger.log(err);
     Sentry.captureException(err);

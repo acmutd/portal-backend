@@ -185,16 +185,16 @@ export const custom_form_actions = functions.firestore
     try {
       switch (document.typeform_id) {
         case "Link Generator":
-          build_vanity_link(document);
+          await build_vanity_link(document);
           break;
         case "Connect Sendgrid":
-          connect_sendgrid(document);
+          await connect_sendgrid(document);
           break;
         case "Event Generator":
-          create_event(document);
+          await create_event(document);
           break;
         case "Typeform Adder":
-          add_form(document);
+          await add_form(document);
           break;
         default:
           logger.log(`No custom action found for typeform ${document.typeform_id}... exiting`);

@@ -40,10 +40,10 @@ export const sendTestEmail = async (request: Request, response: Response): Promi
   }
 };
 
-export const send_email = (request: Request, response: Response): void => {
+export const send_email = async (request: Request, response: Response): Promise<void> => {
   const data = request.body;
   try {
-    send_dynamic_template(data);
+    await send_dynamic_template(data);
     response.json({
       message: "Successful execution of send email",
     });
@@ -56,7 +56,7 @@ export const send_email = (request: Request, response: Response): void => {
   }
 };
 
-export const send_dynamic_template = (data: sendgrid_email): void => {
+export const send_dynamic_template = async (data: sendgrid_email): Promise<void> => {
   try {
     sendgrid.setApiKey(functions.config().sendgrid.apikey);
     const msg: sendgrid.MailDataRequired = {
@@ -68,7 +68,7 @@ export const send_dynamic_template = (data: sendgrid_email): void => {
       dynamicTemplateData: data.dynamicSubstitutions,
       templateId: data.template_id,
     };
-    sendgrid.send(msg);
+    await sendgrid.send(msg);
     logger.log({
       ...data,
       message: "Executing send_dynamic_template",
