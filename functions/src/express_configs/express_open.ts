@@ -55,10 +55,11 @@ function errorHandler(error: Error, request: any, response: any, next: (err?: Er
 }
 app.use(errorHandler);
 
-function logRequest(request: Request, response: Response, next: () => void) {
-  logger.log(request);
-  next();
-}
-app.use(logRequest);
+// this pollutes log files too much
+// function logRequest(request: Request, response: Response, next: () => void) {
+//   logger.log(request);
+//   next();
+// }
+// app.use(logRequest);
 
 export default app;
