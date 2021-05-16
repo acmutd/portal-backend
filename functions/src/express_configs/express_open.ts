@@ -9,8 +9,6 @@ import * as Sentry from "@sentry/node";
 import * as Tracing from "@sentry/tracing";
 import cors from "cors";
 import * as bodyParser from "body-parser";
-import logger from "../services/logging";
-import { Request, Response } from "express";
 
 const app = express();
 
