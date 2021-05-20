@@ -3,6 +3,7 @@ import * as functions from "firebase-functions";
 import * as Sentry from "@sentry/node";
 import { Request, Response } from "express";
 import logger from "../services/logging";
+import { discord_profile, save_discord_profile } from "./discord";
 
 export const get_auth_token = async (): Promise<string> => {
   const result = await axios.default.post(
@@ -52,8 +53,6 @@ export const add_callback = async (url: string, access_token: string): Promise<v
 export const get_user_metadata = async (request: Request, response: Response): Promise<void> => {
   try {
     const access_token = await get_auth_token();
-    console.log(access_token);
-
     const userDetailsByIdUrl = `https://${functions.config().auth0.domain}/api/v2/users/${request.body.sub}`;
 
     const result = await axios.default.get(userDetailsByIdUrl, {
@@ -63,17 +62,35 @@ export const get_user_metadata = async (request: Request, response: Response): P
     const data = result.data;
 
     let discord_auth = false;
-    data.identities.forEach((identity: any) => {
-      if (identity.connection === "Discord") {
-        discord_auth = true;
-      }
-    });
+    let profile: discord_profile | undefined = undefined;
+    let discord_access_token = "";
+    data.identities
+      .filter((identity: any) => {
+        if (identity.connection === "Discord") {
+          return true;
+        }
+        return false;
+      })
+      .forEach((identity: any) => {
+        if (identity.connection === "Discord") {
+          discord_auth = true;
+          discord_access_token = identity.access_token;
+          profile = {
+            snowflake: identity.profileData.discord_snowflake,
+            username: identity.profileData.discord_username,
+            discriminator: identity.profileData.discord_discriminator,
+          };
+        }
+      });
+
+    await save_discord_profile((profile as unknown) as discord_profile, request.body.sub);
 
     if (discord_auth) {
       response.json({
         message: "Successful OAuth 2.0 authentication via discord",
         discord_authentication: true,
-        ...data,
+        access_token: discord_access_token,
+        ...(profile || {}),
       });
     } else {
       response.json({
