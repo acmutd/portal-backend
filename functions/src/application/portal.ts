@@ -169,30 +169,30 @@ export const create_profile = functions.firestore
           }
         });
 
-        send_dynamic_template({
-          from: "contact@acmutd.co",
-          from_name: "ACM Team",
-          to: email,
-          template_id: "d-ecc89a45df224386a022bb4c91762529",
-          dynamicSubstitutions: {
-            first_name: first_name,
-            last_name: last_name,
-          },
-        });
-        upsert_contact({
-          email: email,
-          first_name: first_name,
-          last_name: last_name,
-          list: "812fb281-b20b-405a-a281-097cc56210e0",
-          meta: {
-            w5_T: classification,
-            w6_T: major,
-            w7_T: utd_student,
-            w8_T: net_id,
-            w9_T: sub,
-            w10_T: university,
-          },
-        });
+        // send_dynamic_template({
+        //   from: "contact@acmutd.co",
+        //   from_name: "ACM Team",
+        //   to: email,
+        //   template_id: "d-ecc89a45df224386a022bb4c91762529",
+        //   dynamicSubstitutions: {
+        //     first_name: first_name,
+        //     last_name: last_name,
+        //   },
+        // });
+        // upsert_contact({
+        //   email: email,
+        //   first_name: first_name,
+        //   last_name: last_name,
+        //   list: "812fb281-b20b-405a-a281-097cc56210e0",
+        //   meta: {
+        //     w5_T: classification,
+        //     w6_T: major,
+        //     w7_T: utd_student,
+        //     w8_T: net_id,
+        //     w9_T: sub,
+        //     w10_T: university,
+        //   },
+        // });
 
         firestore
           .collection(profile_collection)
