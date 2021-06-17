@@ -15,7 +15,7 @@ export const verify = (request: Request, response: Response): void => {
   });
 };
 
-export const verify_idp = (request: Request, response: Response): void => {
+export const verify_jwt = (request: Request, response: Response): void => {
   response.json({
     idp: request.body.idp,
   });
