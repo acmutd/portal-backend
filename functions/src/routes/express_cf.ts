@@ -13,7 +13,7 @@ app_cf.all("/", (request: Request, response: Response, next: () => void) => {
  * Cloudflare access protected endpoint
  */
 app_cf.get("/verify", portalFunctions.verify); //to be phased out
-app_cf.get("/verify-idp", portalFunctions.verify_idp);
+app_cf.get("/verify-jwt", portalFunctions.verify_jwt);
 
 // http server endpoints
 export default app_cf;

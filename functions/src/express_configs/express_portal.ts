@@ -83,22 +83,22 @@ const checkJwt_auth0 = jwt({
   algorithms: ["RS256"],
 });
 
-// const checkJwt_gsuite = jwt({
-//   secret: jwksRsa.expressJwtSecret({
-//     cache: true,
-//     rateLimit: true,
-//     jwksRequestsPerMinute: 5,
-//     jwksUri: `https://${functions.config().cloudflare.domain}/cdn-cgi/access/certs`,
-//   }),
+const checkJwt_gsuite = jwt({
+  secret: jwksRsa.expressJwtSecret({
+    cache: true,
+    rateLimit: true,
+    jwksRequestsPerMinute: 5,
+    jwksUri: `https://${functions.config().cloudflare.domain}/cdn-cgi/access/certs`,
+  }),
 
-//   audience: functions.config().cloudflare.portal_gsuite_audience,
-//   issuer: `https://${functions.config().cloudflare.domain}`,
-//   algorithms: ["RS256"],
-// });
+  audience: functions.config().cloudflare.portal_gsuite_audience,
+  issuer: `https://${functions.config().cloudflare.domain}`,
+  algorithms: ["RS256"],
+});
 //user must be authenticated on auth0 for the requests to go through
 app.use("/auth0", checkJwt_auth0);
 // user must be authenticated on gsuite for the requests to go through
-// app.use("/gsuite", checkJwt_gsuite);
+app.use("/gsuite", checkJwt_gsuite);
 
 function extractAuth0Fields(request: Request, response: Response, next: () => void) {
   request.body.sub = request.user.sub;

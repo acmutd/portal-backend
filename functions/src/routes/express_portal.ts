@@ -19,8 +19,8 @@ app_portal.all("/", (request: Request, response: Response, next) => {
  * This is because they have common requirements
  * Additional endpoints for separate forms will be on one or the other path
  */
-app_portal.get("/auth0/verify-idp", portalFunctions.verify_idp);
-app_portal.get("/gsuite/verify-idp", portalFunctions.verify_idp);
+app_portal.get("/auth0/verify-jwt", portalFunctions.verify_jwt);
+app_portal.get("/gsuite/verify-jwt", portalFunctions.verify_jwt);
 
 app_portal.get("/auth0/verify", portalFunctions.verify);
 app_portal.get("/gsuite/verify", portalFunctions.verify);
