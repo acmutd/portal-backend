@@ -7,6 +7,7 @@ import axios from "axios";
 import { get_auth_token, add_callback } from "../admin/auth0";
 import { Response, Request } from "express";
 import { create_map, SendgridDoc } from "../custom/sendgrid_map";
+import { log_to_slack, slack_message } from "../services/slack";
 
 export interface FormDoc {
   typeform_id: string;
@@ -85,10 +86,18 @@ export const add_form = async (document: FirebaseFirestore.DocumentData): Promis
       dynamic_template_name: "Generic Thanks Form",
     };
 
+    const message: slack_message = {
+      form_name: "Typeform Adder",
+      name: first_name + " " + last_name,
+      email: email,
+      url: `https://app.acmutd.co/forms/${endpoint}`,
+    };
+
     await create_map(generic_email);
     await create_form_map(data);
-    add_callback(`https://app.acmutd.co/forms/${endpoint}`, await get_auth_token());
-    send_dynamic_template(email_options);
+    await add_callback(`https://app.acmutd.co/forms/${endpoint}`, await get_auth_token());
+    await send_dynamic_template(email_options);
+    await log_to_slack(message);
   } catch (err) {
     logger.log(err);
     Sentry.captureException(err);

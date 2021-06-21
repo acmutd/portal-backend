@@ -9,8 +9,6 @@ import * as Sentry from "@sentry/node";
 import * as Tracing from "@sentry/tracing";
 import cors from "cors";
 import * as bodyParser from "body-parser";
-import logger from "../services/logging";
-import { Request, Response } from "express";
 
 const app = express();
 
@@ -55,10 +53,11 @@ function errorHandler(error: Error, request: any, response: any, next: (err?: Er
 }
 app.use(errorHandler);
 
-function logRequest(request: Request, response: Response, next: () => void) {
-  logger.log(request);
-  next();
-}
-app.use(logRequest);
+// this pollutes log files too much
+// function logRequest(request: Request, response: Response, next: () => void) {
+//   logger.log(request);
+//   next();
+// }
+// app.use(logRequest);
 
 export default app;

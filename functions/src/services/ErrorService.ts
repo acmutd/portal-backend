@@ -1,5 +1,6 @@
 import * as Sentry from "@sentry/node";
 import { Request, Response } from "express";
+import logger from "./logging";
 
 interface errorMessage {
   message: string;
@@ -39,6 +40,7 @@ export const debug_sentry = (request: Request, response: Response): void => {
   } catch (error) {
     Sentry.captureException(error);
     Sentry.flush(2000);
+    logger.log(error);
   }
   response.json({
     error: "Sentry debug error",

@@ -1,6 +1,7 @@
 import * as functions from "firebase-functions";
 import axios from "axios";
 import sendgrid from "@sendgrid/mail";
+import { log_to_slack, slack_message } from "../services/slack";
 
 export interface Vanity {
   destination: string;
@@ -9,7 +10,7 @@ export interface Vanity {
   slashtag: string;
 }
 
-export const build_vanity_link = (document: FirebaseFirestore.DocumentData): void => {
+export const build_vanity_link = async (document: FirebaseFirestore.DocumentData): Promise<void> => {
   const typeform_results = document.data;
   let first_name = "";
   let last_name = "";
@@ -43,8 +44,16 @@ export const build_vanity_link = (document: FirebaseFirestore.DocumentData): voi
     subdomain: subdomain,
     slashtag: slashtag,
   };
-  create_link(data);
-  send_confirmation(data, email, first_name, last_name);
+
+  const message: slack_message = {
+    form_name: "Vanity Link Generator",
+    name: first_name + " " + last_name,
+    email: email,
+    url: `https://${subdomain}.${primary_domain}/${slashtag}`,
+  };
+  await create_link(data);
+  await send_confirmation(data, email, first_name, last_name);
+  await log_to_slack(message);
 };
 
 const create_link = async (vanity: Vanity): Promise<void> => {
