@@ -37,7 +37,7 @@ app.use(Sentry.Handlers.tracingHandler());
 
 app.use(
   cors({
-    origin: [environment.URL_ORIGINS || ""],
+    origin: environment.URL_ORIGINS,
   })
 );
 app.use(bodyParser.json());
