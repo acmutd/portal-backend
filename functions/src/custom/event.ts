@@ -4,6 +4,7 @@ import { send_dynamic_template, sendgrid_email } from "../mail/sendgrid";
 import { get_auth_token, add_callback } from "../admin/auth0";
 import * as Sentry from "@sentry/node";
 import { log_to_slack, slack_message } from "../services/slack";
+import { environment } from "../environment";
 
 export interface EventDoc {
   name: string;
@@ -46,13 +47,13 @@ export const create_event = async (document: FirebaseFirestore.DocumentData): Pr
     const email_options: sendgrid_email = {
       from: "development@acmutd.co",
       from_name: "ACM Development",
-      template_id: "d-f2d3b8a1b4dd4c14895905b7abb4581b",
+      template_id: `${environment.SENDGRID_EVENT_TEMPLATE_ID}`,
       to: email,
       dynamicSubstitutions: {
         first_name: first_name,
         last_name: last_name,
         name: name,
-        checkin_link: `https://app.acmutd.co/checkin/${path_name}`,
+        checkin_link: `https://${environment.URL_PROD}/checkin/${path_name}`,
         date: date,
         preheader: "Successful Event Check-in Creation Connection",
         subject: "Event Creation Confirmation",
@@ -71,11 +72,11 @@ export const create_event = async (document: FirebaseFirestore.DocumentData): Pr
       form_name: "Event Check-in Generator",
       name: first_name + " " + last_name,
       email: email,
-      url: `https://app.acmutd.co/checkin/${path_name}`,
+      url: `https://${environment.URL_PROD}/checkin/${path_name}`,
     };
 
     await create_map(data);
-    await add_callback(`https://app.acmutd.co/checkin/${path_name}`, await get_auth_token());
+    await add_callback(`https://${environment.URL_PROD}/checkin/${path_name}`, await get_auth_token());
     await send_dynamic_template(email_options);
     await log_to_slack(message);
   } catch (err) {

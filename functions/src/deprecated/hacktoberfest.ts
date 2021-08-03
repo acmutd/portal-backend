@@ -6,6 +6,7 @@ import RequestOptions from "@sendgrid/helpers/classes/request";
 import client from "@sendgrid/client";
 import { firestore } from "../admin/admin";
 import { Request, Response } from "express";
+import { environment } from "../environment";
 
 /**
  * Note: if the discord username --> snowflake returns -1 then the full transaction will fail
@@ -94,7 +95,7 @@ const uploadToSendgrid = async (
   discord_snowflake: string,
   email: string
 ): Promise<void> => {
-  client.setApiKey(functions.config().sendgrid.apikey);
+  client.setApiKey(`${environment.SENDGRID_APIKEY}`);
   const req: RequestOptions = {
     method: "PUT",
     url: "/v3/marketing/contacts",
@@ -128,7 +129,7 @@ const send_confirmation = async (
   last_name: string,
   discord_username: string
 ): Promise<void> => {
-  sendgrid.setApiKey(functions.config().sendgrid.apikey);
+  sendgrid.setApiKey(`${environment.SENDGRID_APIKEY}`);
   const msg: sendgrid.MailDataRequired = {
     from: {
       email: "hacktoberfest@acmutd.co",
