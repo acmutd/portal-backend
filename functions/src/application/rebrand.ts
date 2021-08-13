@@ -1,7 +1,7 @@
 import { Response, Request } from "express";
 import * as Sentry from "@sentry/node";
 import request from "request";
-import * as functions from "firebase-functions";
+import { environment } from "../environment";
 
 //will generate links like apply.acmutd.co/education
 interface links {
@@ -23,7 +23,7 @@ export const createLink = async (req: Request, response: Response): Promise<void
 
     const requestHeaders = {
       "Content-Type": "application/json",
-      apikey: functions.config().rebrandly.apikey,
+      apikey: environment.REBRANDLY_APIKEY,
     };
     request(
       {
@@ -62,7 +62,7 @@ export const updateLink = async (req: Request, response: Response): Promise<void
 
     const requestHeaders = {
       "Content-Type": "application/json",
-      apikey: functions.config().rebrandly.apikey,
+      apikey: environment.REBRANDLY_APIKEY,
     };
     request(
       {
@@ -94,7 +94,7 @@ export const getLink = async (req: Request, response: Response): Promise<void> =
   try {
     const requestHeaders = {
       "Content-Type": "application/json",
-      apikey: functions.config().rebrandly.apikey,
+      apikey: environment.REBRANDLY_APIKEY,
     };
     request(
       {
@@ -125,7 +125,7 @@ export const deleteLink = async (req: Request, response: Response): Promise<void
   try {
     const requestHeaders = {
       "Content-Type": "application/json",
-      apikey: functions.config().rebrandly.apikey,
+      apikey: environment.REBRANDLY_APIKEY,
     };
     request(
       {
@@ -156,7 +156,7 @@ export const getLinks = async (req: Request, response: Response): Promise<void> 
   try {
     const requestHeaders = {
       "Content-Type": "application/json",
-      apikey: functions.config().rebrandly.apikey,
+      apikey: environment.REBRANDLY_APIKEY,
     };
     request(
       {

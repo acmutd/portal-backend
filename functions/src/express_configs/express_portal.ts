@@ -3,7 +3,6 @@
  * Do not handle any routes in this file
  */
 
-import * as functions from "firebase-functions";
 import express from "express";
 import jwt from "express-jwt";
 import jwksRsa from "jwks-rsa";
@@ -12,13 +11,14 @@ import * as Tracing from "@sentry/tracing";
 import cors from "cors";
 import * as bodyParser from "body-parser";
 import { Response, Request } from "express";
+import { environment } from "../environment";
 
 const app = express();
 
 //setup sentry
-if (functions.config()?.sentry?.dns) {
+if (environment.SENTRY_DNS) {
   Sentry.init({
-    dsn: functions.config().sentry.dns,
+    dsn: environment.SENTRY_DNS,
     integrations: [
       // enable HTTP calls tracing
       new Sentry.Integrations.Http({ tracing: true }),
@@ -37,7 +37,7 @@ app.use(Sentry.Handlers.tracingHandler());
 
 app.use(
   cors({
-    origin: ["https://app.acmutd.co", "http://localhost:3000", "https://portal.acmutd.co"],
+    origin: environment.URL_ORIGINS,
   })
 );
 app.use(bodyParser.json());
@@ -75,11 +75,11 @@ const checkJwt_auth0 = jwt({
     cache: true,
     rateLimit: true,
     jwksRequestsPerMinute: 5,
-    jwksUri: `https://${functions.config().auth0.domain}/.well-known/jwks.json`,
+    jwksUri: `https://${environment.AUTH0_DOMAIN}/.well-known/jwks.json`,
   }),
 
-  audience: functions.config().auth0.audience,
-  issuer: `https://${functions.config().auth0.domain}/`,
+  audience: environment.AUTH0_AUDIENCE,
+  issuer: `https://${environment.AUTH0_DOMAIN}/`,
   algorithms: ["RS256"],
 });
 
@@ -88,11 +88,11 @@ const checkJwt_gsuite = jwt({
     cache: true,
     rateLimit: true,
     jwksRequestsPerMinute: 5,
-    jwksUri: `https://${functions.config().cloudflare.domain}/cdn-cgi/access/certs`,
+    jwksUri: `https://${environment.CLOUDFLARE_DOMAIN}/cdn-cgi/access/certs`,
   }),
 
-  audience: functions.config().cloudflare.portal_gsuite_audience,
-  issuer: `https://${functions.config().cloudflare.domain}`,
+  audience: environment.CLOUDFLARE_PORTAL_GSUITE_AUDIENCE,
+  issuer: `https://${environment.CLOUDFLARE_DOMAIN}`,
   algorithms: ["RS256"],
 });
 //user must be authenticated on auth0 for the requests to go through

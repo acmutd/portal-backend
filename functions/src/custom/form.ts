@@ -1,5 +1,4 @@
 import { firestore } from "../admin/admin";
-import * as functions from "firebase-functions";
 import logger from "../services/logging";
 import { send_dynamic_template, sendgrid_email, create_marketing_list } from "../mail/sendgrid";
 import * as Sentry from "@sentry/node";
@@ -8,6 +7,7 @@ import { get_auth_token, add_callback } from "../admin/auth0";
 import { Response, Request } from "express";
 import { create_map, SendgridDoc } from "../custom/sendgrid_map";
 import { log_to_slack, slack_message } from "../services/slack";
+import { environment } from "../environment";
 
 export interface FormDoc {
   typeform_id: string;
@@ -51,13 +51,13 @@ export const add_form = async (document: FirebaseFirestore.DocumentData): Promis
     const email_options: sendgrid_email = {
       from: "development@acmutd.co",
       from_name: "ACM Development",
-      template_id: "d-9cc83a9749b74055ac4f829df1fe5f0d",
+      template_id: `${environment.SENDGRID_FORM_TEMPLATE_ID}`,
       to: email,
       dynamicSubstitutions: {
         first_name: first_name,
         last_name: last_name,
         description: description,
-        form_link: `https://app.acmutd.co/forms/${endpoint}`,
+        form_link: `https://${environment.URL_PROD}/forms/${endpoint}`,
         typeform_name: typeform_name,
         preheader: "Successful Form Addition to Portal",
         subject: "Form Addition Confirmation",
@@ -90,12 +90,12 @@ export const add_form = async (document: FirebaseFirestore.DocumentData): Promis
       form_name: "Typeform Adder",
       name: first_name + " " + last_name,
       email: email,
-      url: `https://app.acmutd.co/forms/${endpoint}`,
+      url: `https://${environment.URL_PROD}/forms/${endpoint}`,
     };
 
     await create_map(generic_email);
     await create_form_map(data);
-    await add_callback(`https://app.acmutd.co/forms/${endpoint}`, await get_auth_token());
+    await add_callback(`https://${environment.URL_PROD}/forms/${endpoint}`, await get_auth_token());
     await send_dynamic_template(email_options);
     await log_to_slack(message);
   } catch (err) {
@@ -119,7 +119,7 @@ const create_form_map = async (document: FormDoc): Promise<void> => {
 const get_typeform_id = async (typeform_name: string): Promise<string> => {
   const config = {
     headers: {
-      Authorization: `Bearer ${functions.config().typeform.access_token}`,
+      Authorization: `Bearer ${environment.TYPEFORM_ACCESS_TOKEN}`,
     },
   };
   const query = {
@@ -133,7 +133,7 @@ const get_typeform_id = async (typeform_name: string): Promise<string> => {
 const add_hidden_fields = async (typeform_id: string): Promise<void> => {
   const config = {
     headers: {
-      Authorization: `Bearer ${functions.config().typeform.access_token}`,
+      Authorization: `Bearer ${environment.TYPEFORM_ACCESS_TOKEN}`,
     },
   };
   const typeform = await axios.get(`https://api.typeform.com/forms/${typeform_id}`, config);
@@ -148,14 +148,14 @@ const add_hidden_fields = async (typeform_id: string): Promise<void> => {
 const add_webhook = async (typeform_id: string): Promise<void> => {
   const config = {
     headers: {
-      Authorization: `Bearer ${functions.config().typeform.access_token}`,
+      Authorization: `Bearer ${environment.TYPEFORM_ACCESS_TOKEN}`,
     },
   };
   const body = {
-    url: functions.config().typeform.webhook_url,
+    url: environment.TYPEFORM_WEBHOOK_URL,
     enabled: true,
     verify_ssl: true,
-    secret: functions.config().typeform.secret,
+    secret: environment.TYPEFORM_SECRET,
   };
   const result = await axios.put(`https://api.typeform.com/forms/${typeform_id}/webhooks/acmcore`, body, config);
   return result.data;

@@ -1,5 +1,5 @@
 import axios from "axios";
-import * as functions from "firebase-functions";
+import { environment } from "../environment";
 
 export interface slack_message {
   form_name: string;
@@ -15,7 +15,7 @@ export interface slack_message {
  */
 export const log_to_slack = async (
   message: slack_message,
-  channel_id: string = functions.config().slack.core_feed as string
+  channel_id: string = environment.SLACK_CORE_FEED as string
 ): Promise<void> => {
   const payload = {
     blocks: [

@@ -3,19 +3,19 @@
  * Do not handle any routes in this file
  */
 
-import * as functions from "firebase-functions";
 import express from "express";
 import * as Sentry from "@sentry/node";
 import * as Tracing from "@sentry/tracing";
 import cors from "cors";
 import * as bodyParser from "body-parser";
+import { environment } from "../environment";
 
 const app = express();
 
 //setup sentry
-if (functions.config()?.sentry?.dns)
+if (environment.SENTRY_DNS)
   Sentry.init({
-    dsn: functions.config().sentry.dns,
+    dsn: environment.SENTRY_DNS,
     integrations: [
       // enable HTTP calls tracing
       new Sentry.Integrations.Http({ tracing: true }),

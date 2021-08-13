@@ -2,6 +2,7 @@ import * as functions from "firebase-functions";
 import * as Sentry from "@sentry/node";
 import request from "request";
 import sendgrid from "@sendgrid/mail";
+import { environment } from "../environment";
 
 /**
  * @deprecated limited functionality
@@ -19,7 +20,7 @@ export const create_vanity_link = functions.firestore
 
       const requestHeaders = {
         "Content-Type": "application/json",
-        apikey: functions.config().rebrandly.apikey,
+        apikey: environment.REBRANDLY_APIKEY,
       };
 
       request(
@@ -32,7 +33,7 @@ export const create_vanity_link = functions.firestore
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (err: any, res: any, body: string) => {
           //const link = JSON.parse(body);
-          sendgrid.setApiKey(functions.config().sendgrid.apikey);
+          sendgrid.setApiKey(`${environment.SENDGRID_APIKEY}`);
           const msg: sendgrid.MailDataRequired = {
             from: "development@acmutd.co",
             to: document_value.email,

@@ -1,18 +1,18 @@
 import * as axios from "axios";
-import * as functions from "firebase-functions";
 import * as Sentry from "@sentry/node";
 import { Request, Response } from "express";
 import logger from "../services/logging";
 import { discord_profile, save_discord_profile } from "./discord";
+import { environment } from "../environment";
 
 export const get_auth_token = async (): Promise<string> => {
   const result = await axios.default.post(
-    `https://${functions.config().auth0.domain}/oauth/token`,
+    `https://${environment.AUTH0_DOMAIN}/oauth/token`,
     {
       grant_type: "client_credentials",
-      client_id: functions.config().auth0_api.clientid,
-      client_secret: functions.config().auth0_api.client_secret,
-      audience: `https://${functions.config().auth0.domain}/api/v2/`,
+      client_id: environment.AUTH0_API_CLIENTID,
+      client_secret: environment.AUTH0_API_CLIENT_SECRET,
+      audience: `https://${environment.AUTH0_DOMAIN}/api/v2/`,
     },
     {
       headers: {
@@ -26,9 +26,7 @@ export const get_auth_token = async (): Promise<string> => {
 export const add_callback = async (url: string, access_token: string): Promise<void> => {
   try {
     const result = await axios.default.get(
-      `https://${functions.config().auth0.domain}/api/v2/clients/${
-        functions.config().auth0.clientid
-      }?fields=callbacks&include_fields=true`,
+      `https://${environment.AUTH0_DOMAIN}/api/v2/clients/${environment.AUTH0_CLIENTID}?fields=callbacks&include_fields=true`,
       {
         headers: { "content-type": "application/json", authorization: `Bearer ${access_token}` },
       }
@@ -36,7 +34,7 @@ export const add_callback = async (url: string, access_token: string): Promise<v
     const callbacks = result.data.callbacks;
     callbacks.push(url);
     await axios.default.patch(
-      `https://${functions.config().auth0.domain}/api/v2/clients/${functions.config().auth0.clientid}`,
+      `https://${environment.AUTH0_DOMAIN}/api/v2/clients/${environment.AUTH0_CLIENTID}`,
       {
         callbacks: callbacks,
       },
@@ -53,7 +51,7 @@ export const add_callback = async (url: string, access_token: string): Promise<v
 export const get_user_metadata = async (request: Request, response: Response): Promise<void> => {
   try {
     const access_token = await get_auth_token();
-    const userDetailsByIdUrl = `https://${functions.config().auth0.domain}/api/v2/users/${request.body.sub}`;
+    const userDetailsByIdUrl = `https://${environment.AUTH0_DOMAIN}/api/v2/users/${request.body.sub}`;
 
     const result = await axios.default.get(userDetailsByIdUrl, {
       headers: { "content-type": "application/json", authorization: `Bearer ${access_token}` },

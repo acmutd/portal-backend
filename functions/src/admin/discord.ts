@@ -1,9 +1,9 @@
 import { firestore } from "../admin/admin";
-import * as functions from "firebase-functions";
 import { Request, Response } from "express";
 import * as axios from "axios";
 import * as Sentry from "@sentry/node";
 import logger from "../services/logging";
+import { environment } from "../environment";
 
 export interface discord_profile {
   snowflake: string;
@@ -33,7 +33,7 @@ export const verify_in_acm_server = async (request: Request, response: Response)
 
     let is_present = false;
     result.data
-      .filter((guild: any) => guild.id === functions.config().discord.acm_server_id)
+      .filter((guild: any) => guild.id === environment.DISCORD_ACM_SERVER_ID)
       .forEach((guild: any) => {
         is_present = true;
       });
@@ -47,17 +47,17 @@ export const verify_in_acm_server = async (request: Request, response: Response)
     }
     const config2 = {
       headers: {
-        Authorization: `Bot ${functions.config().discord.bot_token}`,
+        Authorization: `Bot ${environment.DISCORD_BOT_TOKEN}`,
       },
     };
 
     const result2 = await axios.default.get(
-      `https://discord.com/api/guilds/${functions.config().discord.acm_server_id}/members/${request.body.snowflake}`,
+      `https://discord.com/api/guilds/${environment.DISCORD_ACM_SERVER_ID}/members/${request.body.snowflake}`,
       config2
     );
 
     let is_verified = false;
-    if (result2.data.roles.includes(functions.config().discord.member_role_id)) {
+    if (result2.data.roles.includes(environment.DISCORD_MEMBER_ROLE_ID)) {
       is_verified = true;
     }
 
@@ -85,13 +85,11 @@ const add_verified_role = async (snowflake: string): Promise<boolean> => {
   try {
     const config = {
       headers: {
-        Authorization: `Bot ${functions.config().discord.bot_token}`,
+        Authorization: `Bot ${environment.DISCORD_BOT_TOKEN}`,
       },
     };
     await axios.default.put(
-      `https://discord.com/api/guilds/${functions.config().discord.acm_server_id}/members/${snowflake}/roles/${
-        functions.config().discord.verified_role_id
-      }`,
+      `https://discord.com/api/guilds/${environment.DISCORD_ACM_SERVER_ID}/members/${snowflake}/roles/${environment.DISCORD_VERIFIED_ROLE_ID}`,
       null,
       config
     );

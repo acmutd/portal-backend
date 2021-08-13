@@ -1,7 +1,7 @@
-import * as functions from "firebase-functions";
 import axios from "axios";
 import sendgrid from "@sendgrid/mail";
 import { log_to_slack, slack_message } from "../services/slack";
+import { environment } from "../environment";
 
 export interface Vanity {
   destination: string;
@@ -65,9 +65,9 @@ const create_link = async (vanity: Vanity): Promise<void> => {
 
   let apikey = "";
   if (vanity.primary_domain === "acmutd.co") {
-    apikey = functions.config().rebrandly.apikey;
+    apikey = `${environment.REBRANDLY_APIKEY}`;
   } else {
-    apikey = functions.config().rebrandly.apikey2;
+    apikey = `${environment.REBRANDLY_APIKEY2}`;
   }
 
   const requestHeaders = {
@@ -110,7 +110,7 @@ const send_confirmation = (
   first_name: string,
   last_name: string
 ): Promise<[any, any]> => {
-  sendgrid.setApiKey(functions.config().sendgrid.apikey);
+  sendgrid.setApiKey(`${environment.SENDGRID_APIKEY}`);
   const msg: sendgrid.MailDataRequired = {
     from: {
       email: "development@acmutd.co",
@@ -124,7 +124,7 @@ const send_confirmation = (
       first_name: first_name,
       last_name: last_name,
     },
-    templateId: "d-cd15e958009a43b3b3a8d7352ee12c79",
+    templateId: `${environment.SENDGRID_VANITY_TEMPLATE_ID}`,
   };
   return sendgrid.send(msg);
 };
