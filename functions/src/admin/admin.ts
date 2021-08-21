@@ -10,3 +10,4 @@ const app = admin.initializeApp();
  */
 export const auth = app.auth();
 export const firestore = app.firestore();
+export const bucket_core = app.storage().bucket("acm-core");

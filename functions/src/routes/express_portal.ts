@@ -4,6 +4,7 @@
 import app_portal from "../express_configs/express_portal";
 import { Request, Response } from "express";
 import * as portalFunctions from "../application/portal";
+import { upload_resume } from "../application/resume";
 import { get_active_applications } from "../custom/form";
 import { get_user_metadata } from "../admin/auth0";
 import { verify_in_acm_server } from "../admin/discord";
@@ -33,6 +34,7 @@ app_portal.get("/auth0/checkin", portalFunctions.record_event);
 app_portal.get("/auth0/applications", get_active_applications);
 app_portal.get("/auth0/discord", get_user_metadata);
 app_portal.post("/auth0/verify-discord", verify_in_acm_server);
+app_portal.post("/test/upload-resume", upload_resume);
 
 // http server endpoints
 export default app_portal;
