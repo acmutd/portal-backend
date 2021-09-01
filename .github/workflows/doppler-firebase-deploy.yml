@@ -33,5 +33,6 @@ jobs:
       - name: Set Firebase Token
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+        run: echo "Set Firebase Token"
       - name: Deploy
         run: npm run deploy
