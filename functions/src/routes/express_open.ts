@@ -6,7 +6,7 @@ import app_open from "../express_configs/express_open";
 import { Request, Response } from "express";
 
 import * as challengeFunctions from "../challenge/challenge";
-import * as hacktoberfestFunctions from "../custom/hacktoberfest";
+import * as hacktoberfestFunctions from "../deprecated/hacktoberfest";
 import * as typeformFunctions from "../application/typeform";
 import * as errorFunctions from "../services/ErrorService";
 import { debug_logger } from "../services/logging";

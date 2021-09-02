@@ -1,6 +1,7 @@
-import * as functions from "firebase-functions";
-import request from "request";
+import axios from "axios";
 import sendgrid from "@sendgrid/mail";
+import { log_to_slack, slack_message } from "../services/slack";
+import { environment } from "../environment";
 
 export interface Vanity {
   destination: string;
@@ -9,7 +10,7 @@ export interface Vanity {
   slashtag: string;
 }
 
-export const build_vanity_link = (document: FirebaseFirestore.DocumentData): void => {
+export const build_vanity_link = async (document: FirebaseFirestore.DocumentData): Promise<void> => {
   const typeform_results = document.data;
   let first_name = "";
   let last_name = "";
@@ -43,11 +44,19 @@ export const build_vanity_link = (document: FirebaseFirestore.DocumentData): voi
     subdomain: subdomain,
     slashtag: slashtag,
   };
-  create_link(data);
-  send_confirmation(data, email, first_name, last_name);
+
+  const message: slack_message = {
+    form_name: "Vanity Link Generator",
+    name: first_name + " " + last_name,
+    email: email,
+    url: `https://${subdomain}.${primary_domain}/${slashtag}`,
+  };
+  await create_link(data);
+  await send_confirmation(data, email, first_name, last_name);
+  await log_to_slack(message);
 };
 
-const create_link = async (vanity: Vanity): Promise<request.Request> => {
+const create_link = async (vanity: Vanity): Promise<void> => {
   const linkRequest = {
     destination: vanity.destination,
     domain: { fullName: vanity.subdomain + "." + vanity.primary_domain },
@@ -56,9 +65,9 @@ const create_link = async (vanity: Vanity): Promise<request.Request> => {
 
   let apikey = "";
   if (vanity.primary_domain === "acmutd.co") {
-    apikey = functions.config().rebrandly.apikey;
+    apikey = `${environment.REBRANDLY_APIKEY}`;
   } else {
-    apikey = functions.config().rebrandly.apikey2;
+    apikey = `${environment.REBRANDLY_APIKEY2}`;
   }
 
   const requestHeaders = {
@@ -66,12 +75,33 @@ const create_link = async (vanity: Vanity): Promise<request.Request> => {
     apikey: apikey,
   };
 
-  return request({
-    uri: "https://api.rebrandly.com/v1/links",
-    method: "POST",
-    body: JSON.stringify(linkRequest),
+  const config = {
     headers: requestHeaders,
-  });
+  };
+
+  axios
+    .get(
+      `https://api.rebrandly.com/v1/links?domain.fullName=${linkRequest.domain.fullName}&slashtag=${linkRequest.slashtag}`,
+      config
+    )
+    .then((res) => {
+      //Update the vanity link if a link with this fullName and slashtag exists.
+      if (Object.keys(res.data).length != 0)
+        return axios({
+          url: `https://api.rebrandly.com/v1/links/${res.data[0].id}`,
+          method: "post",
+          data: JSON.stringify(linkRequest),
+          headers: requestHeaders,
+        });
+
+      //Create a new vanity link
+      return axios({
+        url: "https://api.rebrandly.com/v1/links",
+        method: "post",
+        data: JSON.stringify(linkRequest),
+        headers: requestHeaders,
+      });
+    });
 };
 
 const send_confirmation = (
@@ -80,7 +110,7 @@ const send_confirmation = (
   first_name: string,
   last_name: string
 ): Promise<[any, any]> => {
-  sendgrid.setApiKey(functions.config().sendgrid.apikey);
+  sendgrid.setApiKey(`${environment.SENDGRID_APIKEY}`);
   const msg: sendgrid.MailDataRequired = {
     from: {
       email: "development@acmutd.co",
@@ -94,7 +124,7 @@ const send_confirmation = (
       first_name: first_name,
       last_name: last_name,
     },
-    templateId: "d-cd15e958009a43b3b3a8d7352ee12c79",
+    templateId: `${environment.SENDGRID_VANITY_TEMPLATE_ID}`,
   };
   return sendgrid.send(msg);
 };

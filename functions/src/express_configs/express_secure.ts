@@ -3,7 +3,6 @@
  * Do not handle any routes in this file
  */
 
-import * as functions from "firebase-functions";
 import express from "express";
 import jwt from "express-jwt";
 import jwksRsa from "jwks-rsa";
@@ -13,13 +12,14 @@ import cors from "cors";
 import * as bodyParser from "body-parser";
 import { Response, Request } from "express";
 import logger from "../services/logging";
+import { environment } from "../environment";
 
 const app = express();
 
 //setup sentry
-if (functions.config()?.sentry?.dns) {
+if (environment.SENTRY_DNS) {
   Sentry.init({
-    dsn: functions.config().sentry.dns,
+    dsn: environment.SENTRY_DNS,
     integrations: [
       // enable HTTP calls tracing
       new Sentry.Integrations.Http({ tracing: true }),
@@ -71,11 +71,11 @@ const checkJwt = jwt({
     cache: true,
     rateLimit: true,
     jwksRequestsPerMinute: 5,
-    jwksUri: `https://${functions.config().auth0.domain}/.well-known/jwks.json`,
+    jwksUri: `https://${environment.AUTH0_DOMAIN}/.well-known/jwks.json`,
   }),
 
-  audience: functions.config().auth0.audience,
-  issuer: `https://${functions.config().auth0.domain}/`,
+  audience: environment.AUTH0_AUDIENCE,
+  issuer: `https://${environment.AUTH0_DOMAIN}/`,
   algorithms: ["RS256"],
 });
 //user must be authenticated on auth0 for the requests to go through

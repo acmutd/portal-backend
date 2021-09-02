@@ -4,14 +4,15 @@
     "lint": "npx eslint .",
     "build": "tsc",
     "build:dev": "tsc --watch",
-    "serve": "concurrently -i \"firebase emulators:start\" \"npm run build:dev\"",
-    "shell": "concurrently -i \"firebase functions:shell\" \"npm run build:dev\"",
+    "serve": "doppler run -- concurrently -i \"firebase emulators:start\" \"npm run build:dev\"",
+    "shell": "doppler run -- concurrently -i \"firebase functions:shell\" \"npm run build:dev\"",
     "start": "npm run shell",
-    "deploy": "npm run build && firebase deploy --only functions",
+    "deploy": "npm run update_config && npm run build && firebase deploy --only functions",
+    "update_config": "firebase functions:config:unset env && firebase functions:config:set env=\"$(doppler secrets download --config prd --no-file --silent)\"",
     "logs": "firebase functions:log"
   },
   "engines": {
-    "node": "10"
+    "node": "14"
   },
   "main": "lib/index.js",
   "dependencies": {

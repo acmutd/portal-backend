@@ -3,8 +3,8 @@ import client from "@sendgrid/client";
 import { Response, Request } from "express";
 import * as Sentry from "@sentry/node";
 import RequestOptions from "@sendgrid/helpers/classes/request";
-import * as functions from "firebase-functions";
 import logger from "../services/logging";
+import { environment } from "../environment";
 
 export interface sendgrid_email {
   from: string;
@@ -16,7 +16,7 @@ export interface sendgrid_email {
 
 export const sendTestEmail = async (request: Request, response: Response): Promise<void> => {
   try {
-    sendgrid.setApiKey(functions.config().sendgrid.apikey);
+    sendgrid.setApiKey(`${environment.SENDGRID_APIKEY}`);
     const msg: sendgrid.MailDataRequired = {
       from: "development@acmutd.co",
       to: "harsha.srikara@acmutd.co",
@@ -40,10 +40,10 @@ export const sendTestEmail = async (request: Request, response: Response): Promi
   }
 };
 
-export const send_email = (request: Request, response: Response): void => {
+export const send_email = async (request: Request, response: Response): Promise<void> => {
   const data = request.body;
   try {
-    send_dynamic_template(data);
+    await send_dynamic_template(data);
     response.json({
       message: "Successful execution of send email",
     });
@@ -56,9 +56,9 @@ export const send_email = (request: Request, response: Response): void => {
   }
 };
 
-export const send_dynamic_template = (data: sendgrid_email): void => {
+export const send_dynamic_template = async (data: sendgrid_email): Promise<void> => {
   try {
-    sendgrid.setApiKey(functions.config().sendgrid.apikey);
+    sendgrid.setApiKey(`${environment.SENDGRID_APIKEY}`);
     const msg: sendgrid.MailDataRequired = {
       from: {
         email: data.from,
@@ -68,7 +68,7 @@ export const send_dynamic_template = (data: sendgrid_email): void => {
       dynamicTemplateData: data.dynamicSubstitutions,
       templateId: data.template_id,
     };
-    sendgrid.send(msg);
+    await sendgrid.send(msg);
     logger.log({
       ...data,
       message: "Executing send_dynamic_template",
@@ -104,7 +104,7 @@ export const upsertContact = async (request: Request, response: Response): Promi
 };
 
 export const upsert_contact = async (user: user_contact): Promise<void> => {
-  client.setApiKey(functions.config().sendgrid.apikey);
+  client.setApiKey(`${environment.SENDGRID_APIKEY}`);
   const req: RequestOptions = {
     method: "PUT",
     url: "/v3/marketing/contacts",
@@ -130,7 +130,7 @@ export const upsert_contact = async (user: user_contact): Promise<void> => {
 
 export const sendMailingList = async (request: Request, response: Response): Promise<void> => {
   try {
-    client.setApiKey(functions.config().sendgrid.apikey);
+    client.setApiKey(`${environment.SENDGRID_APIKEY}`);
     const req: RequestOptions = {
       method: "PUT",
       url: "/v3/marketing/singlesends",
@@ -157,7 +157,7 @@ export const sendMailingList = async (request: Request, response: Response): Pro
 
 export const getMailingLists = async (request: Request, response: Response): Promise<void> => {
   try {
-    client.setApiKey(functions.config().sendgrid.apikey);
+    client.setApiKey(`${environment.SENDGRID_APIKEY}`);
     const req: RequestOptions = {
       method: "GET",
       url: "/v3/marketing/lists",
@@ -177,7 +177,7 @@ export const getMailingLists = async (request: Request, response: Response): Pro
 };
 
 export const create_marketing_list = async (name: string): Promise<string> => {
-  client.setApiKey(functions.config().sendgrid.apikey);
+  client.setApiKey(`${environment.SENDGRID_APIKEY}`);
   const req: RequestOptions = {
     method: "POST",
     url: "/v3/marketing/lists",
@@ -195,7 +195,7 @@ export const create_marketing_list = async (name: string): Promise<string> => {
 };
 
 export const get_dynamic_template = async (template_id: string): Promise<string> => {
-  client.setApiKey(functions.config().sendgrid.apikey);
+  client.setApiKey(`${environment.SENDGRID_APIKEY}`);
   const req: RequestOptions = {
     method: "GET",
     url: `/v3/templates/${template_id}`,

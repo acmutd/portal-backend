@@ -1,6 +1,6 @@
 import logdna from "@logdna/logger";
 import { Request, Response } from "express";
-import * as functions from "firebase-functions";
+import { environment } from "../environment";
 
 const options: logdna.ConstructorOptions = {
   app: "acm-core",
@@ -8,7 +8,7 @@ const options: logdna.ConstructorOptions = {
   // level: logdna.LogLevel.debug, // set a default for when level is not provided in function calls
 };
 
-const harsha_logger = logdna.createLogger(functions.config().logdna.harsha, options);
+const harsha_logger = logdna.createLogger(`${environment.LOGDNA_HARSHA}`, options);
 
 class Logger {
   private logdna_loggers = [harsha_logger /*, insert additional loggers */];

@@ -3,21 +3,19 @@
  * Do not handle any routes in this file
  */
 
-import * as functions from "firebase-functions";
 import express from "express";
 import * as Sentry from "@sentry/node";
 import * as Tracing from "@sentry/tracing";
 import cors from "cors";
 import * as bodyParser from "body-parser";
-import logger from "../services/logging";
-import { Request, Response } from "express";
+import { environment } from "../environment";
 
 const app = express();
 
 //setup sentry
-if (functions.config()?.sentry?.dns)
+if (environment.SENTRY_DNS)
   Sentry.init({
-    dsn: functions.config().sentry.dns,
+    dsn: environment.SENTRY_DNS,
     integrations: [
       // enable HTTP calls tracing
       new Sentry.Integrations.Http({ tracing: true }),
@@ -55,10 +53,11 @@ function errorHandler(error: Error, request: any, response: any, next: (err?: Er
 }
 app.use(errorHandler);
 
-function logRequest(request: Request, response: Response, next: () => void) {
-  logger.log(request);
-  next();
-}
-app.use(logRequest);
+// this pollutes log files too much
+// function logRequest(request: Request, response: Response, next: () => void) {
+//   logger.log(request);
+//   next();
+// }
+// app.use(logRequest);
 
 export default app;

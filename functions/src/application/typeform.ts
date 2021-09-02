@@ -6,6 +6,7 @@ import { upsert_contact, send_dynamic_template, user_contact, sendgrid_email } f
 import admin from "firebase-admin";
 import { build_vanity_link } from "../custom/vanity";
 import { connect_sendgrid } from "../custom/sendgrid_map";
+import { add_form } from "../custom/form";
 import { create_event } from "../custom/event";
 // import crypto from "crypto";
 
@@ -27,11 +28,13 @@ type form_response = {
   hidden: any;
   answers: any; //im lazy, someone plz do this
 };
+
 interface typeform {
   event_id: string;
   event_type: string;
   form_response: form_response;
 }
+
 export interface qa {
   question: string;
   answer: string;
@@ -137,6 +140,7 @@ export const send_confirmation = functions.firestore
         dynamicSubstitutions: {
           first_name: first_name,
           last_name: last_name,
+          typeform_id: document.typeform_id,
         },
       };
       const contact_data: user_contact = {
@@ -181,24 +185,27 @@ export const custom_form_actions = functions.firestore
     try {
       switch (document.typeform_id) {
         case "Link Generator":
-          build_vanity_link(document);
+          await build_vanity_link(document);
           break;
         case "Connect Sendgrid":
-          connect_sendgrid(document);
+          await connect_sendgrid(document);
           break;
         case "Event Generator":
-          create_event(document);
+          await create_event(document);
+          break;
+        case "Typeform Adder":
+          await add_form(document);
           break;
         default:
           logger.log(`No custom action found for typeform ${document.typeform_id}... exiting`);
           return;
       }
-    } catch (error) {
+    } catch (err) {
       logger.log({
-        ...error,
+        err,
         message: "Error occured in custom typeform function",
       });
-      Sentry.captureException(error);
+      Sentry.captureException(err);
     }
   });
 
