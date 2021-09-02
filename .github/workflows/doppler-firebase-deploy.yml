@@ -38,5 +38,6 @@ jobs:
       - name: Deploy
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+        # FIREBASE_TOKEN will allow all firebase commands to run with authentication
         run: npm run deploy
         working-directory: ./functions
