@@ -1,4 +1,4 @@
-# This workflow will install Doppler CLI and Firebase tools, then deploy to Firebase
+# This workflow will install Doppler CLI and Firebase tools, then update secrets and deploy to Firebase
 
 name: Firebase with Doppler CI
 
