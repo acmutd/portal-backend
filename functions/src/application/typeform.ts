@@ -182,36 +182,36 @@ export const send_confirmation = functions.firestore
   });
 
 export const custom_form_actions = async (snap: any) => {
-    const document = snap.data();
-    try {
-      switch (document.typeform_id) {
-        case "Link Generator":
-          await build_vanity_link(document);
-          break;
-        case "Connect Sendgrid":
-          await connect_sendgrid(document);
-          break;
-        case "Event Generator":
-          await create_event(document);
-          break;
-        case "Typeform Adder":
-          await add_form(document);
-          break;
-        case "Profile":
-          await create_profile_fast(document);
-          break;
-        default:
-          logger.log(`No custom action found for typeform ${document.typeform_id}... exiting`);
-          return;
-      }
-    } catch (err) {
-      logger.log({
-        err,
-        message: "Error occured in custom typeform function",
-      });
-      Sentry.captureException(err);
+  const document = snap.data();
+  try {
+    switch (document.typeform_id) {
+      case "Link Generator":
+        await build_vanity_link(document);
+        break;
+      case "Connect Sendgrid":
+        await connect_sendgrid(document);
+        break;
+      case "Event Generator":
+        await create_event(document);
+        break;
+      case "Typeform Adder":
+        await add_form(document);
+        break;
+      case "Profile":
+        await create_profile_fast(document);
+        break;
+      default:
+        logger.log(`No custom action found for typeform ${document.typeform_id}... exiting`);
+        return;
     }
-  };
+  } catch (err) {
+    logger.log({
+      err,
+      message: "Error occured in custom typeform function",
+    });
+    Sentry.captureException(err);
+  }
+};
 
 // const verify_signature = (expectedSig: any, body: any) => {
 //   const hash = crypto
