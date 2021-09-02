@@ -1,0 +1,35 @@
+# This workflow will install Doppler CLI and Firebase tools, then deploy to Firebase
+
+name: Firebase with Doppler CI
+
+on:
+  push:
+    branches: [feature/actionfix]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [14.x]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        working-directory: ./functions
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
+      - run: npm ci
+        working-directory: ./functions
+      - name: Install Doppler CLI
+        uses: dopplerhq/cli-action@v1
+      - name: Install Firebase
+        run: npm install -g firebase-tools
+        working-directory: ./functions
+      - name: Set Firebase Token
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+        run: echo "Set Firebase Token"
