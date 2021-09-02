@@ -13,7 +13,7 @@ export interface EventDoc {
   public: boolean;
 }
 
-const event_collection = "event";
+const event_collection = environment.FIRESTORE_EVENT_COLLECTION as string;
 
 export const create_event = async (document: FirebaseFirestore.DocumentData): Promise<void> => {
   try {

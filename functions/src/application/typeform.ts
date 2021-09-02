@@ -10,7 +10,7 @@ import { add_form } from "../custom/form";
 import { create_event } from "../custom/event";
 // import crypto from "crypto";
 
-const profile_collection = "profile";
+const profile_collection = environment.FIRESTORE_PROFILE_COLLECTION as string;
 const typeform_meta_collection = "typeform_meta";
 
 type definition = {
