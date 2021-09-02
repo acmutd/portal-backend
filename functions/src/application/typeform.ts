@@ -8,6 +8,7 @@ import { build_vanity_link } from "../custom/vanity";
 import { connect_sendgrid } from "../custom/sendgrid_map";
 import { add_form } from "../custom/form";
 import { create_event } from "../custom/event";
+import { environment } from "../environment";
 // import crypto from "crypto";
 
 const profile_collection = environment.FIRESTORE_PROFILE_COLLECTION as string;
