@@ -21,6 +21,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: "npm"
+          # Changes the dependency path to the main package-lock
           cache-dependency-path: ./functions/package-lock.json
       - run: npm ci
         working-directory: ./functions
