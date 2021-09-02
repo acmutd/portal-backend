@@ -5,8 +5,9 @@ import { firestore } from "../admin/admin";
 import { send_dynamic_template, upsert_contact } from "../mail/sendgrid";
 import admin from "firebase-admin";
 import logger from "../services/logging";
+import { environment } from "../environment";
 
-const profile_collection = "profile";
+const profile_collection = environment.FIRESTORE_PROFILE_COLLECTION as string;
 const event_collection = "event";
 
 export const verify = (request: Request, response: Response): void => {
