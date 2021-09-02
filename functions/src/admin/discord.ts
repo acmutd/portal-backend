@@ -11,7 +11,7 @@ export interface discord_profile {
   discriminator: string;
 }
 
-const profile_collection = "profile";
+const profile_collection = environment.FIRESTORE_PROFILE_COLLECTION as string;
 
 export const save_discord_profile = async (profile: discord_profile, profile_id: string): Promise<void> => {
   try {
