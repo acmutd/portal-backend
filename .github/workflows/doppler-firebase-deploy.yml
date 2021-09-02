@@ -35,10 +35,8 @@ jobs:
       - name: Install Firebase
         run: npm install -g firebase-tools
         working-directory: ./functions
-      - name: Set Firebase Token
+      - name: Deploy
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
-        run: echo "Set Firebase Token"
-      - name: Deploy
         run: npm run deploy
         working-directory: ./functions
