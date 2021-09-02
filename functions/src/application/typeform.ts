@@ -9,6 +9,7 @@ import { connect_sendgrid } from "../custom/sendgrid_map";
 import { add_form } from "../custom/form";
 import { create_event } from "../custom/event";
 import { environment } from "../environment";
+import { create_profile_fast } from "./portal";
 // import crypto from "crypto";
 
 const profile_collection = environment.FIRESTORE_PROFILE_COLLECTION as string;
@@ -81,11 +82,12 @@ export const typeform_webhook = async (request: any, response: any): Promise<voi
   });
 
   try {
-    firestore.collection("typeform").add({
+    const document = await firestore.collection("typeform").add({
       typeform_id: data.form_response.definition.title,
       submission_time: data.form_response.submitted_at,
       data: qa_responses,
     });
+    await custom_form_actions(await document.get());
     response.json({
       message: "Successful execution of typeform_webhook",
     });
@@ -179,9 +181,7 @@ export const send_confirmation = functions.firestore
     }
   });
 
-export const custom_form_actions = functions.firestore
-  .document("typeform/{document_name}")
-  .onCreate(async (snap, context) => {
+export const custom_form_actions = async (snap: any) => {
     const document = snap.data();
     try {
       switch (document.typeform_id) {
@@ -197,6 +197,9 @@ export const custom_form_actions = functions.firestore
         case "Typeform Adder":
           await add_form(document);
           break;
+        case "Profile":
+          await create_profile_fast(document);
+          break;
         default:
           logger.log(`No custom action found for typeform ${document.typeform_id}... exiting`);
           return;
@@ -208,7 +211,7 @@ export const custom_form_actions = functions.firestore
       });
       Sentry.captureException(err);
     }
-  });
+  };
 
 // const verify_signature = (expectedSig: any, body: any) => {
 //   const hash = crypto
