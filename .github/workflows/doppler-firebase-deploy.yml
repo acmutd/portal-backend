@@ -4,7 +4,7 @@ name: Firebase with Doppler CI
 
 on:
   push:
-    branches: [master, dev]
+    branches: [master]
 
 jobs:
   build:
