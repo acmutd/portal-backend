@@ -10,8 +10,8 @@ export const get_auth_token = async (): Promise<string> => {
     `https://${environment.AUTH0_DOMAIN}/oauth/token`,
     {
       grant_type: "client_credentials",
-      client_id: environment.AUTH0_API_CLIENTID,
-      client_secret: environment.AUTH0_API_CLIENT_SECRET,
+      client_id: environment.AUTH0_API_CLIENTID as string,
+      client_secret: environment.AUTH0_API_CLIENT_SECRET as string,
       audience: `https://${environment.AUTH0_DOMAIN}/api/v2/`,
     },
     {
