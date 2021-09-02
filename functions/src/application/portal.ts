@@ -1,5 +1,4 @@
 import { Response, Request } from "express";
-import * as functions from "firebase-functions";
 import * as Sentry from "@sentry/node";
 import { firestore } from "../admin/admin";
 import { send_dynamic_template, upsert_contact } from "../mail/sendgrid";
@@ -111,10 +110,7 @@ export const record_event = async (request: Request, response: Response): Promis
   }
 };
 
-export const create_profile = functions.firestore
-  .document("typeform/{document_name}")
-  .onCreate(async (snap, context) => {
-    const document = snap.data();
+export const create_profile_fast = async (document: FirebaseFirestore.DocumentData): Promise<void> => {
     try {
       if (document.typeform_id == "Profile") {
         const typeform_results = document.data;
@@ -232,7 +228,7 @@ export const create_profile = functions.firestore
     } catch (error) {
       Sentry.captureException(error);
     }
-  });
+  };
 
 export const get_profile = async (request: Request, response: Response): Promise<void> => {
   const data = request.body;
