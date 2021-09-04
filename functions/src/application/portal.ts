@@ -265,6 +265,41 @@ export const get_profile = async (request: Request, response: Response): Promise
   }
 };
 
+export const get_event = async (request: Request, response: Response): Promise<void> => {
+  const data = request.body;
+  try {
+    const result = await firestore.collection(event_collection).doc(data.sub).get();
+    if (result.exists) {
+      const fields = result.data() as Record<string, unknown>;
+      if ("name" in fields) {
+        response.json({
+          ...result.data(),
+          exists: true,
+        });
+        logger.log({
+          ...result.data(),
+          message: "Event retrieval successful",
+        });
+        return;
+      }
+    }
+    logger.log({
+      message: "Event not found",
+      sub: data.sub,
+    });
+    response.json({
+      exists: false,
+    });
+  } catch (err) {
+    Sentry.captureException(err);
+    response.json({
+      message: "Unsuccessful retrieval of events",
+      error: err,
+      exists: false,
+    });
+  }
+};
+
 export const get_developer_profile = async (request: Request, response: Response): Promise<void> => {
   const data = request.body;
   try {
