@@ -3,6 +3,7 @@
 name: Firebase with Doppler CI
 
 on:
+  workflow_dispatch: # Manual deploy
   push:
     branches: [master]
 
