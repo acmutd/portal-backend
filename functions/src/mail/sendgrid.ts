@@ -89,6 +89,8 @@ export interface user_contact {
 
 export const upsertContact = async (request: Request, response: Response): Promise<void> => {
   const data: user_contact = request.body;
+  // If list does not exist in the request, use ACM's global mailing list
+  data.list = data.list ?? environment.SENDGRID_GLOBAL_LIST_UID;
   try {
     await upsert_contact(data);
     response.json({
