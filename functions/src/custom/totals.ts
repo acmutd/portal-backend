@@ -6,10 +6,12 @@ import { environment } from "../environment";
 import admin from "firebase-admin";
 
 const event_collection = environment.FIRESTORE_EVENT_COLLECTION as string;
+const totals_collection = environment.FIRESTORE_TOTALS_COLLECTION as string;
+const totals_doc = environment.FIRESTORE_TOTALS_DOC as string;
 
 export const computeCollectionTotals = firestore.listCollections().then(async (collections) => {
   const total: Record<string, number> = {};
-  const collectionTotalRef = firestore.collection("total").doc("collection_total");
+  const collectionTotalRef = firestore.collection(totals_collection).doc(totals_doc);
 
   for (const collection of collections) {
     const collectionId = collection.id;
@@ -33,7 +35,7 @@ export const onCreateDocumentTrigger = functions.firestore
   .document("{collectionId}/{docId}")
   .onCreate(async (docSnapshot) => {
     const documentId = docSnapshot.id;
-    const collectionTotalRef = firestore.collection("total").doc("collection_total");
+    const collectionTotalRef = firestore.collection(totals_collection).doc(totals_doc);
 
     const total: Record<string, admin.firestore.FieldValue> = {};
     total[documentId] = admin.firestore.FieldValue.increment(1);
@@ -52,7 +54,7 @@ export const onCreateDocumentTrigger = functions.firestore
 
 export const onWriteDocumentTrigger = functions.firestore.document("{collectionId}/{docId}").onWrite(async (change) => {
   const documentId = change.after.id;
-  const collectionTotalRef = firestore.collection("total").doc("collection_total");
+  const collectionTotalRef = firestore.collection(totals_collection).doc(totals_doc);
 
   const total: Record<string, admin.firestore.FieldValue> = {};
   total[documentId] = admin.firestore.FieldValue.increment(1);
@@ -74,7 +76,7 @@ export const fetchParticipantCount = firestore
   .listDocuments()
   .then(async (documents) => {
     const attendanceCountForDocument: Record<string, number> = {};
-    const eventTotalRef = firestore.collection("total").doc("event");
+    const eventTotalRef = firestore.collection(totals_collection).doc("event");
 
     for (const document of documents) {
       const documentRef = await document.get();
@@ -104,7 +106,7 @@ export const updateAttendanceTrigger = functions.firestore
     if (newAttendance > previousAttendance) {
       updatedTotal[change.after.id] = newAttendance;
       try {
-        await firestore.collection("total").doc("event").update(updatedTotal);
+        await firestore.collection(totals_collection).doc("event").update(updatedTotal);
         logger.log({
           updatedTotal,
           message: `Updated total attendance for event ${change.after.id} is ${newAttendance}`,
