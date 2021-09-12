@@ -9,28 +9,6 @@ const event_collection = environment.FIRESTORE_EVENT_COLLECTION as string;
 const totals_collection = environment.FIRESTORE_TOTALS_COLLECTION as string;
 const totals_doc = environment.FIRESTORE_TOTALS_DOC as string;
 
-export const computeCollectionTotals = firestore.listCollections().then(async (collections) => {
-  const total: Record<string, number> = {};
-  const collectionTotalRef = firestore.collection(totals_collection).doc(totals_doc);
-
-  for (const collection of collections) {
-    const collectionId = collection.id;
-    collection.listDocuments().then((documents) => {
-      total[collectionId] = documents.length;
-    });
-    try {
-      await collectionTotalRef.update(total);
-      logger.log({
-        total,
-        message: `Total number of documents in collection ${collectionId} is ${total[collectionId]}`,
-      });
-    } catch (error) {
-      Sentry.captureException(error);
-      logger.log(`Failed to fetch total number of documents in collection ${collectionId}`);
-    }
-  }
-});
-
 export const onCreateDocumentTrigger = functions.firestore
   .document("{collectionId}/{docId}")
   .onCreate(async (docSnapshot) => {
@@ -70,31 +48,6 @@ export const onWriteDocumentTrigger = functions.firestore.document("{collectionI
     logger.log(`Failed to increment total number of documents in collection ${change.after.ref.path}`);
   }
 });
-
-export const fetchParticipantCount = firestore
-  .collection(event_collection)
-  .listDocuments()
-  .then(async (documents) => {
-    const attendanceCountForDocument: Record<string, number> = {};
-    const eventTotalRef = firestore.collection(totals_collection).doc("event");
-
-    for (const document of documents) {
-      const documentRef = await document.get();
-      const attendanceCount = documentRef.get("attendance").length;
-      attendanceCountForDocument[documentRef.id] = attendanceCount;
-
-      try {
-        await eventTotalRef.update(attendanceCountForDocument);
-        logger.log({
-          attendanceCountForDocument,
-          message: `Total attendance for event ${documentRef.id} is ${attendanceCount}`,
-        });
-      } catch (error) {
-        Sentry.captureException(error);
-        logger.log(`Failed to fetch total attendance for event ${documentRef.id}`);
-      }
-    }
-  });
 
 export const updateAttendanceTrigger = functions.firestore
   .document(`${event_collection}/{eventName}`)

@@ -22,10 +22,6 @@ export const challenge = functions.https.onRequest(app_open);
 export const custom_form_actions = typeformFunctions.custom_form_actions;
 export const typeform_confirmation = typeformFunctions.send_confirmation;
 
-// firestore compute total scripts
-export const compute_collection_totals = totalFunctions.computeCollectionTotals;
-export const fetch_participant_count = totalFunctions.fetchParticipantCount;
-
 // firestore compute total triggers
 export const on_create_attendance_trigger = totalFunctions.onCreateDocumentTrigger;
 export const on_write_participant_count = totalFunctions.onWriteDocumentTrigger;
