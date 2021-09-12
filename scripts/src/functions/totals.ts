@@ -6,6 +6,14 @@ const event_collection = environment.FIRESTORE_EVENT_COLLECTION as string;
 const totals_collection = environment.FIRESTORE_TOTALS_COLLECTION as string;
 const totals_doc = environment.FIRESTORE_TOTALS_DOC as string;
 
+if (environment.SENTRY_DNS) {
+  Sentry.init({
+    dsn: environment.SENTRY_DNS,
+    tracesSampleRate: 1.0,
+    environment: process.env.NODE_ENV,
+  });
+}
+
 export const computeCollectionTotals = async (): Promise<void> => {
   firestore.listCollections().then(async (collections) => {
     const total: Record<string, number> = {};
