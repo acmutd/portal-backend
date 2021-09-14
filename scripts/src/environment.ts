@@ -1,2 +1,2 @@
-let config = process.env;
+const config = process.env;
 export { config as environment };
