@@ -56,7 +56,7 @@ export const add_form = async (document: FirebaseFirestore.DocumentData): Promis
         first_name: first_name,
         last_name: last_name,
         description: description,
-        form_link: `https://${environment.URL_PROD}/forms/${endpoint}`,
+        form_link: `${environment.URL_PROD}/forms/${endpoint}`,
         typeform_name: typeform_name,
         preheader: "Successful Form Addition to Portal",
         subject: "Form Addition Confirmation",
@@ -89,7 +89,7 @@ export const add_form = async (document: FirebaseFirestore.DocumentData): Promis
       form_name: "Typeform Adder",
       name: first_name + " " + last_name,
       email: email,
-      url: `https://${environment.URL_PROD}/forms/${endpoint}`,
+      url: `${environment.URL_PROD}/forms/${endpoint}`,
     };
 
     await create_map(generic_email);
