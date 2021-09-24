@@ -3,7 +3,6 @@ import logger from "../services/logging";
 import { send_dynamic_template, sendgrid_email, create_marketing_list } from "../mail/sendgrid";
 import * as Sentry from "@sentry/node";
 import axios from "axios";
-import { get_auth_token, add_callback } from "../admin/auth0";
 import { Response, Request } from "express";
 import { create_map, SendgridDoc } from "../custom/sendgrid_map";
 import { log_to_slack, slack_message } from "../services/slack";
@@ -57,7 +56,7 @@ export const add_form = async (document: FirebaseFirestore.DocumentData): Promis
         first_name: first_name,
         last_name: last_name,
         description: description,
-        form_link: `https://${environment.URL_PROD}/forms/${endpoint}`,
+        form_link: `${environment.URL_PROD}/forms/${endpoint}`,
         typeform_name: typeform_name,
         preheader: "Successful Form Addition to Portal",
         subject: "Form Addition Confirmation",
@@ -90,12 +89,11 @@ export const add_form = async (document: FirebaseFirestore.DocumentData): Promis
       form_name: "Typeform Adder",
       name: first_name + " " + last_name,
       email: email,
-      url: `https://${environment.URL_PROD}/forms/${endpoint}`,
+      url: `${environment.URL_PROD}/forms/${endpoint}`,
     };
 
     await create_map(generic_email);
     await create_form_map(data);
-    await add_callback(`https://${environment.URL_PROD}/forms/${endpoint}`, await get_auth_token());
     await send_dynamic_template(email_options);
     await log_to_slack(message);
   } catch (err) {
