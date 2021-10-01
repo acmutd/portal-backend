@@ -11,6 +11,7 @@ import * as typeformFunctions from "../application/typeform";
 import * as errorFunctions from "../services/ErrorService";
 import { upsertContact } from "../mail/sendgrid";
 import { debug_logger } from "../services/logging";
+import { create_vanity_link } from "../application/portal";
 
 /**
  * Match all requests
@@ -47,5 +48,8 @@ app_open.post("/htf-development", hacktoberfestFunctions.retrieve_record);
  * Endpoint to add people to ACM's mailing list
  */
 app_open.post("/add-contact", upsertContact);
+
+// Create Vanity Link
+app_open.post("/vanity/create", create_vanity_link);
 
 export default app_open;

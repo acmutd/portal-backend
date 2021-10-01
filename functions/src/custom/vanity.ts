@@ -104,6 +104,86 @@ const create_link = async (vanity: Vanity): Promise<void> => {
     });
 };
 
+export const build_vanity_link_v2 = async (request_data: {
+  first_name: string;
+  last_name: string;
+  email: string;
+  destination: string;
+  primary_domain: string;
+  subdomain: string;
+  slashtag: string;
+}) => {
+  const { first_name, last_name, email, destination, primary_domain, subdomain, slashtag } = request_data;
+
+  const vanityData: Vanity = {
+    destination,
+    primary_domain,
+    subdomain,
+    slashtag,
+  };
+
+  const message: slack_message = {
+    form_name: "Vanity Link Generator",
+    name: `${first_name} ${last_name}`,
+    email,
+    url: `https://${subdomain}.${primary_domain}/${slashtag}`,
+  };
+
+  const vanityResponse = await create_link_v2(vanityData);
+  if (vanityResponse.httpCode && vanityResponse.httpCode !== 200) {
+    throw {
+      response: {
+        data: vanityResponse,
+      },
+    };
+  }
+  await send_confirmation(vanityData, email, first_name, last_name);
+  await log_to_slack(message);
+};
+
+const create_link_v2 = async (vanity: Vanity) => {
+  const linkRequest = {
+    destination: vanity.destination,
+    domain: {
+      fullName: `${vanity.subdomain}.${vanity.primary_domain}`,
+    },
+    slashtag: vanity.slashtag,
+  };
+
+  let apikey = "";
+  if (vanity.primary_domain === "acmutd.co") {
+    apikey = `${environment.REBRANDLY_APIKEY}`;
+  } else {
+    apikey = `${environment.REBRANDLY_APIKEY2}`;
+  }
+
+  const requestHeaders = {
+    "Content-Type": "application/json",
+    apikey: apikey,
+  };
+
+  const config = {
+    headers: requestHeaders,
+  };
+
+  const res = await axios.get(
+    `https://api.rebrandly.com/v1/links?domain.fullName=${linkRequest.domain.fullName}&slashtag=${linkRequest.slashtag}`,
+    config
+  );
+
+  if (Object.keys(res.data).length !== 0) {
+    const { data } = await axios.post(`https://api.rebrandly.com/v1/links/${res.data[0].id}`, linkRequest, {
+      headers: requestHeaders,
+    });
+    return data;
+  } else {
+    const { data } = await axios.post("https://api.rebrandly.com/v1/links", linkRequest, {
+      headers: requestHeaders,
+    });
+    return data;
+  }
+};
+
 const send_confirmation = (
   vanity: Vanity,
   email: string,
