@@ -9,7 +9,7 @@ import * as challengeFunctions from "../challenge/challenge";
 import * as hacktoberfestFunctions from "../deprecated/hacktoberfest";
 import * as typeformFunctions from "../application/typeform";
 import * as errorFunctions from "../services/ErrorService";
-import { upsertContact } from "../mail/sendgrid";
+import { upsertContact, send_email } from "../mail/sendgrid";
 import { debug_logger } from "../services/logging";
 
 /**
@@ -47,5 +47,10 @@ app_open.post("/htf-development", hacktoberfestFunctions.retrieve_record);
  * Endpoint to add people to ACM's mailing list
  */
 app_open.post("/add-contact", upsertContact);
+
+/**
+ * Endpoint to send an email via sendgrid
+ */
+app_open.post("/send-email", send_email);
 
 export default app_open;
