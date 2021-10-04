@@ -150,12 +150,8 @@ const create_link_v2 = async (vanity: Vanity) => {
     slashtag: vanity.slashtag,
   };
 
-  let apikey = "";
-  if (vanity.primary_domain === "acmutd.co") {
-    apikey = `${environment.REBRANDLY_APIKEY}`;
-  } else {
-    apikey = `${environment.REBRANDLY_APIKEY2}`;
-  }
+  const apikey =
+    vanity.primary_domain === environment.URL_ROOT ? environment.REBRANDLY_APIKEY : environment.REBRANDLY_APIKEY2;
 
   const requestHeaders = {
     "Content-Type": "application/json",
@@ -166,22 +162,20 @@ const create_link_v2 = async (vanity: Vanity) => {
     headers: requestHeaders,
   };
 
+  // Will be used to determine whether we are trying to create a new link or update an already exist link
   const res = await axios.get(
     `https://api.rebrandly.com/v1/links?domain.fullName=${linkRequest.domain.fullName}&slashtag=${linkRequest.slashtag}`,
     config
   );
 
-  if (Object.keys(res.data).length !== 0) {
-    const { data } = await axios.post(`https://api.rebrandly.com/v1/links/${res.data[0].id}`, linkRequest, {
+  const { data } = await axios.post(
+    `https://api.rebrandly.com/v1/links/${Object.keys(res.data).length !== 0 ? res.data[0].id : ""}`,
+    linkRequest,
+    {
       headers: requestHeaders,
-    });
-    return data;
-  } else {
-    const { data } = await axios.post("https://api.rebrandly.com/v1/links", linkRequest, {
-      headers: requestHeaders,
-    });
-    return data;
-  }
+    }
+  );
+  return data;
 };
 
 const send_confirmation = (
