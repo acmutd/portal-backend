@@ -1,5 +1,7 @@
 import { body, validationResult } from "express-validator";
 import { NextFunction, Request, Response } from "express";
+import * as Sentry from "@sentry/node";
+import { BadRequestError } from "../utilities/errors/BadRequestError";
 
 /**
  *
@@ -40,14 +42,16 @@ export const validateRequest = ({ onErrorMsg }: { onErrorMsg: string }) => {
   return (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({
-        message: onErrorMsg,
-        error: errors.array().map((error) => ({
+      const errObj = new BadRequestError(
+        onErrorMsg,
+        errors.array().map((error) => ({
           msg: error.msg,
           location: error.location,
           param: error.param,
-        })),
-      });
+        }))
+      );
+      Sentry.captureException(errObj);
+      return res.status(errObj.statusCode).json(errObj.serialize());
     }
     return next();
   };
