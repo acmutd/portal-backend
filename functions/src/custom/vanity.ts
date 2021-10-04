@@ -10,6 +10,12 @@ export interface Vanity {
   slashtag: string;
 }
 
+export interface VanityReqBody extends Vanity {
+  first_name: string;
+  last_name: string;
+  email: string;
+}
+
 export const build_vanity_link = async (document: FirebaseFirestore.DocumentData): Promise<void> => {
   const typeform_results = document.data;
   let first_name = "";
@@ -104,17 +110,15 @@ const create_link = async (vanity: Vanity): Promise<void> => {
     });
 };
 
-export const build_vanity_link_v2 = async (request_data: {
-  first_name: string;
-  last_name: string;
-  email: string;
-  destination: string;
-  primary_domain: string;
-  subdomain: string;
-  slashtag: string;
-}) => {
-  const { first_name, last_name, email, destination, primary_domain, subdomain, slashtag } = request_data;
-
+export const build_vanity_link_v2 = async ({
+  first_name,
+  last_name,
+  email,
+  destination,
+  primary_domain,
+  subdomain,
+  slashtag,
+}: VanityReqBody) => {
   const vanityData: Vanity = {
     destination,
     primary_domain,
