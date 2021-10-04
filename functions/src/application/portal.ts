@@ -5,7 +5,8 @@ import { send_dynamic_template, upsert_contact } from "../mail/sendgrid";
 import admin from "firebase-admin";
 import logger from "../services/logging";
 import { environment } from "../environment";
-import { build_vanity_link_v2 } from "../custom/vanity";
+import { build_vanity_link_v2, VanityReqBody } from "../custom/vanity";
+import { BadRequestError } from "../utilities/errors/BadRequestError";
 
 const profile_collection = environment.FIRESTORE_PROFILE_COLLECTION as string;
 const event_collection = environment.FIRESTORE_EVENT_COLLECTION as string;
@@ -304,30 +305,26 @@ export const get_developer_profile = async (request: Request, response: Response
   }
 };
 
-export const create_vanity_link = async (req: Request, res: Response) => {
+export const create_vanity_link = async (req: Request<{}, {}, VanityReqBody>, res: Response) => {
   const { first_name, last_name, email, destination, primary_domain, subdomain, slashtag } = req.body;
-  let error = null;
 
-  await build_vanity_link_v2({
-    first_name,
-    last_name,
-    email,
-    destination,
-    primary_domain,
-    subdomain,
-    slashtag,
-  }).catch((err) => {
-    error = [err.response.data];
-  });
-
-  if (!error)
-    return res.status(201).send({
+  try {
+    await build_vanity_link_v2({
+      first_name,
+      last_name,
+      email,
+      destination,
+      primary_domain,
+      subdomain,
+      slashtag,
+    });
+    return res.status(201).json({
       message: "Sucessfully created Vanity link",
       url: `https://${subdomain}.${primary_domain}/${slashtag}`,
     });
-
-  return res.status(400).send({
-    message: "Failed to create Vanity link",
-    error,
-  });
+  } catch (error) {
+    const errObj = new BadRequestError("Failed to create Vanity link", [(error as any).response.data]);
+    Sentry.captureException(errObj);
+    return res.status(400).json(errObj.serialize());
+  }
 };
