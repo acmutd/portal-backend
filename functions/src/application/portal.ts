@@ -317,7 +317,7 @@ export const create_vanity_link = async (req: Request, res: Response) => {
     subdomain,
     slashtag,
   }).catch((err) => {
-    error = err.response.data;
+    error = [err.response.data];
   });
 
   if (!error)
