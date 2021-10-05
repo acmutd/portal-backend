@@ -173,7 +173,7 @@ const create_link_v2 = async (vanity: Vanity) => {
   );
 
   const { data } = await axios.post(
-    `https://api.rebrandly.com/v1/links/${Object.keys(res.data).length !== 0 ? res.data[0].id : ""}`,
+    `${environment.REBRANDLY_URL}${Object.keys(res.data).length !== 0 ? res.data[0].id : ""}`,
     linkRequest,
     {
       headers: requestHeaders,
