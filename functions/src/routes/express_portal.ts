@@ -7,7 +7,6 @@ import * as portalFunctions from "../application/portal";
 import { get_active_applications } from "../custom/form";
 import { get_user_metadata } from "../admin/auth0";
 import { verify_in_acm_server } from "../admin/discord";
-import { requireField, validateRequest } from "../services/validate-request";
 
 //this will match every call made to this api.
 app_portal.all("/", (request: Request, response: Response, next) => {
@@ -36,37 +35,7 @@ app_portal.get("/auth0/discord", get_user_metadata);
 app_portal.post("/auth0/verify-discord", verify_in_acm_server);
 
 // Create Vanity Link
-app_portal.post(
-  "/auth0/vanity/create",
-  [
-    requireField({
-      fieldName: "first_name",
-      onErrorMsg: "First name is required",
-    }),
-    requireField({
-      fieldName: "last_name",
-      onErrorMsg: "Last name is required",
-    }),
-    requireField({
-      fieldName: "destination",
-      onErrorMsg: "Destination URL is required",
-    }),
-    requireField({
-      fieldName: "primary_domain",
-      onErrorMsg: "Primary domain is required",
-    }),
-    requireField({
-      fieldName: "subdomain",
-      onErrorMsg: "Subdomain is required",
-    }),
-    requireField({
-      fieldName: "slashtag",
-      onErrorMsg: "Slashtag is required",
-    }),
-  ],
-  validateRequest({ onErrorMsg: "Failed to create Vanity link" }),
-  portalFunctions.create_vanity_link
-);
+app_portal.post("/auth0/vanity/create", portalFunctions.create_vanity_link);
 
 // http server endpoints
 export default app_portal;
