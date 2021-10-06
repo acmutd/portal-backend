@@ -111,7 +111,7 @@ function extractAuth0Fields(request: Request, response: Response, next: () => vo
 app.use(extractAuth0Fields);
 
 app.use(
-  "/auth0/vanity/create",
+  "/gsuite/vanity/create",
   [
     requireField({
       fieldName: "first_name",
