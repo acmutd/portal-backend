@@ -37,7 +37,8 @@ app.use(Sentry.Handlers.tracingHandler());
 
 app.use(
   cors({
-    origin: [environment.URL_LOCAL as string, environment.URL_PROD as string, environment.URL_DEV as string],
+    // Split the environment variable on a sequence of one or more commas or spaces
+    origin: environment.URL_ORIGINS?.trim().split(/[\s,]+/),
   })
 );
 app.use(bodyParser.json());
