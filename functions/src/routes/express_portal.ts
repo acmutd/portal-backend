@@ -36,6 +36,7 @@ app_portal.post("/auth0/verify-discord", verify_in_acm_server);
 
 // Create Vanity Link
 app_portal.post("/gsuite/vanity/create", portalFunctions.create_vanity_link);
+app_portal.post("/gsuite/event/checkin/create", portalFunctions.create_event_checkin_link);
 
 // http server endpoints
 export default app_portal;
