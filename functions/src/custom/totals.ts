@@ -15,6 +15,11 @@ export const onCreateDocumentTrigger = functions.firestore
     const documentId = docSnapshot.id;
     const collectionTotalRef = firestore.collection(totals_collection).doc(totals_doc);
 
+    if (collectionTotalRef.id === documentId) {
+      // Do not infinitely update the totals document
+      return;
+    }
+
     const total: Record<string, admin.firestore.FieldValue> = {};
     total[documentId] = admin.firestore.FieldValue.increment(1);
 
@@ -33,6 +38,11 @@ export const onCreateDocumentTrigger = functions.firestore
 export const onWriteDocumentTrigger = functions.firestore.document("{collectionId}/{docId}").onWrite(async (change) => {
   const documentId = change.after.id;
   const collectionTotalRef = firestore.collection(totals_collection).doc(totals_doc);
+
+  if (collectionTotalRef.id === documentId) {
+    // Do not infinitely update the totals document
+    return;
+  }
 
   const total: Record<string, admin.firestore.FieldValue> = {};
   total[documentId] = admin.firestore.FieldValue.increment(1);
