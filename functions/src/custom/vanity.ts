@@ -10,6 +10,12 @@ export interface Vanity {
   slashtag: string;
 }
 
+export interface VanityReqBody extends Vanity {
+  first_name: string;
+  last_name: string;
+  email: string;
+}
+
 export const build_vanity_link = async (document: FirebaseFirestore.DocumentData): Promise<void> => {
   const typeform_results = document.data;
   let first_name = "";
@@ -102,6 +108,78 @@ const create_link = async (vanity: Vanity): Promise<void> => {
         headers: requestHeaders,
       });
     });
+};
+
+export const build_vanity_link_v2 = async ({
+  first_name,
+  last_name,
+  email,
+  destination,
+  primary_domain,
+  subdomain,
+  slashtag,
+}: VanityReqBody) => {
+  const vanityData: Vanity = {
+    destination,
+    primary_domain,
+    subdomain,
+    slashtag,
+  };
+
+  const message: slack_message = {
+    form_name: "Vanity Link Generator",
+    name: `${first_name} ${last_name}`,
+    email,
+    url: `https://${subdomain}.${primary_domain}/${slashtag}`,
+  };
+
+  const vanityResponse = await create_link_v2(vanityData);
+  if (vanityResponse.httpCode && vanityResponse.httpCode !== 200) {
+    throw {
+      response: {
+        data: vanityResponse,
+      },
+    };
+  }
+  await send_confirmation(vanityData, email, first_name, last_name);
+  await log_to_slack(message);
+};
+
+const create_link_v2 = async (vanity: Vanity) => {
+  const linkRequest = {
+    destination: vanity.destination,
+    domain: {
+      fullName: `${vanity.subdomain}.${vanity.primary_domain}`,
+    },
+    slashtag: vanity.slashtag,
+  };
+
+  const apikey =
+    vanity.primary_domain === environment.URL_ROOT ? environment.REBRANDLY_APIKEY : environment.REBRANDLY_APIKEY2;
+
+  const requestHeaders = {
+    "Content-Type": "application/json",
+    apikey: apikey,
+  };
+
+  const config = {
+    headers: requestHeaders,
+  };
+
+  // Will be used to determine whether we are trying to create a new link or update an already exist link
+  const res = await axios.get(
+    `https://api.rebrandly.com/v1/links?domain.fullName=${linkRequest.domain.fullName}&slashtag=${linkRequest.slashtag}`,
+    config
+  );
+
+  const { data } = await axios.post(
+    `${environment.REBRANDLY_URL}${Object.keys(res.data).length !== 0 ? res.data[0].id : ""}`,
+    linkRequest,
+    {
+      headers: requestHeaders,
+    }
+  );
+  return data;
 };
 
 const send_confirmation = (

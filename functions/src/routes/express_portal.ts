@@ -34,5 +34,8 @@ app_portal.get("/auth0/applications", get_active_applications);
 app_portal.get("/auth0/discord", get_user_metadata);
 app_portal.post("/auth0/verify-discord", verify_in_acm_server);
 
+// Create Vanity Link
+app_portal.post("/gsuite/vanity/create", portalFunctions.create_vanity_link);
+
 // http server endpoints
 export default app_portal;

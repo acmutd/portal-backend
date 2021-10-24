@@ -12,6 +12,7 @@ import cors from "cors";
 import * as bodyParser from "body-parser";
 import { Response, Request } from "express";
 import { environment } from "../environment";
+import { requireField, validateRequest } from "../services/validate-request";
 
 const app = express();
 
@@ -108,6 +109,37 @@ function extractAuth0Fields(request: Request, response: Response, next: () => vo
   next();
 }
 app.use(extractAuth0Fields);
+
+app.use(
+  "/gsuite/vanity/create",
+  [
+    requireField({
+      fieldName: "first_name",
+      onErrorMsg: "First name is required",
+    }),
+    requireField({
+      fieldName: "last_name",
+      onErrorMsg: "Last name is required",
+    }),
+    requireField({
+      fieldName: "destination",
+      onErrorMsg: "Destination URL is required",
+    }),
+    requireField({
+      fieldName: "primary_domain",
+      onErrorMsg: "Primary domain is required",
+    }),
+    requireField({
+      fieldName: "subdomain",
+      onErrorMsg: "Subdomain is required",
+    }),
+    requireField({
+      fieldName: "slashtag",
+      onErrorMsg: "Slashtag is required",
+    }),
+  ],
+  validateRequest({ onErrorMsg: "Failed to create Vanity link" })
+);
 
 /**
  * Log entire request
