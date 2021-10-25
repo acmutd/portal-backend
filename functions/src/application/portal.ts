@@ -1,4 +1,4 @@
-import { Response, Request, response } from "express";
+import { Response, Request } from "express";
 import * as Sentry from "@sentry/node";
 import { firestore } from "../admin/admin";
 import { send_dynamic_template, upsert_contact } from "../mail/sendgrid";
@@ -11,6 +11,10 @@ import { ACMEvent, create_event_v2 } from "../custom/event";
 
 const profile_collection = environment.FIRESTORE_PROFILE_COLLECTION as string;
 const event_collection = environment.FIRESTORE_EVENT_COLLECTION as string;
+
+interface CustomRequest<T> extends Request {
+  body: T;
+}
 
 export const verify = (request: Request, response: Response): void => {
   response.json({
@@ -306,7 +310,7 @@ export const get_developer_profile = async (request: Request, response: Response
   }
 };
 
-export const create_vanity_link = async (req: Request<{}, {}, VanityReqBody>, res: Response) => {
+export const create_vanity_link = async (req: CustomRequest<VanityReqBody>, res: Response): Promise<Response> => {
   const { first_name, last_name, email, destination, primary_domain, subdomain, slashtag } = req.body;
 
   try {
