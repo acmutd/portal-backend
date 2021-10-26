@@ -11,6 +11,10 @@ import { BadRequestError } from "../utilities/errors/BadRequestError";
 const profile_collection = environment.FIRESTORE_PROFILE_COLLECTION as string;
 const event_collection = environment.FIRESTORE_EVENT_COLLECTION as string;
 
+interface CustomRequest<T> extends Request {
+  body: T;
+}
+
 export const verify = (request: Request, response: Response): void => {
   response.json({
     email: request.body.email,
@@ -305,7 +309,7 @@ export const get_developer_profile = async (request: Request, response: Response
   }
 };
 
-export const create_vanity_link = async (req: Request<{}, {}, VanityReqBody>, res: Response) => {
+export const create_vanity_link = async (req: CustomRequest<VanityReqBody>, res: Response) => {
   const { first_name, last_name, email, destination, primary_domain, subdomain, slashtag } = req.body;
 
   try {
