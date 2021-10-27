@@ -10,6 +10,4 @@ if (environment.SENTRY_DNS) {
   });
 }
 
-await fetchParticipantCount();
-
-console.log("Done ✅");
+fetchParticipantCount();

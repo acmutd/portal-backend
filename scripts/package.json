@@ -3,8 +3,8 @@
   "scripts": {
     "lint": "npx eslint .",
     "build": "tsc",
-    "compute_collection_totals": "npm run build && node ./compute_totals.js",
-    "fetch_participant_count": "npm run build && node ./compute_participants.js"
+    "compute_collection_totals": "npm run build && node ./lib/compute_totals.js",
+    "fetch_participant_count": "npm run build && node ./lib/compute_participants.js"
   },
   "engines": {
     "node": "14"
