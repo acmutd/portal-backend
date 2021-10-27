@@ -5,3 +5,7 @@ lib/
 typings/
 
 node_modules/
+
+# Dev files
+.runtimeconfig.json
+acm-core-service-account.json

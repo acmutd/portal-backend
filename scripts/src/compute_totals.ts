@@ -10,6 +10,4 @@ if (environment.SENTRY_DNS) {
   });
 }
 
-await computeCollectionTotals();
-
-console.log("Done ✅");
+computeCollectionTotals();
