@@ -13,8 +13,13 @@ import * as bodyParser from "body-parser";
 import { Response, Request } from "express";
 import logger from "../services/logging";
 import { environment } from "../environment";
+import { connectMongo, disconnectMongo } from "../services/mongo";
 
 const app = express();
+
+connectMongo();
+process.on("SIGTERM", disconnectMongo);
+process.on("SIGINT", disconnectMongo);
 
 //setup sentry
 if (environment.SENTRY_DNS) {

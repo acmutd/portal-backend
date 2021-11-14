@@ -9,8 +9,13 @@ import * as Tracing from "@sentry/tracing";
 import cors from "cors";
 import * as bodyParser from "body-parser";
 import { environment } from "../environment";
+import { connectMongo, disconnectMongo } from "../services/mongo";
 
 const app = express();
+
+connectMongo();
+process.on("SIGTERM", disconnectMongo);
+process.on("SIGINT", disconnectMongo);
 
 //setup sentry
 if (environment.SENTRY_DNS)
