@@ -1,6 +1,9 @@
 import { Schema } from "mongoose";
+import { addRole, removeRole } from "../resume/resume.methods";
+import { setFileId, setGraduating } from "./resume.methods";
+import { IResumeDocument, IResumeModel } from "./resume.types";
 
-const ResumeSchema = new Schema({
+const ResumeSchema = new Schema<IResumeDocument, IResumeModel>({
   user_id: {
     type: String,
     required: true,
@@ -36,5 +39,10 @@ const ResumeSchema = new Schema({
     required: true,
   },
 });
+
+ResumeSchema.methods.setGraduating = setGraduating;
+ResumeSchema.methods.addRole = addRole;
+ResumeSchema.methods.removeRole = removeRole;
+ResumeSchema.methods.setFileId = setFileId;
 
 export default ResumeSchema;
