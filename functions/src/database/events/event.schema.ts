@@ -1,6 +1,8 @@
 import { Schema } from "mongoose";
+import { addAttended, addReserved } from "./event.methods";
+import { IEventDocument, IEventModel } from "./event.types";
 
-const EventSchema = new Schema({
+const EventSchema = new Schema<IEventDocument, IEventModel>({
   name: String,
   checkin_path: String,
   google_cal: String,
@@ -22,5 +24,8 @@ const EventSchema = new Schema({
     },
   ],
 });
+
+EventSchema.methods.addReserved = addReserved;
+EventSchema.methods.addAttended = addAttended;
 
 export default EventSchema;
