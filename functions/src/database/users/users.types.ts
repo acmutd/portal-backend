@@ -13,12 +13,12 @@ export interface IUser {
   school_email: string;
   school_id: string;
   school: string;
-  membership: string;
+  membership: boolean;
 
   membership_history: Array<{
     program: string;
     start_timestamp: Date;
-    end_timestamp: Date;
+    end_timestamp?: Date;
   }>;
 
   role: string[];
@@ -39,5 +39,16 @@ export interface IUser {
   resume_id: string;
 }
 
-export interface IUserDocument extends IUser, Document {}
-export interface IUserModel extends Model<IUserDocument> {}
+export interface IUserDocument extends IUser, Document {
+  addProvider: (this: IUserDocument, provider: { provider: string; token: string }) => Promise<void>;
+  endMostRecentMembership: (this: IUserDocument) => Promise<void>;
+  addNewMembership: (this: IUserDocument, newMembership: { program: string; start_timestamp: Date }) => Promise<void>;
+  addRole: (this: IUserDocument, newRole: string) => Promise<void>;
+  removeRole: (this: IUserDocument, removedRole: string) => Promise<void>;
+  addApplication: (this: IUserDocument, applicationName: string) => Promise<void>;
+  attendEvent: (this: IUserDocument, newEvent: { event_id: string; name: string; timestamp: Date }) => Promise<void>;
+  addSticker: (this: IUserDocument, newSticker: { sticker_id: string }) => Promise<void>;
+}
+export interface IUserModel extends Model<IUserDocument> {
+  findByMembershipStatus: (this: IUserModel, membershipStatus: boolean) => Promise<IUserDocument[]>;
+}

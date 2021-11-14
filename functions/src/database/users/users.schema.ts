@@ -1,6 +1,18 @@
 import { Schema } from "mongoose";
+import {
+  addApplication,
+  addNewMembership,
+  addProvider,
+  addRole,
+  addSticker,
+  attendEvent,
+  endMostRecentMembership,
+  removeRole,
+} from "./users.methods";
+import { findByMembershipStatus } from "./users.statics";
+import { IUserDocument, IUserModel } from "./users.types";
 
-const UserSchema = new Schema({
+const UserSchema = new Schema<IUserDocument, IUserModel>({
   first_name: {
     type: String,
     required: true,
@@ -33,7 +45,7 @@ const UserSchema = new Schema({
     required: true,
   },
   // NetID for UTD
-  schoold_id: {
+  school_id: {
     type: String,
     required: true,
   },
@@ -42,7 +54,7 @@ const UserSchema = new Schema({
     required: true,
   },
   membership: {
-    type: String,
+    type: Boolean,
     required: true,
   },
   membership_history: [
@@ -109,5 +121,16 @@ const UserSchema = new Schema({
     required: true,
   },
 });
+
+UserSchema.statics.findByMembershipStatus = findByMembershipStatus;
+
+UserSchema.methods.addProvider = addProvider;
+UserSchema.methods.endMostRecentMembership = endMostRecentMembership;
+UserSchema.methods.addNewMembership = addNewMembership;
+UserSchema.methods.addRole = addRole;
+UserSchema.methods.removeRole = removeRole;
+UserSchema.methods.addApplication = addApplication;
+UserSchema.methods.attendEvent = attendEvent;
+UserSchema.methods.addSticker = addSticker;
 
 export default UserSchema;
