@@ -1,7 +1,7 @@
 import { Response, Request } from "express";
 import * as Sentry from "@sentry/node";
 import { firestore } from "../admin/admin";
-import { send_dynamic_template, upsert_contact } from "../mail/sendgrid";
+import { sendDynamicTemplate, upsertContact } from "../mail/sendgrid";
 import admin from "firebase-admin";
 import logger from "../services/logging";
 import { environment } from "../environment";
@@ -223,7 +223,7 @@ export const createProfileFast = async (document: FirebaseFirestore.DocumentData
         }
       });
 
-      send_dynamic_template({
+      sendDynamicTemplate({
         from: "contact@acmutd.co",
         from_name: "ACM Team",
         to: email,
@@ -233,7 +233,7 @@ export const createProfileFast = async (document: FirebaseFirestore.DocumentData
           last_name: last_name,
         },
       });
-      upsert_contact({
+      upsertContact({
         email: email,
         first_name: first_name,
         last_name: last_name,
@@ -287,7 +287,7 @@ export const createProfileFast = async (document: FirebaseFirestore.DocumentData
   }
 };
 
-export const get_profile = async (req: Request<any, unknown, unknown, { id: string }>, res: Response) => {
+export const getProfile = async (req: Request<any, unknown, unknown, { id: string }>, res: Response) => {
   const { id } = req.query;
   try {
     const user = await UserModel.findById(id);
@@ -308,7 +308,7 @@ export const get_profile = async (req: Request<any, unknown, unknown, { id: stri
   }
 };
 
-export const create_vanity_link = async (req: CustomRequest<VanityReqBody>, res: Response) => {
+export const createVanityLink = async (req: CustomRequest<VanityReqBody>, res: Response) => {
   const { first_name, last_name, email, destination, primary_domain, subdomain, slashtag } = req.body;
 
   try {

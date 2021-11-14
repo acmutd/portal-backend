@@ -1,6 +1,6 @@
 import { firestore } from "../admin/admin";
 import logger from "../services/logging";
-import { get_dynamic_template, create_marketing_list, send_dynamic_template, sendgrid_email } from "../mail/sendgrid";
+import { get_dynamic_template, create_marketing_list, sendDynamicTemplate, EmailTemplate } from "../mail/sendgrid";
 
 export interface SendgridDoc {
   typeform_name: string;
@@ -53,7 +53,7 @@ export const connectSendgrid = async (document: FirebaseFirestore.DocumentData):
     dynamic_template_name: template_id,
   };
 
-  const email_options: sendgrid_email = {
+  const email_options: EmailTemplate = {
     from: "development@acmutd.co",
     from_name: "ACM Development",
     template_id: "d-8d16910adcae4b918ba9c44670d963ac",
@@ -68,7 +68,7 @@ export const connectSendgrid = async (document: FirebaseFirestore.DocumentData):
     },
   };
   await create_map(data);
-  send_dynamic_template(email_options);
+  sendDynamicTemplate(email_options);
 };
 
 export const create_map = async (document: SendgridDoc): Promise<void> => {

@@ -78,7 +78,7 @@ export const createEvent = async (document: FirebaseFirestore.DocumentData): Pro
     await sendDynamicTemplate(email_options);
     await logToSlack(message);
   } catch (err) {
-    logger.log(err);
+    logger.log(err as any);
     Sentry.captureException(err);
   }
 };

@@ -1,11 +1,11 @@
 import { firestore } from "../admin/admin";
 import logger from "../services/logging";
-import { send_dynamic_template, sendgrid_email, create_marketing_list } from "../mail/sendgrid";
+import { sendDynamicTemplate, EmailTemplate, create_marketing_list } from "../mail/sendgrid";
 import * as Sentry from "@sentry/node";
 import axios from "axios";
 import { Response, Request } from "express";
 import { create_map, SendgridDoc } from "../custom/sendgrid_map";
-import { log_to_slack, slack_message } from "../services/slack";
+import { logToSlack, SlackMessage } from "../services/slack";
 import { environment } from "../environment";
 
 export interface FormDoc {
@@ -47,7 +47,7 @@ export const addForm = async (document: FirebaseFirestore.DocumentData): Promise
       if (element.question.includes(external_link_question)) external_link = element.answer;
     });
 
-    const email_options: sendgrid_email = {
+    const email_options: EmailTemplate = {
       from: "development@acmutd.co",
       from_name: "ACM Development",
       template_id: `${environment.SENDGRID_FORM_TEMPLATE_ID}`,
@@ -85,7 +85,7 @@ export const addForm = async (document: FirebaseFirestore.DocumentData): Promise
       dynamic_template_name: "Generic Thanks Form",
     };
 
-    const message: slack_message = {
+    const message: SlackMessage = {
       form_name: "Typeform Adder",
       name: first_name + " " + last_name,
       email: email,
@@ -94,10 +94,10 @@ export const addForm = async (document: FirebaseFirestore.DocumentData): Promise
 
     await create_map(generic_email);
     await create_form_map(data);
-    await send_dynamic_template(email_options);
-    await log_to_slack(message);
+    await sendDynamicTemplate(email_options);
+    await logToSlack(message);
   } catch (err) {
-    logger.log(err);
+    logger.log(err as any);
     Sentry.captureException(err);
   }
 };
@@ -171,7 +171,7 @@ export const get_active_applications = async (request: Request, response: Respon
       message: "Successful execution of get active applications",
     });
   } catch (err) {
-    logger.log(err);
+    logger.log(err as any);
     Sentry.captureException(err);
     response.json({
       applications: [],

@@ -19,7 +19,7 @@ export const portal = functions.https.onRequest(app_portal);
 export const challenge = functions.https.onRequest(app_open);
 
 // firestore triggers
-export const custom_form_actions = typeformFunctions.custom_form_actions;
+export const custom_form_actions = typeformFunctions.customFormActions;
 export const typeform_confirmation = typeformFunctions.send_confirmation;
 
 // firestore compute total triggers

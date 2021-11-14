@@ -6,7 +6,7 @@ import app_open from "../express_configs/express_open";
 import { Request, Response } from "express";
 import * as typeformFunctions from "../application/typeform";
 import * as errorFunctions from "../services/ErrorService";
-import { upsertContact, send_email } from "../mail/sendgrid";
+import { upsertContact, sendEmail } from "../mail/sendgrid";
 import { debug_logger } from "../services/logging";
 
 /**
@@ -35,6 +35,6 @@ app_open.post("/add-contact", upsertContact);
 /**
  * Endpoint to send an email via sendgrid
  */
-app_open.post("/send-email", send_email);
+app_open.post("/send-email", sendEmail);
 
 export default app_open;
