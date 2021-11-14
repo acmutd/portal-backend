@@ -1,7 +1,7 @@
 import axios from "axios";
 import { environment } from "../environment";
 
-export interface slack_message {
+export interface SlackMessage {
   form_name: string;
   name: string;
   email: string;
@@ -13,8 +13,8 @@ export interface slack_message {
  * @param message the contents for the message
  * @param channel_id the default channel to send to in slack is core-feed
  */
-export const log_to_slack = async (
-  message: slack_message,
+export const logToSlack = async (
+  message: SlackMessage,
   channel_id: string = environment.SLACK_CORE_FEED as string
 ): Promise<void> => {
   const payload = {

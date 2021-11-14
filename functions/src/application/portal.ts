@@ -167,7 +167,7 @@ export const record_event = async (request: Request, response: Response): Promis
   }
 };
 
-export const create_profile_fast = async (document: FirebaseFirestore.DocumentData): Promise<void> => {
+export const createProfileFast = async (document: FirebaseFirestore.DocumentData): Promise<void> => {
   try {
     if (document.typeform_id == "Profile") {
       const typeform_results = document.data;
@@ -305,44 +305,6 @@ export const get_profile = async (req: Request<any, unknown, unknown, { id: stri
         msg: "Server Error",
       },
     ]);
-  }
-};
-
-export const get_developer_profile = async (request: Request, response: Response): Promise<void> => {
-  const data = request.body;
-  try {
-    const result = await firestore.collection(profile_collection).doc(data.sub).get();
-    const fields = result.data();
-    if (result.exists) {
-      response.json({
-        unique_sub: data.sub,
-        email: fields?.email,
-        first_name: fields?.first_name,
-        last_name: fields?.last_name,
-        major: fields?.major,
-        classification: fields?.classification,
-        net_id: fields?.net_id,
-      });
-      logger.log({
-        ...result.data(),
-        message: "Profile retrieval successful",
-      });
-      return;
-    }
-    logger.log({
-      message: "Profile not found",
-      sub: data.sub,
-    });
-    response.json({
-      exists: false,
-    });
-  } catch (err) {
-    Sentry.captureException(err);
-    response.json({
-      message: "Unsuccessful execution of fetch developer profile",
-      error: err,
-      exists: false,
-    });
   }
 };
 

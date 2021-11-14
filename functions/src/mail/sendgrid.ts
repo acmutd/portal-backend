@@ -6,7 +6,7 @@ import RequestOptions from "@sendgrid/helpers/classes/request";
 import logger from "../services/logging";
 import { environment } from "../environment";
 
-export interface sendgrid_email {
+export interface EmailTemplate {
   from: string;
   from_name: string;
   to: string;
@@ -40,10 +40,10 @@ export const sendTestEmail = async (request: Request, response: Response): Promi
   }
 };
 
-export const send_email = async (request: Request, response: Response): Promise<void> => {
+export const sendEmail = async (request: Request, response: Response): Promise<void> => {
   const data = request.body;
   try {
-    await send_dynamic_template(data);
+    await sendDynamicTemplate(data);
     response.json({
       message: "Successful execution of send email",
     });
@@ -56,7 +56,7 @@ export const send_email = async (request: Request, response: Response): Promise<
   }
 };
 
-export const send_dynamic_template = async (data: sendgrid_email): Promise<void> => {
+export const sendDynamicTemplate = async (data: EmailTemplate): Promise<void> => {
   try {
     sendgrid.setApiKey(`${environment.SENDGRID_APIKEY}`);
     const msg: sendgrid.MailDataRequired = {
@@ -79,7 +79,7 @@ export const send_dynamic_template = async (data: sendgrid_email): Promise<void>
 };
 
 // //should be able to perform search for user information through either their email or uid
-export interface user_contact {
+export interface ContactTemplate {
   email: string;
   first_name: string;
   last_name: string;
@@ -87,12 +87,12 @@ export interface user_contact {
   meta?: Record<string, unknown>;
 }
 
-export const upsertContact = async (request: Request, response: Response): Promise<void> => {
-  const data: user_contact = request.body;
+export const upsertContactFromEndpoint = async (request: Request, response: Response): Promise<void> => {
+  const data: ContactTemplate = request.body;
   // If list does not exist in the request, use ACM's global mailing list
   data.list = data.list ?? environment.SENDGRID_GLOBAL_LIST_UID;
   try {
-    await upsert_contact(data);
+    await upsertContact(data);
     response.json({
       message: "Successful execution of upsert contact",
     });
@@ -105,7 +105,7 @@ export const upsertContact = async (request: Request, response: Response): Promi
   }
 };
 
-export const upsert_contact = async (user: user_contact): Promise<void> => {
+export const upsertContact = async (user: ContactTemplate): Promise<void> => {
   client.setApiKey(`${environment.SENDGRID_APIKEY}`);
   const req: RequestOptions = {
     method: "PUT",

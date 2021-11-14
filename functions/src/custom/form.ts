@@ -18,7 +18,7 @@ export interface FormDoc {
 
 const form_collection = "forms";
 
-export const add_form = async (document: FirebaseFirestore.DocumentData): Promise<void> => {
+export const addForm = async (document: FirebaseFirestore.DocumentData): Promise<void> => {
   try {
     const typeform_results = document.data;
     let first_name = "";

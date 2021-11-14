@@ -4,8 +4,6 @@
 import app_open from "../express_configs/express_open";
 
 import { Request, Response } from "express";
-
-import * as challengeFunctions from "../challenge/challenge";
 import * as typeformFunctions from "../application/typeform";
 import * as errorFunctions from "../services/ErrorService";
 import { upsertContact, send_email } from "../mail/sendgrid";
@@ -17,14 +15,6 @@ import { debug_logger } from "../services/logging";
 app_open.all("/", (request: Request, response: Response, next) => {
   next();
 });
-
-/**
- * Challenges for ACM Development
- */
-app_open.post("/tags/:tag", challengeFunctions.createTag);
-app_open.get("/tags/:tag/:token", challengeFunctions.getTag);
-app_open.patch("/tags/:tag/:token", challengeFunctions.patchTag);
-app_open.delete("/tags/:tag/:token", challengeFunctions.deleteTag);
 
 /**
  * typeform webhook

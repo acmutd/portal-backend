@@ -4,7 +4,7 @@ import request from "request";
 import { environment } from "../environment";
 
 //will generate links like apply.acmutd.co/education
-interface links {
+interface LinkData {
   slash: string; //what comes after the /
   destination: string; //link to typeform or website or something
   title: string; //name of shortened link, not actually used
@@ -13,7 +13,7 @@ interface links {
 
 export const createLink = async (req: Request, response: Response): Promise<void> => {
   try {
-    const data: links = req.body;
+    const data: LinkData = req.body;
     const linkRequest = {
       destination: data.destination,
       domain: { fullName: `${data.subdomain}.acmutd.co` },
@@ -53,7 +53,7 @@ export const createLink = async (req: Request, response: Response): Promise<void
 
 export const updateLink = async (req: Request, response: Response): Promise<void> => {
   try {
-    const data: links = req.body;
+    const data: LinkData = req.body;
     const linkRequest = {
       destination: data.destination,
       slashtag: data.slash,

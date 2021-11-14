@@ -13,7 +13,7 @@ export interface SendgridDoc {
 
 const typeform_meta_collection = "typeform_meta";
 
-export const connect_sendgrid = async (document: FirebaseFirestore.DocumentData): Promise<void> => {
+export const connectSendgrid = async (document: FirebaseFirestore.DocumentData): Promise<void> => {
   const typeform_results = document.data;
   let first_name = "";
   let last_name = "";

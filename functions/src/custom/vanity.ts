@@ -16,7 +16,7 @@ export interface VanityReqBody extends Vanity {
   email: string;
 }
 
-export const build_vanity_link = async (document: FirebaseFirestore.DocumentData): Promise<void> => {
+export const buildVanityLink = async (document: FirebaseFirestore.DocumentData): Promise<void> => {
   const typeform_results = document.data;
   let first_name = "";
   let last_name = "";
