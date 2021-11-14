@@ -7,6 +7,9 @@ import logger from "../services/logging";
 import { environment } from "../environment";
 import { build_vanity_link_v2, VanityReqBody } from "../custom/vanity";
 import { BadRequestError } from "../utilities/errors/BadRequestError";
+import { UserModel } from "../database/users/users.model";
+import { NotFoundError } from "../utilities/errors/NotFoundError";
+import { ServerError } from "../utilities/errors/ServerError";
 
 const profile_collection = environment.FIRESTORE_PROFILE_COLLECTION as string;
 const event_collection = environment.FIRESTORE_EVENT_COLLECTION as string;
@@ -236,38 +239,24 @@ export const create_profile_fast = async (document: FirebaseFirestore.DocumentDa
   }
 };
 
-export const get_profile = async (request: Request, response: Response): Promise<void> => {
-  const data = request.body;
+export const get_profile = async (req: Request<any, unknown, unknown, { id: string }>, res: Response) => {
+  const { id } = req.query;
   try {
-    const result = await firestore.collection(profile_collection).doc(data.sub).get();
-    if (result.exists) {
-      const fields = result.data() as Record<string, unknown>;
-      if ("first_name" in fields) {
-        response.json({
-          ...result.data(),
-          exists: true,
-        });
-        logger.log({
-          ...result.data(),
-          message: "Profile retrieval successful",
-        });
-        return;
-      }
-    }
-    logger.log({
-      message: "Profile not found",
-      sub: data.sub,
-    });
-    response.json({
-      exists: false,
-    });
-  } catch (err) {
-    Sentry.captureException(err);
-    response.json({
-      message: "Unsuccessful execution of fetch profile",
-      error: err,
-      exists: false,
-    });
+    const user = await UserModel.findById(id);
+    if (!user)
+      throw new NotFoundError("404 Not Found", [
+        {
+          msg: "Profile not found",
+        },
+      ]);
+    res.json(user);
+  } catch (error) {
+    console.error(error);
+    throw new ServerError("Server Error", [
+      {
+        msg: "Server Error",
+      },
+    ]);
   }
 };
 
