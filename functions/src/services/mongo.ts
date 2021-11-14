@@ -1,7 +1,7 @@
 import * as Mongoose from "mongoose";
 import { environment } from "../environment";
 
-let database: Mongoose.Connection;
+export let database: Mongoose.Connection;
 
 const mongo_connection_uri = environment.MONGO_CONNECTION_URL as string;
 

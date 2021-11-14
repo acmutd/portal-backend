@@ -1,8 +1,8 @@
 import { firestore } from "../admin/admin";
 import logger from "../services/logging";
-import { send_dynamic_template, sendgrid_email } from "../mail/sendgrid";
+import { sendDynamicTemplate, EmailTemplate } from "../mail/sendgrid";
 import * as Sentry from "@sentry/node";
-import { log_to_slack, slack_message } from "../services/slack";
+import { logToSlack, SlackMessage } from "../services/slack";
 import { environment } from "../environment";
 
 export interface EventDoc {
@@ -14,7 +14,7 @@ export interface EventDoc {
 
 const event_collection = environment.FIRESTORE_EVENT_COLLECTION as string;
 
-export const create_event = async (document: FirebaseFirestore.DocumentData): Promise<void> => {
+export const createEvent = async (document: FirebaseFirestore.DocumentData): Promise<void> => {
   try {
     const typeform_results = document.data;
     let first_name = "";
@@ -43,7 +43,7 @@ export const create_event = async (document: FirebaseFirestore.DocumentData): Pr
       if (element.question.includes(public_event_question)) public_event = element.answer;
     });
 
-    const email_options: sendgrid_email = {
+    const email_options: EmailTemplate = {
       from: "development@acmutd.co",
       from_name: "ACM Development",
       template_id: `${environment.SENDGRID_EVENT_TEMPLATE_ID}`,
@@ -67,7 +67,7 @@ export const create_event = async (document: FirebaseFirestore.DocumentData): Pr
       public: public_event,
     };
 
-    const message: slack_message = {
+    const message: SlackMessage = {
       form_name: "Event Check-in Generator",
       name: first_name + " " + last_name,
       email: email,
@@ -75,8 +75,8 @@ export const create_event = async (document: FirebaseFirestore.DocumentData): Pr
     };
 
     await create_map(data);
-    await send_dynamic_template(email_options);
-    await log_to_slack(message);
+    await sendDynamicTemplate(email_options);
+    await logToSlack(message);
   } catch (err) {
     logger.log(err);
     Sentry.captureException(err);

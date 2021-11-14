@@ -1,59 +1,48 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as Sentry from "@sentry/node";
-import * as functions from "firebase-functions";
-import { firestore } from "../admin/admin";
 import logger from "../services/logging";
-import { upsert_contact, send_dynamic_template, user_contact, sendgrid_email } from "../mail/sendgrid";
-import admin from "firebase-admin";
-import { build_vanity_link } from "../custom/vanity";
-import { connect_sendgrid } from "../custom/sendgrid_map";
-import { add_form } from "../custom/form";
-import { create_event } from "../custom/event";
+import { sendDynamicTemplate, EmailTemplate, ContactTemplate, upsertContact } from "../mail/sendgrid";
+import { buildVanityLink } from "../custom/vanity";
+import { connectSendgrid } from "../custom/sendgrid_map";
+import { addForm } from "../custom/form";
+import { createEvent } from "../custom/event";
 import { environment } from "../environment";
-import { create_profile_fast } from "./portal";
-// import crypto from "crypto";
+import { createProfileFast } from "./portal";
+import { database } from "../services/mongo";
 
 const profile_collection = environment.FIRESTORE_PROFILE_COLLECTION as string;
-const typeform_meta_collection = "typeform_meta";
 
-type definition = {
+type TypeformDefinition = {
   id: string;
   title: string;
   fields: any;
 };
 
-type form_response = {
+type TypeformResponse = {
   form_id: string;
   token: string;
   landed_at: string;
   submitted_at: string;
-  definition: definition;
+  definition: TypeformDefinition;
   hidden: any;
-  answers: any; //im lazy, someone plz do this
+  answers: any;
 };
-
-interface typeform {
+interface TypeformMeta {
   event_id: string;
   event_type: string;
-  form_response: form_response;
+  form_response: TypeformResponse;
 }
 
-export interface qa {
+export interface TypeformQA {
   question: string;
   answer: string;
   type: string;
 }
 
 export const typeform_webhook = async (request: any, response: any): Promise<void> => {
-  const data: typeform = request.body;
-  //if (!verify_signature(request.header("Typeform-Signature"), request.body)) {
-  // response.json({
-  //   message: "Unauthorized",
-  //   act: actualSig,
-  //   exp: request.header("Typeform-Signature"),
-  // });
-  //}
+  const data: TypeformMeta = request.body;
 
-  const qa_responses: qa[] = [];
+  const typeformQAs: TypeformQA[] = [];
   const questions = data.form_response.definition.fields;
   const answers = data.form_response.answers;
   const hidden = data.form_response.hidden;
@@ -64,12 +53,11 @@ export const typeform_webhook = async (request: any, response: any): Promise<voi
     if (key === "jwt") {
       continue;
     }
-    const qa_res = {
+    typeformQAs.push({
       question: key as string,
       answer: value as string,
       type: "hidden_field",
-    };
-    qa_responses.push(qa_res);
+    });
   }
 
   questions.forEach((element: any, index: number) => {
@@ -78,19 +66,24 @@ export const typeform_webhook = async (request: any, response: any): Promise<voi
       answer: Object.values(answers[index])[1] as string,
       type: element.type,
     };
-    qa_responses.push(qa_res);
+    typeformQAs.push(qa_res);
   });
 
   try {
-    const document = await firestore.collection("typeform").add({
+    const documentInsert = await database.collection("typeform").insertOne({
       typeform_id: data.form_response.definition.title,
       submission_time: data.form_response.submitted_at,
-      data: qa_responses,
+      data: typeformQAs,
     });
-    await custom_form_actions(await document.get());
-    response.json({
-      message: "Successful execution of typeform_webhook",
-    });
+    const typeformDocument = await database.collection("typeform").findOne({ _id: documentInsert.insertedId });
+    if (typeformDocument) {
+      await customFormActions(typeformDocument);
+      response.json({
+        message: "Successful execution of typeform_webhook",
+      });
+    } else {
+      throw new Error("typeform_webhook: typeformDocument is undefined");
+    }
   } catch (error) {
     Sentry.captureException(error);
     response.json({
@@ -100,105 +93,121 @@ export const typeform_webhook = async (request: any, response: any): Promise<voi
   }
 };
 
-export const send_confirmation = functions.firestore
-  .document("typeform/{document_name}")
-  .onCreate(async (snap, context) => {
-    const document = snap.data();
-    try {
-      const meta_doc = await firestore.collection(typeform_meta_collection).doc(document.typeform_id).get();
-      if (!meta_doc.exists) {
-        logger.log(`No email template found for typeform ${document.typeform_id}`);
-        return;
+export const send_confirmation = database
+  .collection("typeform")
+  .watch([{ $match: { operationType: "insert" } }])
+  .on("change", async (data) => {
+    if (data.fullDocument) {
+      try {
+        const document = data.fullDocument;
+        const metaDoc = await database.collection("typeform_meta").findOne({ typeform_id: document.typeform_id });
+        if (!metaDoc) {
+          logger.log(`No email template found for typeform ${document.typeform_id}`);
+          return;
+        }
+
+        const metadata = metaDoc;
+        const typeform_results = document;
+
+        let email = "";
+        let firstName = "";
+        let lastName = "";
+        let sub = "";
+
+        typeform_results.forEach((element: any) => {
+          const emailQuestion = "email";
+          const firstNameQuestions = ["first name", "first_name"];
+          const lastNameQuestions = ["last name", "last_name"];
+          const subQuestion = "sub";
+
+          if (element.question.includes(emailQuestion)) {
+            email = element.answer;
+          }
+          if (element.question.includes(firstNameQuestions[0]) || element.question.includes(firstNameQuestions[1])) {
+            firstName = element.answer;
+          }
+          if (element.question.includes(lastNameQuestions[0]) || element.question.includes(lastNameQuestions[1])) {
+            lastName = element.answer;
+          }
+          if (element.question.includes(subQuestion)) {
+            sub = element.answer;
+          }
+        });
+
+        const emailData: EmailTemplate = {
+          to: email,
+          from: metadata?.from,
+          from_name: metadata?.from_name,
+          template_id: metadata?.sendgrid_dynamic_template,
+          dynamicSubstitutions: {
+            first_name: firstName,
+            last_name: lastName,
+            typeform_id: document.typeform_id,
+          },
+        };
+
+        const contactData: ContactTemplate = {
+          email: email,
+          first_name: firstName,
+          last_name: lastName,
+          list: metadata?.sendgrid_marketing_list,
+        };
+
+        sendDynamicTemplate(emailData);
+        upsertContact(contactData);
+
+        logger.log(
+          `sending email to user ${sub} with email ${email} in response to completion of form ${document.typeform_id}`
+        );
+
+        const params: Record<string, unknown> = {};
+        params["$push"] = {
+          past_applications: {
+            $each: [
+              {
+                name: document.typeform_id,
+                submitted_at: document.submission_time,
+              },
+            ],
+          },
+        };
+        await database.collection(profile_collection).findOneAndUpdate({ sub: sub }, params);
+
+        params["$push"] = {
+          submitted: {
+            $each: [
+              {
+                sub: sub,
+                email: email,
+              },
+            ],
+          },
+        };
+        await database.collection("typeform_meta").findOneAndUpdate({ typeform_id: document.typeform_id }, params);
+      } catch (error) {
+        Sentry.captureException(error);
       }
-      const metadata = meta_doc.data();
-      const typeform_results = document.data;
-
-      let email = "";
-      let first_name = "";
-      let last_name = "";
-      let sub = "";
-      typeform_results.forEach((element: any) => {
-        const email_question = "email";
-        const first_name_questions = ["first name", "first_name"];
-        const last_name_questions = ["last name", "last_name"];
-        const sub_question = "sub";
-        if (element.question.includes(email_question)) {
-          email = element.answer;
-        }
-        if (element.question.includes(first_name_questions[0]) || element.question.includes(first_name_questions[1])) {
-          first_name = element.answer;
-        }
-        if (element.question.includes(last_name_questions[0]) || element.question.includes(last_name_questions[1])) {
-          last_name = element.answer;
-        }
-        if (element.question.includes(sub_question)) {
-          sub = element.answer;
-        }
-      });
-      const email_data: sendgrid_email = {
-        to: email,
-        from: metadata?.from,
-        from_name: metadata?.from_name,
-        template_id: metadata?.sendgrid_dynamic_template,
-        dynamicSubstitutions: {
-          first_name: first_name,
-          last_name: last_name,
-          typeform_id: document.typeform_id,
-        },
-      };
-      const contact_data: user_contact = {
-        email: email,
-        first_name: first_name,
-        last_name: last_name,
-        list: metadata?.sendgrid_marketing_list,
-      };
-      send_dynamic_template(email_data);
-      upsert_contact(contact_data);
-
-      logger.log(
-        `sending email to user ${sub} with email ${email} in response to completion of form ${document.typeform_id}`
-      );
-      await firestore
-        .collection(profile_collection)
-        .doc(sub)
-        .update({
-          past_applications: admin.firestore.FieldValue.arrayUnion({
-            name: document.typeform_id,
-            submitted_at: document.submission_time,
-          }),
-        });
-      await firestore
-        .collection(typeform_meta_collection)
-        .doc(document.typeform_id)
-        .update({
-          submitted: admin.firestore.FieldValue.arrayUnion({
-            sub: sub,
-            email: email,
-          }),
-        });
-    } catch (error) {
-      Sentry.captureException(error);
     }
   });
 
-export const custom_form_actions = async (snap: any) => {
+export const customFormActions = async (snap: any) => {
   const document = snap.data();
   try {
     switch (document.typeform_id) {
       case "Link Generator":
-        await build_vanity_link(document);
+        await buildVanityLink(document);
         break;
       case "Connect Sendgrid":
-        await connect_sendgrid(document);
+        await connectSendgrid(document);
         break;
       case "Event Generator":
-        await create_event(document);
+        await createEvent(document);
         break;
       case "Typeform Adder":
-        await add_form(document);
+        await addForm(document);
         break;
       case "Profile":
-        await create_profile_fast(document);
+        await createProfileFast(document);
         break;
       default:
         logger.log(`No custom action found for typeform ${document.typeform_id}... exiting`);
@@ -212,17 +221,3 @@ export const custom_form_actions = async (snap: any) => {
     Sentry.captureException(err);
   }
 };
-
-// const verify_signature = (expectedSig: any, body: any) => {
-//   const hash = crypto
-//     .createHmac("sha256", functions.config().typeform.secret)
-//     .update(JSON.stringify(body))
-//     .digest("base64");
-//   const actualSig = `sha256=${hash}`;
-//   console.log("expected: " + expectedSig);
-//   console.log("actual: " + actualSig);
-//   if (actualSig !== expectedSig) {
-//     return false;
-//   }
-//   return true;
-// };
