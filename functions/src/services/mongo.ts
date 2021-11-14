@@ -9,7 +9,7 @@ export const connectMongo = (): void => {
   if (database) {
     return;
   }
-  
+
   const options = {
     autoIndex: false,
     minPoolSize: 10,
