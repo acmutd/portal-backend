@@ -22,7 +22,7 @@
     "@sendgrid/mail": "^7.2.3",
     "@sentry/node": "^5.19.2",
     "@sentry/tracing": "^5.25.0",
-    "axios": "^0.21.1",
+    "axios": "^0.21.2",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "crypto": "^1.0.1",
