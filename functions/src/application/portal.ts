@@ -10,6 +10,7 @@ import { BadRequestError } from "../utilities/errors/BadRequestError";
 import { UserModel } from "../database/users/users.model";
 import { NotFoundError } from "../utilities/errors/NotFoundError";
 import { ServerError } from "../utilities/errors/ServerError";
+import { EventModel } from "../database/events/event.model";
 
 const profile_collection = environment.FIRESTORE_PROFILE_COLLECTION as string;
 const event_collection = environment.FIRESTORE_EVENT_COLLECTION as string;
@@ -30,30 +31,77 @@ export const verify_jwt = (request: Request, response: Response): void => {
   });
 };
 
-export const create_blank_profile = async (request: Request, response: Response): Promise<void> => {
-  const data = request.body;
+export const create_blank_profile = async (req: Request, res: Response) => {
+  const { email } = req.body;
   try {
-    firestore.collection(profile_collection).doc(data.sub).set(
+    const blankProfile = await UserModel.create({
+      first_name: "",
+      last_name: "",
+      email,
+      password: "",
+      providers: [],
+      school_email: "",
+      school_id: "",
+      school: "",
+      membership: false,
+      membership_history: [],
+      role: [],
+      submitted_applications: [],
+      attended_events: [],
+      stickers: [],
+      resume_id: "",
+    });
+    res.status(201).json(blankProfile);
+  } catch (error) {
+    console.error(error);
+    throw new ServerError("Server Error", [
       {
-        email: data.email,
-        sub: data.sub,
+        msg: "Server Error",
       },
-      { merge: true }
-    );
-    logger.log({
-      ...data,
-      message: "Successfully created blank profile",
+    ]);
+  }
+};
+
+export const recordEvent = async (req: Request, res: Response) => {
+  const { userId, eventId } = req.body;
+  const eventObj = await EventModel.findById(eventId);
+  if (!eventObj) {
+    throw new NotFoundError("404 Not Found", [
+      {
+        msg: "Event does not exist",
+      },
+    ]);
+  }
+
+  const userObj = await UserModel.findById(userId);
+  if (!userObj) {
+    throw new NotFoundError("404 Not Found", [
+      {
+        msg: "User does not exist",
+      },
+    ]);
+  }
+
+  try {
+    await userObj.attendEvent({
+      event_id: eventId,
+      name: eventObj.name,
+      timestamp: new Date(),
     });
-    response.json({
-      email: data.email,
-      sub: data.sub,
+    await userObj.addSticker({ sticker_id: eventObj.sticker_id });
+    await eventObj.addAttended({
+      user_id: userId,
+      first_name: userObj.first_name,
+      last_name: userObj.last_name,
+      email: userObj.email,
     });
-  } catch (err) {
-    Sentry.captureException(err);
-    response.json({
-      message: "Failed to create a blank profile",
-      error: err,
-    });
+  } catch (error) {
+    console.error(error);
+    throw new ServerError("500 error", [
+      {
+        msg: "Server Error",
+      },
+    ]);
   }
 };
 

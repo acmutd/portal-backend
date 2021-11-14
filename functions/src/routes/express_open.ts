@@ -6,7 +6,6 @@ import app_open from "../express_configs/express_open";
 import { Request, Response } from "express";
 
 import * as challengeFunctions from "../challenge/challenge";
-import * as hacktoberfestFunctions from "../deprecated/hacktoberfest";
 import * as typeformFunctions from "../application/typeform";
 import * as errorFunctions from "../services/ErrorService";
 import { upsertContact, send_email } from "../mail/sendgrid";
@@ -37,11 +36,6 @@ app_open.post("/typeform", typeformFunctions.typeform_webhook);
  */
 app_open.get("/debug-sentry", errorFunctions.debug_sentry);
 app_open.get("/debug-logger", debug_logger);
-
-/**
- * htf-development retrieval
- */
-app_open.post("/htf-development", hacktoberfestFunctions.retrieve_record);
 
 /**
  * Endpoint to add people to ACM's mailing list
