@@ -1,5 +1,12 @@
 import { Document, Model } from "mongoose";
 
+export interface Person {
+  user_id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+}
+
 export interface IEvent {
   name: string;
   checkin_path: string;
@@ -23,5 +30,8 @@ export interface IEvent {
   ];
 }
 
-export interface IEventDocument extends IEvent, Document {}
+export interface IEventDocument extends IEvent, Document {
+  addReserved: (this: IEventDocument, newPerson: Person) => Promise<void>;
+  addAttended: (this: IEventDocument, newPerson: Person) => Promise<void>;
+}
 export type IEventModel = Model<IEventDocument>;
