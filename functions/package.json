@@ -10,7 +10,7 @@
     "deploy": "npm run update_config && npm run build && firebase deploy --only functions",
     "update_config": "firebase functions:config:unset env && firebase functions:config:set env=\"$(doppler secrets download --config prd --no-file --silent)\"",
     "logs": "firebase functions:log",
-    "prepare": "husky install"
+    "prepare": "cd .. && husky install"
   },
   "engines": {
     "node": "14"
