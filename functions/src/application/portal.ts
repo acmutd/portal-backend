@@ -1,4 +1,4 @@
-import { Response, Request } from "express";
+import { Response, Request, response } from "express";
 import * as Sentry from "@sentry/node";
 import { firestore } from "../admin/admin";
 import { send_dynamic_template, upsert_contact } from "../mail/sendgrid";
@@ -7,6 +7,7 @@ import logger from "../services/logging";
 import { environment } from "../environment";
 import { build_vanity_link_v2, VanityReqBody } from "../custom/vanity";
 import { BadRequestError } from "../utilities/errors/BadRequestError";
+import { ACMEvent, create_event_v2 } from "../custom/event";
 
 const profile_collection = environment.FIRESTORE_PROFILE_COLLECTION as string;
 const event_collection = environment.FIRESTORE_EVENT_COLLECTION as string;
@@ -330,5 +331,17 @@ export const create_vanity_link = async (req: CustomRequest<VanityReqBody>, res:
     const errObj = new BadRequestError("Failed to create Vanity link", [(error as any).response.data]);
     Sentry.captureException(errObj);
     return res.status(400).json(errObj.serialize());
+  }
+};
+
+export const create_event_checkin_link = async (req: Request<{}, {}, ACMEvent, {}>, res: Response) => {
+  try {
+    const response_data = await create_event_v2(req.body);
+    return res.json(response_data);
+  } catch (error) {
+    return res.status(500).json({
+      msg: "Server Error",
+      error,
+    });
   }
 };

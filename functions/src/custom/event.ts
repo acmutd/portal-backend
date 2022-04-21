@@ -12,6 +12,12 @@ export interface EventDoc {
   public: boolean;
 }
 
+export interface ACMEvent extends EventDoc {
+  first_name: string;
+  last_name: string;
+  email: string;
+}
+
 const event_collection = environment.FIRESTORE_EVENT_COLLECTION as string;
 
 export const create_event = async (document: FirebaseFirestore.DocumentData): Promise<void> => {
@@ -81,6 +87,80 @@ export const create_event = async (document: FirebaseFirestore.DocumentData): Pr
     logger.log(err);
     Sentry.captureException(err);
   }
+};
+
+const create_map = async (document: EventDoc): Promise<void> => {
+  await firestore
+    .collection(event_collection)
+    .doc(document.path_name)
+    .create({
+      ...document,
+      path_name: `/checkin/${document.path_name}`,
+    });
+  logger.log({
+    ...document,
+    message: "Successfully created an event check-in",
+  });
+};
+
+export const create_event_v2 = async ({
+  first_name,
+  last_name,
+  email,
+  name,
+  path_name,
+  date,
+  public: public_event,
+}: ACMEvent) => {
+  try {
+    const email_options: sendgrid_email = {
+      from: "development@acmutd.co",
+      from_name: "ACM Development",
+      template_id: `${environment.SENDGRID_EVENT_TEMPLATE_ID}`,
+      to: email,
+      dynamicSubstitutions: {
+        first_name,
+        last_name,
+        name,
+        checkin_link: `${environment.URL_PROD}/checkin/${path_name}`,
+        date,
+        preheader: "Successful Event Check-in Creation Connection",
+        subject: "Event Creation Confirmation",
+        public_event,
+      },
+    };
+
+    const data: EventDoc = {
+      name,
+      path_name,
+      date,
+      public: public_event,
+    };
+
+    const message: slack_message = {
+      form_name: "Event Check-in Generator",
+      name: `${first_name} ${last_name}`,
+      email,
+      url: `${environment.URL_PROD}/checkin/${path_name}`,
+    };
+
+    await saveToDB(data);
+    await send_dynamic_template(email_options);
+    await log_to_slack(message);
+
+    return {
+      msg: "Successful Event Check-in Creation Connection",
+      checkin_link: `${environment.URL_PROD}/checkin/${path_name}`,
+    };
+  } catch (err) {
+    logger.log(err);
+    Sentry.captureException(err);
+    return err;
+  }
+};
+
+const saveToDB = async (data: EventDoc) => {
+  // TODO: Add logic to save stuff into MongoDB
 };
 
 const create_map = async (document: EventDoc): Promise<void> => {
