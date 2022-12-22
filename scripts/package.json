@@ -13,7 +13,7 @@
     "@logdna/logger": "^2.4.1",
     "@sentry/node": "^5.19.2",
     "@sentry/tracing": "^5.25.0",
-    "firebase-admin": "^8.10.0"
+    "firebase-admin": "^11.4.1"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^3.5.0",
